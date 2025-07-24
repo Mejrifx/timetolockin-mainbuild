@@ -20,40 +20,34 @@ export const testSupabaseConnection = async () => {
     
     console.log('✅ Auth working, user:', user.email)
     
-    // Test 2: Ensure user profile exists (create if needed)
-    console.log('2️⃣ Checking/creating user profile...')
-    
-    const { data: existingProfile, error: profileCheckError } = await supabase
+    // Ensure user profile exists
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('id')
       .eq('id', user.id)
-      .single()
-    
-    if (profileCheckError && profileCheckError.code !== 'PGRST116') {
-      // PGRST116 means "not found", which is ok for new users
-      console.error('❌ Profile check error:', profileCheckError)
-      console.log('💡 This means you need to run the SQL setup script!')
-      return false
-    }
-    
-    if (!existingProfile) {
-      console.log('👤 New user detected, creating profile...')
+      .single();
+
+    if (profileError && profileError.code === 'PGRST116') {
+      // Profile doesn't exist, create it
+      console.log('👤 Creating user profile...');
       const { error: createError } = await supabase
         .from('profiles')
-        .insert({
-          id: user.id,
+        .insert({ 
+          id: user.id, 
           email: user.email || '',
-        })
-      
+          username: user.email?.split('@')[0] || 'User'
+        });
+
       if (createError) {
-        console.error('❌ Failed to create profile:', createError)
-        console.log('💡 This means you need to run the SQL setup script!')
-        return false
+        console.error('❌ Failed to create profile:', createError);
+        throw new Error(`Failed to create user profile: ${createError.message}`);
       }
-      
-      console.log('✅ User profile created successfully!')
+      console.log('✅ Profile created successfully');
+    } else if (profileError) {
+      console.error('❌ Error checking profile:', profileError);
+      throw new Error(`Database connection failed: ${profileError.message}`);
     } else {
-      console.log('✅ User profile exists')
+      console.log('✅ User profile exists');
     }
     
     // Test 3: Quick test of other tables (just check if they exist)

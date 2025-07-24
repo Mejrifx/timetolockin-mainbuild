@@ -20,17 +20,20 @@ export interface Database {
         Row: {
           id: string
           email: string
+          username: string | null
           created_at: string
           updated_at: string
         }
         Insert: {
           id: string
           email: string
+          username?: string | null
           created_at?: string
           updated_at?: string
         }
         Update: {
           email?: string
+          username?: string | null
           updated_at?: string
         }
       }

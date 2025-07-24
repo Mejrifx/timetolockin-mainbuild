@@ -263,6 +263,79 @@ export const dailyTasksService = {
   },
 }
 
+// Profile service for user data
+export const profileService = {
+  async getProfile(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+        console.error('Error fetching profile:', error);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error in getProfile:', error);
+      return null;
+    }
+  },
+
+  async updateProfile(userId: string, updates: { username?: string; email?: string }) {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating profile:', error);
+        return { data: null, error };
+      }
+
+      console.log('✅ Profile updated successfully');
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error in updateProfile:', error);
+      return { data: null, error };
+    }
+  },
+
+  async createProfile(userId: string, email: string, username?: string) {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert({
+          id: userId,
+          email,
+          username: username || email.split('@')[0] // Default username from email
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating profile:', error);
+        return { data: null, error };
+      }
+
+      console.log('✅ Profile created successfully');
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error in createProfile:', error);
+      return { data: null, error };
+    }
+  }
+};
+
 // Workspace data service
 export const workspaceService = {
   // Load all user data from database

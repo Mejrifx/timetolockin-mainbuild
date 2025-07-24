@@ -81,7 +81,7 @@ export const AuthForm = ({ mode, onToggleMode }: AuthFormProps) => {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <img 
-              src="/src/assets/GM_AI_Logo_2-removebg-preview (1).png" 
+              src="/images/gm-ai-logo.png" 
               alt="GM AI Logo" 
               className="h-12 w-auto object-contain"
             />
@@ -151,7 +151,7 @@ export const AuthForm = ({ mode, onToggleMode }: AuthFormProps) => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
               >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>

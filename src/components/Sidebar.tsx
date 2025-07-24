@@ -483,7 +483,7 @@ export const Sidebar = ({
                     onSectionSelect('daily-tasks');
                   }}
                   className={cn(
-                    "w-full justify-start h-12 p-0 hover:bg-green-500/10 transition-all duration-300 rounded-lg group outline-none focus:outline-none hover:outline-none active:outline-none focus-visible:outline-none ring-0 focus:ring-0 hover:ring-0 active:ring-0 focus-visible:ring-0",
+                    "w-full justify-start h-12 p-0 hover:bg-green-500/10 transition-all duration-300 rounded-lg group bg-black/20 backdrop-blur-xl",
                     currentSection === 'daily-tasks' && "bg-green-500/20 border border-green-500/30"
                   )}
                 >
