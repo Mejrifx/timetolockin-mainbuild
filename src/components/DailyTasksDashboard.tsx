@@ -286,7 +286,6 @@ export const DailyTasksDashboard = ({
                           variant="ghost"
                           size="sm"
                           onClick={() => onToggleTaskCompletion(task.id)}
-                          className="h-8 w-8 p-0 mt-1 hover:bg-green-500/20 transition-all duration-300 hover:scale-110 focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:outline-none focus:ring-2 focus:ring-green-500/50 focus:outline-none hover:outline-none hover:ring-2 hover:ring-green-500/50 active:outline-none active:ring-2 active:ring-green-500/50 [&:focus]:outline-none [&:focus]:ring-2 [&:focus]:ring-green-500/50"
                           className="h-8 w-8 p-0 mt-1 hover:bg-green-500/20 transition-all duration-300 hover:scale-110 outline-none focus:outline-none hover:outline-none active:outline-none focus-visible:outline-none ring-0 focus:ring-0 hover:ring-0 active:ring-0 focus-visible:ring-0"
                         >
                           {task.completed ? (

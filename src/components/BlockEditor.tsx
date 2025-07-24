@@ -131,11 +131,12 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
 
       case 'header':
         const headerLevel = block.data?.level || 1;
-        const headerClass = {
+        const headerClasses: Record<number, string> = {
           1: 'text-3xl font-bold',
           2: 'text-2xl font-semibold',
           3: 'text-xl font-medium'
-        }[headerLevel];
+        };
+        const headerClass = headerClasses[headerLevel as number] || 'text-xl font-medium';
 
         return (
           <Input

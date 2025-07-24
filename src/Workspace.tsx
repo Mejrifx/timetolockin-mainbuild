@@ -164,7 +164,7 @@ Start creating your workspace and let GM AI help you stay organized and producti
             pages={state.pages}
             rootPages={state.rootPages}
             currentPageId={state.currentPageId}
-            currentSection={state.currentSection}
+            currentSection={state.currentSection || 'pages'}
             searchQuery={state.searchQuery}
             onSearchChange={setSearchQuery}
             onPageSelect={setCurrentPage}

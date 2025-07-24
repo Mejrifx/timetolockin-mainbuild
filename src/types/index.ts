@@ -37,6 +37,7 @@ export interface DailyTask {
   completed: boolean;
   completedAt?: number;
   createdAt: number;
+  updatedAt: number;
   streak: number;
   category: string;
 }

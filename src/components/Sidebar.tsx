@@ -51,8 +51,8 @@ interface SidebarProps {
   onToggleExpansion: (pageId: string) => void;
   isOpen: boolean;
   onToggle: () => void;
-  currentSection: string;
-  onSectionSelect: (section: string) => void;
+  currentSection: 'pages' | 'daily-tasks';
+  onSectionSelect: (section: 'pages' | 'daily-tasks') => void;
   dailyTasks: Record<string, DailyTask>;
   onCreateDailyTask: (title: string, timeAllocation: number, priority: DailyTask['priority'], category: string, description?: string) => void;
   onUpdateDailyTask: (taskId: string, updates: Partial<DailyTask>) => void;

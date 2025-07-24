@@ -59,7 +59,7 @@ export const useWorkspace = () => {
         console.log('📦 Setting workspace data...')
         setState(prevState => ({
           ...prevState,
-          ...workspaceData,
+          ...(workspaceData as Partial<WorkspaceState>),
         }));
         
         console.log('✅ Workspace loaded successfully!')
@@ -102,6 +102,7 @@ export const useWorkspace = () => {
       children: [],
       parentId,
       isExpanded: false,
+      blocks: [], // Initialize empty blocks array
       createdAt: now,
       updatedAt: now,
     };
@@ -309,6 +310,7 @@ export const useWorkspace = () => {
       timeAllocation,
       priority,
       completed: false,
+      streak: 0, // Initialize streak
       createdAt: now,
       updatedAt: now,
       category,
@@ -348,7 +350,6 @@ export const useWorkspace = () => {
 
     const updatedTask = {
       ...updates,
-      updatedAt: Date.now(),
     };
 
     // Optimistic update
@@ -381,7 +382,6 @@ export const useWorkspace = () => {
     const isCompleting = !task.completed;
     const updates: Partial<DailyTask> = {
       completed: isCompleting,
-      updatedAt: Date.now(),
     };
 
     // Optimistic update

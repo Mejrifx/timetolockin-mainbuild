@@ -33,6 +33,7 @@ export const pagesService = {
       children: dbPage.children || [],
       parentId: dbPage.parent_id,
       isExpanded: dbPage.is_expanded,
+      blocks: [], // Initialize empty blocks array
       createdAt: new Date(dbPage.created_at).getTime(),
       updatedAt: new Date(dbPage.updated_at).getTime(),
     }))
@@ -71,6 +72,7 @@ export const pagesService = {
       children: data.children || [],
       parentId: data.parent_id,
       isExpanded: data.is_expanded,
+      blocks: [], // Initialize empty blocks array
       createdAt: new Date(data.created_at).getTime(),
       updatedAt: new Date(data.updated_at).getTime(),
     }
@@ -148,6 +150,7 @@ export const dailyTasksService = {
       priority: dbTask.priority as DailyTask['priority'],
       category: dbTask.category,
       completed: dbTask.completed,
+      streak: 0, // Initialize streak
       createdAt: new Date(dbTask.created_at).getTime(),
       updatedAt: new Date(dbTask.updated_at).getTime(),
     }))
@@ -186,6 +189,7 @@ export const dailyTasksService = {
       priority: data.priority as DailyTask['priority'],
       category: data.category,
       completed: data.completed,
+      streak: 0, // Initialize streak
       createdAt: new Date(data.created_at).getTime(),
       updatedAt: new Date(data.updated_at).getTime(),
     }
@@ -301,12 +305,12 @@ export const workspaceService = {
         dailyTasksRecord[task.id] = task
       })
 
-      const result = {
+      const result: Partial<WorkspaceState> = {
         pages: pagesRecord,
         rootPages,
         dailyTasks: dailyTasksRecord,
         searchQuery: '',
-        currentSection: 'pages',
+        currentSection: 'pages' as 'pages' | 'daily-tasks',
       }
       
       console.log('✅ Workspace data loaded successfully:', {
