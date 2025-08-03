@@ -27,11 +27,18 @@ export const Header = ({
   useEffect(() => {
     const loadProfile = async () => {
       if (user?.id) {
-        const profile = await profileService.getProfile(user.id);
-        if (profile?.username) {
-          setUsername(profile.username);
-        } else {
-          // Default to email prefix if no username set
+        try {
+          const profile = await profileService.getProfile(user.id);
+          if (profile?.username) {
+            setUsername(profile.username);
+          } else {
+            // Default to email prefix if no username set
+            const defaultUsername = user.email?.split('@')[0] || 'User';
+            setUsername(defaultUsername);
+          }
+        } catch (error) {
+          console.error('Failed to load profile in Header:', error);
+          // Fallback to email prefix on error
           const defaultUsername = user.email?.split('@')[0] || 'User';
           setUsername(defaultUsername);
         }
@@ -53,14 +60,20 @@ export const Header = ({
   const handleUsernameSubmit = async () => {
     if (tempUsername.trim() && user?.id) {
       setLoading(true);
-      const { error } = await profileService.updateProfile(user.id, {
-        username: tempUsername.trim()
-      });
-      
-      if (!error) {
-        setUsername(tempUsername.trim());
-      } else {
-        console.error('Failed to update username:', error);
+      try {
+        const { error } = await profileService.updateProfile(user.id, {
+          username: tempUsername.trim()
+        });
+        
+        if (!error) {
+          setUsername(tempUsername.trim());
+        } else {
+          console.error('Failed to update username:', error);
+          // Reset to previous username on error
+          setTempUsername(username);
+        }
+      } catch (error) {
+        console.error('Username update failed:', error);
         // Reset to previous username on error
         setTempUsername(username);
       }

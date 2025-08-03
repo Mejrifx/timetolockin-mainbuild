@@ -287,12 +287,15 @@ export const profileService = {
 
   async updateProfile(userId: string, updates: { username?: string; email?: string }) {
     try {
+      // Build update object safely - only include fields that exist
+      const updateData: any = {};
+      if (updates.email) updateData.email = updates.email;
+      if (updates.username) updateData.username = updates.username;
+      updateData.updated_at = new Date().toISOString();
+
       const { data, error } = await supabase
         .from('profiles')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', userId)
         .select()
         .single();
@@ -312,15 +315,34 @@ export const profileService = {
 
   async createProfile(userId: string, email: string, username?: string) {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .insert({
-          id: userId,
-          email,
-          username: username || email.split('@')[0] // Default username from email
-        })
-        .select()
-        .single();
+      // Try with username first, fallback to basic profile if column doesn't exist
+      let data, error;
+      
+      try {
+        const result = await supabase
+          .from('profiles')
+          .insert({
+            id: userId,
+            email,
+            username: username || email.split('@')[0]
+          })
+          .select()
+          .single();
+        data = result.data;
+        error = result.error;
+      } catch (usernameError) {
+        console.log('⚠️ Username column might not exist, creating basic profile...');
+        const result = await supabase
+          .from('profiles')
+          .insert({
+            id: userId,
+            email
+          })
+          .select()
+          .single();
+        data = result.data;
+        error = result.error;
+      }
 
       if (error) {
         console.error('Error creating profile:', error);

@@ -30,13 +30,28 @@ export const testSupabaseConnection = async () => {
     if (profileError && profileError.code === 'PGRST116') {
       // Profile doesn't exist, create it
       console.log('👤 Creating user profile...');
-      const { error: createError } = await supabase
-        .from('profiles')
-        .insert({ 
-          id: user.id, 
-          email: user.email || '',
-          username: user.email?.split('@')[0] || 'User'
-        });
+      
+      // Try with username first, fallback to basic profile if username column doesn't exist
+      let createError;
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .insert({ 
+            id: user.id, 
+            email: user.email || '',
+            username: user.email?.split('@')[0] || 'User'
+          });
+        createError = error;
+      } catch (error) {
+        console.log('⚠️ Username column might not exist, trying basic profile...');
+        const { error: basicError } = await supabase
+          .from('profiles')
+          .insert({ 
+            id: user.id, 
+            email: user.email || ''
+          });
+        createError = basicError;
+      }
 
       if (createError) {
         console.error('❌ Failed to create profile:', createError);
