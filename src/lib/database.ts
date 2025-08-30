@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import { Page, DailyTask, WorkspaceState } from '@/types'
+import { Page, DailyTask, WorkspaceState, FinanceData, Wallet, Transaction, Category, Budget, FinanceGoal, FinanceSettings } from '@/types'
 
 // Database service for Pages
 export const pagesService = {
@@ -29,11 +29,12 @@ export const pagesService = {
       id: dbPage.id,
       title: dbPage.title,
       content: dbPage.content,
+      // Load structured blocks if present; fallback to empty array
+      blocks: (dbPage as any).blocks || [],
       icon: dbPage.icon,
       children: dbPage.children || [],
       parentId: dbPage.parent_id,
       isExpanded: dbPage.is_expanded,
-      blocks: [], // Initialize empty blocks array
       createdAt: new Date(dbPage.created_at).getTime(),
       updatedAt: new Date(dbPage.updated_at).getTime(),
     }))
@@ -51,6 +52,7 @@ export const pagesService = {
         user_id: userData.user.id,
         title: page.title,
         content: page.content,
+        blocks: page.blocks || [],
         icon: page.icon,
         parent_id: page.parentId,
         children: page.children,
@@ -68,11 +70,11 @@ export const pagesService = {
       id: data.id,
       title: data.title,
       content: data.content,
+      blocks: (data as any).blocks || [],
       icon: data.icon,
       children: data.children || [],
       parentId: data.parent_id,
       isExpanded: data.is_expanded,
-      blocks: [], // Initialize empty blocks array
       createdAt: new Date(data.created_at).getTime(),
       updatedAt: new Date(data.updated_at).getTime(),
     }
@@ -88,6 +90,7 @@ export const pagesService = {
     if (updates.parentId !== undefined) updateData.parent_id = updates.parentId
     if (updates.children !== undefined) updateData.children = updates.children
     if (updates.isExpanded !== undefined) updateData.is_expanded = updates.isExpanded
+    if (updates.blocks !== undefined) updateData.blocks = updates.blocks
 
     const { error } = await supabase
       .from('pages')
@@ -315,16 +318,18 @@ export const profileService = {
 
   async createProfile(userId: string, email: string, username?: string) {
     try {
-      // Try with username first, fallback to basic profile if column doesn't exist
+      // Use upsert to avoid duplicate key errors
       let data, error;
       
       try {
         const result = await supabase
           .from('profiles')
-          .insert({
+          .upsert({
             id: userId,
             email,
             username: username || email.split('@')[0]
+          }, {
+            onConflict: 'id'
           })
           .select()
           .single();
@@ -334,9 +339,11 @@ export const profileService = {
         console.log('⚠️ Username column might not exist, creating basic profile...');
         const result = await supabase
           .from('profiles')
-          .insert({
+          .upsert({
             id: userId,
             email
+          }, {
+            onConflict: 'id'
           })
           .select()
           .single();
@@ -358,6 +365,100 @@ export const profileService = {
   }
 };
 
+// Finance service for managing financial data
+export const financeService = {
+  // Get finance data for the current user
+  async getFinanceData(): Promise<FinanceData> {
+    console.log('🔍 Fetching finance data from database...')
+    
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) {
+      return this.getDefaultFinanceData();
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('finance_data')
+        .select('data')
+        .eq('user_id', userData.user.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('❌ Error fetching finance data:', error);
+        return this.getDefaultFinanceData();
+      }
+
+      if (!data) {
+        console.log('💰 No finance data found, creating default...');
+        const defaultData = this.getDefaultFinanceData();
+        await this.saveFinanceData(defaultData);
+        return defaultData;
+      }
+
+      console.log('✅ Finance data fetched successfully');
+      return data.data || this.getDefaultFinanceData();
+    } catch (error) {
+      console.error('❌ Error in getFinanceData:', error);
+      return this.getDefaultFinanceData();
+    }
+  },
+
+  // Save finance data
+  async saveFinanceData(financeData: FinanceData): Promise<boolean> {
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) return false
+
+    try {
+      const { error } = await supabase
+        .from('finance_data')
+        .upsert({
+          user_id: userData.user.id,
+          data: financeData,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id'
+        });
+
+      if (error) {
+        console.error('❌ Error saving finance data:', error);
+        return false;
+      }
+
+      console.log('✅ Finance data saved successfully');
+      return true;
+    } catch (error) {
+      console.error('❌ Error in saveFinanceData:', error);
+      return false;
+    }
+  },
+
+  // Get default finance data structure
+  getDefaultFinanceData(): FinanceData {
+    return {
+      wallets: {},
+      transactions: {},
+      categories: {
+        'food': { id: 'food', name: 'Food & Dining', type: 'essential', color: '#ef4444', icon: 'food', isCustom: false, createdAt: Date.now() },
+        'housing': { id: 'housing', name: 'Housing & Rent', type: 'essential', color: '#3b82f6', icon: 'housing', isCustom: false, createdAt: Date.now() },
+        'education': { id: 'education', name: 'Books & Courses', type: 'growth', color: '#10b981', icon: 'education', isCustom: false, createdAt: Date.now() },
+        'shopping': { id: 'shopping', name: 'Shopping', type: 'fun', color: '#f59e0b', icon: 'shopping', isCustom: false, createdAt: Date.now() },
+        'transport': { id: 'transport', name: 'Transportation', type: 'essential', color: '#8b5cf6', icon: 'transport', isCustom: false, createdAt: Date.now() },
+        'health': { id: 'health', name: 'Health & Fitness', type: 'growth', color: '#06b6d4', icon: 'health', isCustom: false, createdAt: Date.now() },
+      },
+      budgets: {},
+      goals: {},
+      settings: {
+        defaultCurrency: 'USD',
+        reminderEnabled: true,
+        weeklyReviewDay: 0, // Sunday
+        monthlyReviewDay: 1, // First of month
+        mindfulSpendingEnabled: true,
+        exportFormat: 'csv',
+      }
+    };
+  }
+};
+
 // Workspace data service
 export const workspaceService = {
   // Load all user data from database
@@ -369,10 +470,12 @@ export const workspaceService = {
       const results = await Promise.allSettled([
         pagesService.getAll(),
         dailyTasksService.getAll(),
+        financeService.getFinanceData(),
       ])
       
       const pages = results[0].status === 'fulfilled' ? results[0].value : []
       const dailyTasks = results[1].status === 'fulfilled' ? results[1].value : []
+      const financeData = results[2].status === 'fulfilled' ? results[2].value : financeService.getDefaultFinanceData()
       
       if (results[0].status === 'rejected') {
         console.warn('⚠️ Failed to load pages:', results[0].reason)
@@ -380,8 +483,11 @@ export const workspaceService = {
       if (results[1].status === 'rejected') {
         console.warn('⚠️ Failed to load daily tasks:', results[1].reason)
       }
+      if (results[2].status === 'rejected') {
+        console.warn('⚠️ Failed to load finance data:', results[2].reason)
+      }
       
-      console.log('📊 Data loaded - Pages:', pages.length, 'Tasks:', dailyTasks.length)
+      console.log('📊 Data loaded - Pages:', pages.length, 'Tasks:', dailyTasks.length, 'Finance: loaded')
 
       // Convert pages array to record and determine root pages
       const pagesRecord: Record<string, Page> = {}
@@ -404,8 +510,9 @@ export const workspaceService = {
         pages: pagesRecord,
         rootPages,
         dailyTasks: dailyTasksRecord,
+        financeData,
         searchQuery: '',
-        currentSection: 'pages' as 'pages' | 'daily-tasks',
+        currentSection: 'pages' as 'pages' | 'daily-tasks' | 'calendar' | 'finance',
       }
       
       console.log('✅ Workspace data loaded successfully:', {
@@ -423,8 +530,9 @@ export const workspaceService = {
         pages: {},
         rootPages: [],
         dailyTasks: {},
+        financeData: financeService.getDefaultFinanceData(),
         searchQuery: '',
-        currentSection: 'pages',
+        currentSection: 'pages' as 'pages' | 'daily-tasks' | 'calendar' | 'finance',
       }
     }
   },

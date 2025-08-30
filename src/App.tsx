@@ -1,6 +1,7 @@
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { Workspace } from '@/Workspace';
 import { AuthPage } from '@/components/AuthPage';
+import { PerformanceOptimizer } from '@/components/PerformanceOptimizer';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import './App.css';
 
@@ -18,7 +19,12 @@ const AppContent = () => {
     );
   }
 
-  return user ? <Workspace /> : <AuthPage />;
+  return (
+    <>
+      <PerformanceOptimizer />
+      {user ? <Workspace /> : <AuthPage />}
+    </>
+  );
 };
 
 function App() {

@@ -31,24 +31,28 @@ export const testSupabaseConnection = async () => {
       // Profile doesn't exist, create it
       console.log('👤 Creating user profile...');
       
-      // Try with username first, fallback to basic profile if username column doesn't exist
+      // Use upsert to avoid duplicate key errors
       let createError;
       try {
         const { error } = await supabase
           .from('profiles')
-          .insert({ 
+          .upsert({ 
             id: user.id, 
             email: user.email || '',
             username: user.email?.split('@')[0] || 'User'
+          }, {
+            onConflict: 'id'
           });
         createError = error;
       } catch (error) {
         console.log('⚠️ Username column might not exist, trying basic profile...');
         const { error: basicError } = await supabase
           .from('profiles')
-          .insert({ 
+          .upsert({ 
             id: user.id, 
             email: user.email || ''
+          }, {
+            onConflict: 'id'
           });
         createError = basicError;
       }

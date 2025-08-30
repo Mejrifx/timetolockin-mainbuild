@@ -52,10 +52,19 @@ CREATE TABLE IF NOT EXISTS daily_tasks (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 4. Create finance_data table (for financial tracking)
+CREATE TABLE IF NOT EXISTS finance_data (
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE PRIMARY KEY,
+  data JSONB NOT NULL DEFAULT '{}',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Enable Row Level Security
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE pages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE daily_tasks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE finance_data ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies for profiles
 CREATE POLICY "Users can view own profile" ON profiles
@@ -117,6 +126,38 @@ CREATE TRIGGER update_pages_updated_at BEFORE UPDATE ON pages
 
 CREATE TRIGGER update_daily_tasks_updated_at BEFORE UPDATE ON daily_tasks
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_finance_data_updated_at BEFORE UPDATE ON finance_data
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Create RLS policies for finance_data
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'finance_data' AND policyname = 'Users can view own finance data') THEN
+    CREATE POLICY "Users can view own finance data" ON finance_data
+      FOR SELECT USING (auth.uid() = user_id);
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'finance_data' AND policyname = 'Users can insert own finance data') THEN
+    CREATE POLICY "Users can insert own finance data" ON finance_data
+      FOR INSERT WITH CHECK (auth.uid() = user_id);
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'finance_data' AND policyname = 'Users can update own finance data') THEN
+    CREATE POLICY "Users can update own finance data" ON finance_data
+      FOR UPDATE USING (auth.uid() = user_id);
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'finance_data' AND policyname = 'Users can delete own finance data') THEN
+    CREATE POLICY "Users can delete own finance data" ON finance_data
+      FOR DELETE USING (auth.uid() = user_id);
+  END IF;
+END $$;
 ```
 
 6. Click **"Run"** to execute the script

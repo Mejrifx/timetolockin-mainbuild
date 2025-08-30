@@ -1,15 +1,19 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Supabase configuration - uses environment variables with fallback to your project credentials
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://vjeuslhqjwrgjqqqojkn.supabase.co'
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqZXVzbGhxandyZ2pxcXFvamtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMzNzY0NTIsImV4cCI6MjA2ODk1MjQ1Mn0.wudyPrIpNRgDI42V9ch18vSLpfSln0hW3ZbLxS6-c6M'
+// Supabase configuration - require env variables for security
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env.local')
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
-  }
+    detectSessionInUrl: true,
+  },
 })
 
 // Database types for our application
@@ -43,6 +47,8 @@ export interface Database {
           user_id: string
           title: string
           content: string
+          // Persisted structured editor blocks
+          blocks: any[] | null
           icon: string
           parent_id: string | null
           children: string[]
@@ -55,6 +61,7 @@ export interface Database {
           user_id: string
           title: string
           content?: string
+          blocks?: any[] | null
           icon?: string
           parent_id?: string | null
           children?: string[]
@@ -65,6 +72,7 @@ export interface Database {
         Update: {
           title?: string
           content?: string
+          blocks?: any[] | null
           icon?: string
           parent_id?: string | null
           children?: string[]

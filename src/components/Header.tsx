@@ -89,7 +89,7 @@ export const Header = ({
   };
 
   return (
-    <header className="h-16 border-b border-green-500/20 bg-black/60 backdrop-blur-xl sticky top-0 z-50 shadow-lg">
+    <header className="h-16 border-b border-green-500/20 bg-black/60 backdrop-blur-xl sticky top-0 z-50 shadow-lg will-change-transform will-change-opacity">
       <div className="flex items-center justify-between h-full px-8">
         <div className="flex items-center gap-4">
           <Button
@@ -101,27 +101,30 @@ export const Header = ({
             <Menu className="h-5 w-5" />
           </Button>
           
-          <div className="flex items-center gap-4">
+          <div className={cn(
+            "flex items-center transition-all duration-500 ease-in-out",
+            sidebarOpen ? "md:ml-20" : "md:ml-0"
+          )}>
             <div className="flex items-center justify-center">
               <img 
-                src="/images/gm-ai-logo.png" 
-                alt="GM AI Logo" 
-                className="h-8 w-auto object-contain"
+                src="/timetolockin HEADER LOGO - nobg.png" 
+                alt="timetolockin Logo" 
+                className="h-14 w-auto object-contain"
               />
             </div>
-            <span className="font-normal text-sm text-gray-300 tracking-normal opacity-80 hover:opacity-100 transition-opacity duration-300">
-            <span className="font-normal text-sm text-green-400/80 tracking-normal hover:text-green-400 transition-all duration-300 px-3 py-1 rounded-md border border-green-500/30 bg-black/20 backdrop-blur-xl">
-              The Private Platform To Lock In...
-            </span>
-          </span>
           </div>
         </div>
 
-        <div className="flex-1 max-w-lg mx-8">
-          {/* Search moved to sidebar */}
+        <div className={cn(
+          "flex-1 flex items-center justify-center transition-all duration-500 ease-in-out",
+          sidebarOpen ? "md:ml-[29rem]" : "md:ml-[14rem]"
+        )}>
+          <span className="text-white text-lg font-bold tracking-wide opacity-90 hover:opacity-100 transition-opacity duration-100 hidden md:block transform-gpu will-change-opacity">
+            The Private Platform To Lock In...
+          </span>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 min-w-fit">
           <Button
             onClick={onCreatePage}
             size="default"
@@ -132,7 +135,7 @@ export const Header = ({
           </Button>
 
           {/* User Menu */}
-          <div className="flex items-center gap-2 px-3 py-2 bg-black/20 backdrop-blur-xl rounded-lg border border-green-500/30">
+          <div className="flex items-center gap-2 px-3 py-2 bg-black/20 backdrop-blur-xl rounded-lg border border-green-500/30 w-40">
             <User className="h-4 w-4 text-green-400" />
             {isEditingUsername ? (
               <div className="flex items-center gap-2">

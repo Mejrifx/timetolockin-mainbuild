@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { BackgroundBeams } from './background-beams';
 
@@ -8,6 +8,7 @@ interface GridBackgroundProps {
 }
 
 export const GridBackground = ({ children, className }: GridBackgroundProps) => {
+  const isMobile = useMemo(() => typeof navigator !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent), []);
   return (
     <div 
       className={cn(
@@ -16,10 +17,10 @@ export const GridBackground = ({ children, className }: GridBackgroundProps) => 
       )}
     >
       {/* Background Beams Animation */}
-      <BackgroundBeams />
+      <BackgroundBeams className={cn(isMobile ? 'opacity-85' : 'opacity-100')} />
       
       {/* Subtle overlay for better content readability */}
-      <div className="absolute inset-0 bg-black/30 z-10" />
+      <div className="absolute inset-0 bg-black/30 z-10 will-change-opacity pointer-events-none" />
       
       {/* Content */}
       <div className="relative z-20">

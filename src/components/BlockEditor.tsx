@@ -42,6 +42,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Block } from '@/types';
 import { cn } from '@/lib/utils';
+import { uploadFileToStorage } from '@/lib/media';
 
 interface BlockEditorProps {
   blocks: Block[];
@@ -94,19 +95,18 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
     }
   }, [block.content, block.type]);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        onUpdate({ 
-          ...block, 
-          content: file.name,
-          data: { url: result, type: file.type }
-        });
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    try {
+      const uploaded = await uploadFileToStorage(file);
+      onUpdate({
+        ...block,
+        content: file.name,
+        data: { url: uploaded.url, type: uploaded.mimeType, path: uploaded.path },
+      });
+    } catch (err) {
+      console.error('Media upload failed', err);
     }
   };
 
@@ -400,7 +400,7 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
 
 export const BlockEditor = ({ blocks, onUpdateBlocks }: BlockEditorProps) => {
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -465,7 +465,7 @@ export const BlockEditor = ({ blocks, onUpdateBlocks }: BlockEditorProps) => {
       const oldIndex = blocks.findIndex(block => block.id === active.id);
       const newIndex = blocks.findIndex(block => block.id === over?.id);
 
-      const newBlocks = arrayMove(blocks, oldIndex, newIndex);
+    const newBlocks = arrayMove(blocks, oldIndex, newIndex);
       
       // Update order property for all blocks
       newBlocks.forEach((block, index) => {
@@ -517,7 +517,7 @@ export const BlockEditor = ({ blocks, onUpdateBlocks }: BlockEditorProps) => {
     );
   }
 
-  const sortedBlocks = blocks.sort((a, b) => a.order - b.order);
+  const sortedBlocks = [...blocks].sort((a, b) => a.order - b.order);
 
   return (
     <DndContext

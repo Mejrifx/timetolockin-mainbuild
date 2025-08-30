@@ -5,6 +5,8 @@ import { Sidebar } from '@/components/Sidebar';
 import { Editor } from '@/components/Editor';
 import { EmptyState } from '@/components/EmptyState';
 import { DailyTasksDashboard } from '@/components/DailyTasksDashboard';
+import { CalendarDashboard } from '@/components/CalendarDashboard';
+import { FinanceDashboard } from '@/components/FinanceDashboard';
 import { GridBackground } from '@/components/ui/grid-background';
 import { cn } from '@/lib/utils';
 
@@ -24,6 +26,7 @@ export const Workspace = () => {
     updateDailyTask,
     toggleTaskCompletion,
     deleteDailyTask,
+    updateFinanceData,
   } = useWorkspace();
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -54,10 +57,9 @@ export const Workspace = () => {
       
       const createWelcomePage = async () => {
         try {
-          const welcomePageId = await createPage('Welcome to GM AI');
+          const welcomePageId = await createPage('Welcome to timetolockin');
           if (welcomePageId) {
-            await updatePage(welcomePageId, {
-              content: `# Welcome to GM AI
+            const welcomeContent = `# Welcome to timetolockin
 
 Your intelligent workspace is ready! Here are some tips to get started:
 
@@ -78,7 +80,17 @@ Your intelligent workspace is ready! Here are some tips to get started:
 - **Tab** in content: Add indentation
 - **Ctrl/Cmd + K**: Focus search
 
-Start creating your workspace and let GM AI help you stay organized and productive!`,
+ Start creating your workspace and let timetolockin help you stay organized and productive!`;
+            await updatePage(welcomePageId, {
+              content: welcomeContent,
+              blocks: [
+                {
+                  id: `block_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                  type: 'text',
+                  content: welcomeContent,
+                  order: 0,
+                }
+              ]
             });
             setCurrentPage(welcomePageId);
             console.log('✅ Welcome page created successfully!')
@@ -218,6 +230,26 @@ Start creating your workspace and let GM AI help you stay organized and producti
                       onUpdateDailyTask={updateDailyTask}
                       onToggleTaskCompletion={toggleTaskCompletion}
                       onDeleteDailyTask={deleteDailyTask}
+                    />
+                  );
+                } else if (state.currentSection === 'calendar') {
+                  console.log('📅 Rendering Calendar Dashboard')
+                  return <CalendarDashboard />;
+                } else if (state.currentSection === 'finance') {
+                  console.log('💰 Rendering Finance Dashboard')
+                  return (
+                    <FinanceDashboard 
+                      financeData={state.financeData}
+                      onUpdateFinanceData={updateFinanceData}
+                      onCreateDailyTask={createDailyTask}
+                      onExportToWorkspace={(content, title) => {
+                        // Create a new page with the exported content
+                        createPage(title).then(pageId => {
+                          if (pageId) {
+                            updatePage(pageId, { content });
+                          }
+                        });
+                      }}
                     />
                   );
                 } else if (currentPage) {

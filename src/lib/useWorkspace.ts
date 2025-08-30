@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
-import { WorkspaceState, Page, DailyTask } from '@/types';
-import { pagesService, dailyTasksService, workspaceService } from '@/lib/database';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { WorkspaceState, Page, DailyTask, FinanceData } from '@/types';
+import { pagesService, dailyTasksService, workspaceService, financeService } from '@/lib/database';
 import { useAuth } from '@/lib/AuthContext';
 import { testSupabaseConnection, showSetupInstructions } from '@/lib/supabaseTest';
 
@@ -17,6 +17,7 @@ export const useWorkspace = () => {
     currentSection: 'pages',
     searchQuery: '',
     dailyTasks: {},
+    financeData: financeService.getDefaultFinanceData(),
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,6 +76,7 @@ export const useWorkspace = () => {
           pages: {},
           rootPages: [],
           dailyTasks: {},
+          financeData: financeService.getDefaultFinanceData(),
           searchQuery: '',
           currentSection: 'pages',
         }));
@@ -269,7 +271,7 @@ export const useWorkspace = () => {
     }));
   }, []);
 
-  const setCurrentSection = useCallback((section: 'pages' | 'daily-tasks') => {
+  const setCurrentSection = useCallback((section: 'pages' | 'daily-tasks' | 'calendar' | 'finance') => {
     setState(prevState => ({
       ...prevState,
       currentSection: section,
@@ -447,7 +449,33 @@ export const useWorkspace = () => {
     }
   }, [user, state.dailyTasks]);
 
-  return {
+  const updateFinanceData = useCallback(async (updates: Partial<FinanceData>) => {
+    if (!user) return;
+
+    // Optimistic update
+    setState(prevState => ({
+      ...prevState,
+      financeData: {
+        ...prevState.financeData,
+        ...updates,
+      },
+    }));
+
+    // Save to database
+    try {
+      const newFinanceData = {
+        ...state.financeData,
+        ...updates,
+      };
+      await financeService.saveFinanceData(newFinanceData);
+    } catch (error) {
+      console.error('Error updating finance data:', error);
+      // Could implement rollback here if needed
+    }
+  }, [user, state.financeData]);
+
+  // Memoize the return object to prevent unnecessary re-renders
+  return useMemo(() => ({
     state,
     loading,
     error,
@@ -462,5 +490,22 @@ export const useWorkspace = () => {
     updateDailyTask,
     toggleTaskCompletion,
     deleteDailyTask,
-  };
+    updateFinanceData,
+  }), [
+    state,
+    loading,
+    error,
+    createPage,
+    updatePage,
+    deletePage,
+    setCurrentPage,
+    setCurrentSection,
+    setSearchQuery,
+    togglePageExpansion,
+    createDailyTask,
+    updateDailyTask,
+    toggleTaskCompletion,
+    deleteDailyTask,
+    updateFinanceData,
+  ]);
 };

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo, memo } from 'react';
 import { 
   ChevronRight, 
   ChevronDown, 
@@ -17,7 +17,9 @@ import {
   Clock,
   Flame,
   Circle,
-  CheckCircle2
+  CheckCircle2,
+  Calendar as CalendarIcon,
+  DollarSign
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -51,8 +53,8 @@ interface SidebarProps {
   onToggleExpansion: (pageId: string) => void;
   isOpen: boolean;
   onToggle: () => void;
-  currentSection: 'pages' | 'daily-tasks';
-  onSectionSelect: (section: 'pages' | 'daily-tasks') => void;
+  currentSection: 'pages' | 'daily-tasks' | 'calendar' | 'finance';
+  onSectionSelect: (section: 'pages' | 'daily-tasks' | 'calendar' | 'finance') => void;
   dailyTasks: Record<string, DailyTask>;
   onCreateDailyTask: (title: string, timeAllocation: number, priority: DailyTask['priority'], category: string, description?: string) => void;
   onUpdateDailyTask: (taskId: string, updates: Partial<DailyTask>) => void;
@@ -74,7 +76,7 @@ interface PageItemProps {
   onToggleExpansion: (pageId: string) => void;
 }
 
-const PageItem = ({
+const PageItem = memo(({
   page,
   level,
   isSelected,
@@ -91,46 +93,72 @@ const PageItem = ({
   const [editTitle, setEditTitle] = useState(page.title);
   const [isHovered, setIsHovered] = useState(false);
 
-  const hasChildren = page.children.length > 0;
-  const isExpanded = page.isExpanded ?? true;
+  // Memoized calculations
+  const hasChildren = useMemo(() => page.children.length > 0, [page.children.length]);
+  const isExpanded = useMemo(() => page.isExpanded ?? true, [page.isExpanded]);
+  const IconComponent = useMemo(() => 
+    pageIcons[page.icon as keyof typeof pageIcons] || pageIcons.document, 
+    [page.icon]
+  );
 
-  // Get the icon component for this page
-  const IconComponent = pageIcons[page.icon as keyof typeof pageIcons] || pageIcons.document;
-
-  const handleTitleSubmit = () => {
+  // Memoized event handlers
+  const handleTitleSubmit = useCallback(() => {
     if (editTitle.trim() && editTitle !== page.title) {
       onUpdatePage(page.id, { title: editTitle.trim() });
     } else {
       setEditTitle(page.title);
     }
     setIsEditing(false);
-  };
+  }, [editTitle, page.title, page.id, onUpdatePage]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleTitleSubmit();
     } else if (e.key === 'Escape') {
       setEditTitle(page.title);
       setIsEditing(false);
     }
-  };
+  }, [handleTitleSubmit, page.title]);
 
-  const handleIconChange = (iconKey: string) => {
+  const handleIconChange = useCallback((iconKey: string) => {
     onUpdatePage(page.id, { icon: iconKey });
-  };
+  }, [page.id, onUpdatePage]);
 
-  // Filter children based on search
-  const filteredChildren = page.children.filter(childId => {
-    const child = pages[childId];
-    if (!child) return false;
-    if (!searchQuery) return true;
-    return child.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           child.content.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+  const handleMouseEnter = useCallback(() => setIsHovered(true), []);
+  const handleMouseLeave = useCallback(() => setIsHovered(false), []);
+  const handlePageSelect = useCallback(() => onPageSelect(page.id), [onPageSelect, page.id]);
+  const handleToggleExpansion = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleExpansion(page.id);
+  }, [onToggleExpansion, page.id]);
+  const handleCreatePage = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onCreatePage(page.id);
+  }, [onCreatePage, page.id]);
 
-  const matchesSearch = !searchQuery || 
-    page.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    page.content.toLowerCase().includes(searchQuery.toLowerCase());
+  // Memoized search calculations
+  const searchQueryLower = useMemo(() => searchQuery.toLowerCase(), [searchQuery]);
+  
+  const filteredChildren = useMemo(() => {
+    if (!searchQuery) return page.children;
+    return page.children.filter(childId => {
+      const child = pages[childId];
+      if (!child) return false;
+      const inBlocks = (child.blocks || []).some(b =>
+        typeof b.content === 'string' && b.content.toLowerCase().includes(searchQueryLower)
+      );
+      return child.title.toLowerCase().includes(searchQueryLower) ||
+             child.content.toLowerCase().includes(searchQueryLower) ||
+             inBlocks;
+    });
+  }, [page.children, pages, searchQuery, searchQueryLower]);
+
+  const matchesSearch = useMemo(() => 
+    !searchQuery || 
+    page.title.toLowerCase().includes(searchQueryLower) ||
+    page.content.toLowerCase().includes(searchQueryLower) ||
+    (page.blocks || []).some(b => typeof b.content === 'string' && b.content.toLowerCase().includes(searchQueryLower))
+  , [searchQuery, searchQueryLower, page.title, page.content, page.blocks]);
 
   if (!matchesSearch && filteredChildren.length === 0) {
     return null;
@@ -140,24 +168,24 @@ const PageItem = ({
     <div>
       <div
         className={cn(
-          "group flex items-center w-full text-left hover:bg-green-500/10 transition-all duration-300 rounded-lg py-2 px-2 backdrop-blur-sm",
+          "page-item hover-target group flex items-center w-full text-left hover:bg-green-500/10 transition-colors duration-100 rounded-lg py-2 px-2 backdrop-blur-sm cursor-pointer",
           isSelected && "bg-green-500/20 border border-green-500/30 shadow-sm backdrop-blur-xl"
         )}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onClick={handlePageSelect}
       >
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-6 w-6 p-0 mr-2 opacity-60 hover:opacity-100 transition-all duration-200 hover:bg-green-500/10 text-gray-300"
-          onClick={() => hasChildren && onToggleExpansion(page.id)}
-          disabled={!hasChildren}
-        >
-          {hasChildren && (
-            isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />
-          )}
-        </Button>
+        {hasChildren && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="performance-button h-6 w-6 p-0 mr-2 opacity-60 hover:opacity-100 transition-all duration-100 hover:bg-green-500/10 text-gray-300"
+            onClick={handleToggleExpansion}
+          >
+            {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          </Button>
+        )}
 
         <div className="flex items-center flex-1 min-w-0">
           {/* Custom icon with dropdown to change it */}
@@ -166,7 +194,8 @@ const PageItem = ({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 w-6 p-0 mr-3 hover:bg-green-500/10 text-gray-300 transition-all duration-200"
+                className="h-6 w-6 p-0 mr-3 hover:bg-green-500/10 text-gray-300 transition-all duration-100 transform-gpu"
+                onClick={(e) => e.stopPropagation()}
               >
                 <IconComponent className="h-4 w-4" />
               </Button>
@@ -197,31 +226,33 @@ const PageItem = ({
               onChange={(e) => setEditTitle(e.target.value)}
               onBlur={handleTitleSubmit}
               onKeyDown={handleKeyDown}
+              onClick={(e) => e.stopPropagation()}
               className="h-7 px-2 text-sm border-0 bg-black/20 focus-visible:ring-1 text-white shadow-sm backdrop-blur-xl"
               autoFocus
             />
           ) : (
-            <button
-              onClick={() => onPageSelect(page.id)}
+            <span
               className={cn(
                 "flex-1 text-left text-sm truncate transition-all duration-200 py-1 px-2 rounded-md",
                 isSelected 
-                  ? "bg-green-500/20 text-white font-medium border border-green-500/30 shadow-sm backdrop-blur-xl" 
-                  : "text-gray-300 hover:text-white hover:bg-green-500/10"
+                  ? "text-white font-medium" 
+                  : "text-gray-300"
               )}
             >
               {page.title}
-            </button>
+            </span>
           )}
         </div>
 
-        {(isHovered || isSelected) && (
-          <div className="flex items-center ml-2 gap-1">
+        <div className={cn(
+          "flex items-center ml-2 gap-1 transition-opacity duration-100 transform-gpu will-change-opacity",
+          isHovered || isSelected ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}>
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 w-7 p-0 opacity-60 hover:opacity-100 transition-all duration-200 hover:bg-green-500/10 text-gray-300"
-              onClick={() => onCreatePage(page.id)}
+              className="performance-button h-7 w-7 p-0 opacity-60 hover:opacity-100 transition-all duration-100 hover:bg-green-500/10 text-gray-300"
+              onClick={handleCreatePage}
             >
               <Plus className="h-3 w-3" />
             </Button>
@@ -231,7 +262,8 @@ const PageItem = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-7 w-7 p-0 opacity-60 hover:opacity-100 transition-all duration-200 hover:bg-green-500/10 text-gray-300"
+                  className="performance-button h-7 w-7 p-0 opacity-60 hover:opacity-100 transition-all duration-100 hover:bg-green-500/10 text-gray-300"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <MoreHorizontal className="h-3 w-3" />
                 </Button>
@@ -250,8 +282,7 @@ const PageItem = ({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
-        )}
+        </div>
       </div>
 
       {hasChildren && isExpanded && (
@@ -281,7 +312,7 @@ const PageItem = ({
       )}
     </div>
   );
-};
+});
 
 export const Sidebar = ({
   pages,
@@ -373,13 +404,37 @@ export const Sidebar = ({
     <>
       {/* Sidebar with glass effect */}
       <aside className={cn(
-        "w-80 border-r border-green-500/20 transition-all duration-500 ease-in-out relative shadow-xl overflow-hidden bg-black/60 backdrop-blur-xl",
+        "sidebar-container w-80 border-r border-green-500/20 transition-all duration-500 ease-in-out relative shadow-xl overflow-hidden bg-black/60 performance-blur",
         isOpen ? "translate-x-0" : "-translate-x-full md:-translate-x-80",
         "fixed md:static inset-y-0 left-0 z-40 md:z-0"
       )}>
         {/* Sidebar content */}
         <div className="relative h-full flex flex-col z-10">
           <div className="flex-1 overflow-y-auto">
+            {/* Calendar Section */}
+            <div className="border-b border-green-500/10">
+              {/* Section Header */}
+              <div className="p-6 pb-4">
+                <Button
+                  variant="ghost"
+                  onClick={() => onSectionSelect('calendar')}
+                  className={cn(
+                    "w-full justify-start h-12 p-0 hover:bg-green-500/10 transition-all duration-300 rounded-lg group bg-black/20 backdrop-blur-xl",
+                    currentSection === 'calendar' && "bg-green-500/20 border border-green-500/30"
+                  )}
+                >
+                  <div className="flex items-center w-full px-4">
+                    <div className="flex items-center gap-3">
+                      <CalendarIcon className="h-5 w-5 text-green-400" />
+                      <span className="text-white font-medium text-base group-hover:text-green-300 transition-colors duration-300">
+                        Calendar
+                      </span>
+                    </div>
+                  </div>
+                </Button>
+              </div>
+            </div>
+
             {/* Page Workspace Section */}
             <div className="border-b border-green-500/10">
               {/* Section Header */}
@@ -393,7 +448,7 @@ export const Sidebar = ({
                     }
                   }}
                   className={cn(
-                    "w-full justify-start h-12 p-0 hover:bg-green-500/10 transition-all duration-300 rounded-lg group outline-none focus:outline-none hover:outline-none active:outline-none focus-visible:outline-none ring-0 focus:ring-0 hover:ring-0 active:ring-0 focus-visible:ring-0",
+                    "w-full justify-start h-12 p-0 hover:bg-green-500/10 transition-colors duration-150 rounded-lg group outline-none focus:outline-none hover:outline-none active:outline-none focus-visible:outline-none ring-0 focus:ring-0 hover:ring-0 active:ring-0 focus-visible:ring-0",
                     currentSection === 'pages' && "bg-green-500/20 border border-green-500/30"
                   )}
                 >
@@ -405,7 +460,7 @@ export const Sidebar = ({
                         <ChevronRight className="h-4 w-4 text-green-400 transition-transform duration-300" />
                       )}
                       <Briefcase className="h-5 w-5 text-green-400" />
-                      <span className="text-white font-medium text-base group-hover:text-green-300 transition-colors duration-300">
+                      <span className="text-white font-medium text-base group-hover:text-green-300 transition-colors duration-150">
                         Workspace
                       </span>
                     </div>
@@ -415,7 +470,7 @@ export const Sidebar = ({
 
               {/* Collapsible Content */}
               {workspaceExpanded && (
-                <div className="px-6 pb-6 space-y-4 animate-in slide-in-from-top-2 duration-300">
+                 <div className="px-6 pb-6 space-y-4 animate-in slide-in-from-top-2 duration-200">
                   {/* Search Bar */}
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -432,7 +487,7 @@ export const Sidebar = ({
                   <Button
                     onClick={() => onCreatePage()}
                     variant="outline"
-                    className="w-full justify-start h-10 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 border-green-500/30 text-white transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 backdrop-blur-xl"
+                    className="w-full justify-start h-10 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 border-green-500/30 text-white transition-colors duration-200 shadow-lg hover:shadow-xl transform-gpu hover:scale-105 backdrop-blur-xl"
                   >
                     <Plus className="h-4 w-4 mr-3" />
                     New Page
@@ -470,6 +525,30 @@ export const Sidebar = ({
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Finance Section */}
+            <div className="border-b border-green-500/10">
+              {/* Section Header */}
+              <div className="p-6 pb-4">
+                <Button
+                  variant="ghost"
+                  onClick={() => onSectionSelect('finance')}
+                  className={cn(
+                    "w-full justify-start h-12 p-0 hover:bg-green-500/10 transition-all duration-300 rounded-lg group bg-black/20 backdrop-blur-xl",
+                    currentSection === 'finance' && "bg-green-500/20 border border-green-500/30"
+                  )}
+                >
+                  <div className="flex items-center w-full px-4">
+                    <div className="flex items-center gap-3">
+                      <DollarSign className="h-5 w-5 text-green-400" />
+                      <span className="text-white font-medium text-base group-hover:text-green-300 transition-colors duration-300">
+                        Finance Tracker
+                      </span>
+                    </div>
+                  </div>
+                </Button>
+              </div>
             </div>
 
             {/* Daily Non-Negotiables Section */}
@@ -540,18 +619,18 @@ export const Sidebar = ({
       </aside>
 
       {/* Toggle button - positioned outside sidebar */}
-      <Button
+          <Button
         variant="ghost"
         size="sm"
         onClick={onToggle}
         className={cn(
-          "fixed top-20 z-50 h-10 w-10 p-0 bg-black/60 backdrop-blur-xl border border-green-500/30 shadow-xl hover:bg-black/80 transition-all duration-500 ease-in-out text-white hover:scale-110 rounded-full",
-          isOpen ? "left-[312px] md:left-[312px]" : "left-4",
+              "fixed top-1/2 -translate-y-1/2 z-50 h-10 w-10 p-0 bg-black/60 backdrop-blur-xl border border-green-500/30 shadow-xl hover:bg-black/80 transition-all duration-500 ease-in-out text-white transform-gpu hover:scale-110 rounded-full",
+          isOpen ? "left-[300px] md:left-[300px]" : "left-4",
           "transform hover:shadow-2xl"
         )}
       >
-        <ChevronLeft className={cn(
-          "h-5 w-5 transition-transform duration-500 ease-in-out",
+            <ChevronLeft className={cn(
+              "h-5 w-5 transition-transform duration-300 ease-in-out",
           !isOpen && "rotate-180"
         )} />
       </Button>

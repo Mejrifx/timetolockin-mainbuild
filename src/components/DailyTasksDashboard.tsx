@@ -56,9 +56,10 @@ export const DailyTasksDashboard = ({
 
   const handleCreateTask = () => {
     if (newTask.title.trim()) {
+      const timeAllocation = typeof newTask.timeAllocation === 'string' ? 30 : newTask.timeAllocation;
       onCreateDailyTask(
         newTask.title.trim(),
-        newTask.timeAllocation,
+        timeAllocation,
         newTask.priority,
         newTask.category,
         newTask.description.trim() || undefined
@@ -205,10 +206,21 @@ export const DailyTasksDashboard = ({
                         <Input
                           type="number"
                           value={newTask.timeAllocation}
-                          onChange={(e) => setNewTask(prev => ({ ...prev, timeAllocation: parseInt(e.target.value) || 30 }))}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value === '') {
+                              setNewTask(prev => ({ ...prev, timeAllocation: '' as any }));
+                            } else {
+                              const numValue = parseInt(value);
+                              if (!isNaN(numValue)) {
+                                setNewTask(prev => ({ ...prev, timeAllocation: numValue }));
+                              }
+                            }
+                          }}
                           className="bg-black/20 border-green-500/30 text-white focus-visible:ring-green-500/50"
                           min="5"
                           max="480"
+                          placeholder="30"
                         />
                       </div>
                       <div>
@@ -245,7 +257,7 @@ export const DailyTasksDashboard = ({
                   <Button
                     onClick={() => setShowTaskForm(false)}
                     variant="outline"
-                    className="border-green-500/30 text-white hover:bg-green-500/10 px-8 py-2"
+                    className="border-green-500/30 text-white hover:bg-green-500/10 hover:text-white px-8 py-2 bg-transparent"
                   >
                     Cancel
                   </Button>

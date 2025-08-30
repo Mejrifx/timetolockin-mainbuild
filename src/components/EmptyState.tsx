@@ -9,15 +9,19 @@ export const EmptyState = ({ onCreatePage }: EmptyStateProps) => {
   return (
     <div className="flex-1 flex items-center justify-center bg-black/30 backdrop-blur-sm">
       <div className="text-center space-y-8 max-w-lg">
-        <div className="w-20 h-20 mx-auto bg-black/40 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-green-500/30 shadow-lg">
-          <FileText className="h-10 w-10 text-green-400" />
+        <div className="mx-auto flex items-center justify-center mb-4">
+          <img 
+            src="/timetolockin HEADER LOGO - nobg.png" 
+            alt="timetolockin Logo" 
+            className="h-24 w-auto object-contain"
+          />
         </div>
         
         <div className="space-y-4">
-          <h3 className="text-2xl font-semibold text-white">Welcome to GM AI</h3>
+          <h3 className="text-2xl font-semibold text-white">Welcome, it's time for you to lock in...</h3>
           <p className="text-gray-300 text-lg leading-relaxed">
-            Your intelligent workspace for notes, documents, and ideas. 
-            Get started by creating your first page and begin organizing your thoughts.
+            This is your private and intelligent workspace for notes, documents, and ideas. 
+            Get started by creating your first page and begin organizing your thoughts and much more. (Coming Soon)
           </p>
         </div>
 
