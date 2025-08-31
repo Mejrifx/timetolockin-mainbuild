@@ -3,7 +3,91 @@
 @tailwind utilities;
 
 /* Performance optimizations */
-@import './styles/performance.css';
+/* CSS Containment for better performance */
+.page-item,
+.calendar-date,
+.sidebar-section {
+  contain: layout style paint;
+}
+
+/* Force hardware acceleration for frequently changing elements */
+.hover-target {
+  will-change: background-color, color, opacity, transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Optimize calendar grid for smooth interactions */
+.calendar-grid {
+  contain: layout style;
+  will-change: contents;
+}
+
+.calendar-date {
+  contain: layout style paint;
+  will-change: background-color, color;
+  transform: translateZ(0);
+}
+
+/* Optimize sidebar for smooth scrolling */
+.sidebar-container {
+  contain: layout style;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Optimize buttons for instant feedback */
+.performance-button {
+  contain: layout style paint;
+  will-change: background-color, opacity, transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Reduce paint area for animations */
+.isolated-animation {
+  isolation: isolate;
+  contain: layout style paint;
+}
+
+/* Optimize text rendering */
+.optimized-text {
+  text-rendering: optimizeSpeed;
+  font-display: swap;
+}
+
+/* Critical performance hints */
+.gpu-layer {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Reduce layout thrashing */
+.layout-stable {
+  contain: layout;
+}
+
+/* Optimize backdrop filters */
+.performance-blur {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  will-change: backdrop-filter;
+}
+
+/* Smooth scrolling optimizations */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+/* Prevent layout shifts */
+.prevent-shift {
+  contain: layout size;
+  min-height: 0;
+  min-width: 0;
+}
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;

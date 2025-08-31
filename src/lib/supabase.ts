@@ -4,9 +4,31 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env.local')
+// Environment validation with helpful error messages
+if (!supabaseUrl) {
+  console.error('❌ VITE_SUPABASE_URL is not set in environment variables')
+  console.error('📋 Please add VITE_SUPABASE_URL to your Netlify environment variables')
+  console.error('🔗 Go to: Netlify Dashboard → Site Settings → Environment Variables')
+  throw new Error('Missing VITE_SUPABASE_URL environment variable')
 }
+
+if (!supabaseAnonKey) {
+  console.error('❌ VITE_SUPABASE_ANON_KEY is not set in environment variables')
+  console.error('📋 Please add VITE_SUPABASE_ANON_KEY to your Netlify environment variables')
+  console.error('🔗 Go to: Netlify Dashboard → Site Settings → Environment Variables')
+  throw new Error('Missing VITE_SUPABASE_ANON_KEY environment variable')
+}
+
+// Validate URL format
+try {
+  new URL(supabaseUrl)
+} catch {
+  console.error('❌ Invalid VITE_SUPABASE_URL format:', supabaseUrl)
+  throw new Error('Invalid VITE_SUPABASE_URL format - should be https://xxx.supabase.co')
+}
+
+console.log('✅ Supabase environment variables loaded successfully')
+console.log('🔗 Connecting to:', supabaseUrl)
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
