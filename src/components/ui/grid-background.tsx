@@ -5,9 +5,10 @@ import { BackgroundBeams } from './background-beams';
 interface GridBackgroundProps {
   children: React.ReactNode;
   className?: string;
+  blurBackground?: boolean;
 }
 
-export const GridBackground = ({ children, className }: GridBackgroundProps) => {
+export const GridBackground = ({ children, className, blurBackground = false }: GridBackgroundProps) => {
   const isMobile = useMemo(() => typeof navigator !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent), []);
   return (
     <div 
@@ -17,7 +18,9 @@ export const GridBackground = ({ children, className }: GridBackgroundProps) => 
       )}
     >
       {/* Background Beams Animation */}
-      <BackgroundBeams className={cn(isMobile ? 'opacity-85' : 'opacity-100')} />
+      <div className={cn("absolute inset-0", blurBackground && "backdrop-blur-[2px]")}>
+        <BackgroundBeams className={cn(isMobile ? 'opacity-85' : 'opacity-100')} />
+      </div>
       
       {/* Subtle overlay for better content readability */}
       <div className="absolute inset-0 bg-black/10 z-10 will-change-opacity pointer-events-none" />

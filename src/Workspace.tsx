@@ -111,7 +111,7 @@ Your intelligent workspace is ready! Here are some tips to get started:
   // Show loading state while data is being fetched
   if (loading) {
     return (
-      <GridBackground className="h-screen overflow-hidden">
+      <GridBackground className="h-screen overflow-hidden" blurBackground={true}>
         <div className="h-screen flex items-center justify-center">
           <div className="text-center max-w-md px-6">
             <div className="w-12 h-12 border-4 border-green-500/30 border-t-green-500 rounded-full animate-spin mx-auto mb-4" />
@@ -163,7 +163,7 @@ Your intelligent workspace is ready! Here are some tips to get started:
   });
 
   return (
-    <GridBackground className="h-screen overflow-hidden">
+    <GridBackground className="h-screen overflow-hidden" blurBackground={true}>
       <div className="h-screen flex flex-col w-full">
         <Header
           onCreatePage={() => handleCreatePage()}
