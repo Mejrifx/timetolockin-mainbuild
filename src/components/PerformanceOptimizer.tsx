@@ -66,12 +66,7 @@ export const PerformanceOptimizer = () => {
       `;
       document.head.appendChild(style);
       
-      // Preload critical resources
-      const preloadLink = document.createElement('link');
-      preloadLink.rel = 'preload';
-      preloadLink.as = 'style';
-      preloadLink.href = '/src/styles/performance.css';
-      document.head.appendChild(preloadLink);
+      // Note: Performance CSS is now included in index.css, no preload needed
     };
 
     // Apply optimizations on mount
