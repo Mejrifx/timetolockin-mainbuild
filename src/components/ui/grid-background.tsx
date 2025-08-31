@@ -18,8 +18,11 @@ export const GridBackground = ({ children, className, blurBackground = false }: 
       )}
     >
       {/* Background Beams Animation */}
-      <div className={cn("absolute inset-0", blurBackground && "backdrop-blur-[2px]")}>
-        <BackgroundBeams className={cn(isMobile ? 'opacity-85' : 'opacity-100')} />
+      <div className={cn("absolute inset-0", blurBackground && "backdrop-blur-[6px]")}>
+        <BackgroundBeams className={cn(
+          isMobile ? 'opacity-85' : 'opacity-100',
+          blurBackground && 'opacity-70'
+        )} />
       </div>
       
       {/* Subtle overlay for better content readability */}
