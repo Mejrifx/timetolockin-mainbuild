@@ -5,38 +5,62 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 // Environment validation with helpful error messages
+console.log('🔍 Environment Variables Check:');
+console.log('- NODE_ENV:', import.meta.env.MODE);
+console.log('- VITE_SUPABASE_URL:', supabaseUrl ? '✅ Set' : '❌ Missing');
+console.log('- VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? '✅ Set' : '❌ Missing');
+
 if (!supabaseUrl) {
   console.error('❌ VITE_SUPABASE_URL is not set in environment variables')
   console.error('📋 Please add VITE_SUPABASE_URL to your Netlify environment variables')
   console.error('🔗 Go to: Netlify Dashboard → Site Settings → Environment Variables')
-  throw new Error('Missing VITE_SUPABASE_URL environment variable')
+  
+  // Don't throw in production, let the app show error boundary instead
+  if (import.meta.env.DEV) {
+    throw new Error('Missing VITE_SUPABASE_URL environment variable')
+  }
 }
 
 if (!supabaseAnonKey) {
   console.error('❌ VITE_SUPABASE_ANON_KEY is not set in environment variables')
   console.error('📋 Please add VITE_SUPABASE_ANON_KEY to your Netlify environment variables')
   console.error('🔗 Go to: Netlify Dashboard → Site Settings → Environment Variables')
-  throw new Error('Missing VITE_SUPABASE_ANON_KEY environment variable')
+  
+  // Don't throw in production, let the app show error boundary instead
+  if (import.meta.env.DEV) {
+    throw new Error('Missing VITE_SUPABASE_ANON_KEY environment variable')
+  }
 }
 
-// Validate URL format
-try {
-  new URL(supabaseUrl)
-} catch {
-  console.error('❌ Invalid VITE_SUPABASE_URL format:', supabaseUrl)
-  throw new Error('Invalid VITE_SUPABASE_URL format - should be https://xxx.supabase.co')
+// Validate URL format only if URL exists
+if (supabaseUrl) {
+  try {
+    new URL(supabaseUrl)
+    console.log('✅ Supabase environment variables loaded successfully')
+    console.log('🔗 Connecting to:', supabaseUrl)
+  } catch {
+    console.error('❌ Invalid VITE_SUPABASE_URL format:', supabaseUrl)
+    if (import.meta.env.DEV) {
+      throw new Error('Invalid VITE_SUPABASE_URL format - should be https://xxx.supabase.co')
+    }
+  }
 }
 
-console.log('✅ Supabase environment variables loaded successfully')
-console.log('🔗 Connecting to:', supabaseUrl)
+// Create Supabase client with fallback for missing environment variables
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co', 
+  supabaseAnonKey || 'placeholder-key', 
+  {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true,
+    },
+  }
+)
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-  },
-})
+// Export a flag to check if Supabase is properly configured
+export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey)
 
 // Database types for our application
 export interface Database {

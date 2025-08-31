@@ -3,6 +3,7 @@ import { Mail, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/lib/AuthContext'
+import { ConfigurationStatus } from '@/components/ConfigurationStatus'
 import { cn } from '@/lib/utils'
 
 interface AuthFormProps {
@@ -108,6 +109,9 @@ export const AuthForm = ({ mode, onToggleMode }: AuthFormProps) => {
             <p className="text-green-400 text-sm">{success}</p>
           </div>
         )}
+
+        {/* Configuration Status */}
+        <ConfigurationStatus />
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">

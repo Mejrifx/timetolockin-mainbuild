@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { User, Session, AuthError } from '@supabase/supabase-js'
-import { supabase } from './supabase'
+import { supabase, isSupabaseConfigured } from './supabase'
 
 interface AuthContextType {
   user: User | null
@@ -32,10 +32,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Check if Supabase is properly configured
+    if (!isSupabaseConfigured) {
+      console.warn('⚠️ Supabase not configured, skipping auth initialization')
+      setLoading(false)
+      return
+    }
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       setUser(session?.user ?? null)
+      setLoading(false)
+    }).catch((error) => {
+      console.error('❌ Failed to get session:', error)
       setLoading(false)
     })
 
@@ -55,29 +65,65 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [])
 
   const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    })
-    return { error }
+    if (!isSupabaseConfigured) {
+      return { error: { message: 'Supabase not configured. Please check environment variables.' } as AuthError }
+    }
+    
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+      })
+      return { error }
+    } catch (err) {
+      console.error('SignUp error:', err)
+      return { error: { message: 'Authentication service unavailable' } as AuthError }
+    }
   }
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    return { error }
+    if (!isSupabaseConfigured) {
+      return { error: { message: 'Supabase not configured. Please check environment variables.' } as AuthError }
+    }
+    
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      return { error }
+    } catch (err) {
+      console.error('SignIn error:', err)
+      return { error: { message: 'Authentication service unavailable' } as AuthError }
+    }
   }
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    return { error }
+    if (!isSupabaseConfigured) {
+      return { error: { message: 'Supabase not configured. Please check environment variables.' } as AuthError }
+    }
+    
+    try {
+      const { error } = await supabase.auth.signOut()
+      return { error }
+    } catch (err) {
+      console.error('SignOut error:', err)
+      return { error: { message: 'Authentication service unavailable' } as AuthError }
+    }
   }
 
   const resetPassword = async (email: string) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email)
-    return { error }
+    if (!isSupabaseConfigured) {
+      return { error: { message: 'Supabase not configured. Please check environment variables.' } as AuthError }
+    }
+    
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email)
+      return { error }
+    } catch (err) {
+      console.error('Reset password error:', err)
+      return { error: { message: 'Authentication service unavailable' } as AuthError }
+    }
   }
 
   const value = {
