@@ -618,19 +618,28 @@ export const Sidebar = ({
         </div>
       </aside>
 
-      {/* Toggle button - positioned outside sidebar */}
-          <Button
+            {/* Toggle button - positioned outside sidebar */}
+      <Button
         variant="ghost"
         size="sm"
         onClick={onToggle}
         className={cn(
-              "fixed top-1/2 -translate-y-1/2 z-50 h-10 w-10 p-0 bg-black/60 backdrop-blur-xl border border-green-500/30 shadow-xl hover:bg-black/80 transition-all duration-500 ease-in-out text-white transform-gpu hover:scale-110 rounded-full",
-          isOpen ? "left-[300px] md:left-[300px]" : "left-4",
-          "transform hover:shadow-2xl"
+          "fixed top-1/2 -translate-y-1/2 z-50 h-10 w-10 p-0 bg-black/60 backdrop-blur-xl border border-green-500/30 shadow-xl hover:bg-black/80 text-white rounded-full transition-colors duration-200",
+          isOpen ? "left-[300px] md:left-[300px]" : "left-4"
         )}
+        style={{
+          transform: 'translateY(-50%)',
+          transition: 'left 500ms ease-in-out, background-color 200ms ease-in-out, transform 200ms ease-in-out',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-50%) scale(1.03)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+        }}
       >
-            <ChevronLeft className={cn(
-              "h-5 w-5 transition-transform duration-300 ease-in-out",
+        <ChevronLeft className={cn(
+          "h-5 w-5 transition-transform duration-300 ease-in-out",
           !isOpen && "rotate-180"
         )} />
       </Button>

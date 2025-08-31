@@ -11,9 +11,9 @@ export const EmptyState = ({ onCreatePage }: EmptyStateProps) => {
       <div className="text-center space-y-8 max-w-lg">
         <div className="mx-auto flex items-center justify-center mb-4">
           <img 
-            src="/timetolockin HEADER LOGO - nobg.png" 
-            alt="timetolockin Logo" 
-            className="h-24 w-auto object-contain"
+            src="/timetolockin ICON LOGO - nobg.png" 
+            alt="timetolockin" 
+            className="h-24 w-24 object-contain hover:scale-105 transition-transform duration-300 ease-in-out drop-shadow-xl"
           />
         </div>
         

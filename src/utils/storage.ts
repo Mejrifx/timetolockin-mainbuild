@@ -1,4 +1,5 @@
 import { WorkspaceState, Page, Block } from '@/types';
+import { financeService } from '@/lib/database';
 
 const STORAGE_KEY = 'gm-ai-workspace';
 
@@ -45,6 +46,14 @@ export const storage = {
         if (!parsed.dailyTasks) {
           parsed.dailyTasks = {};
         }
+        // Ensure financeData exists
+        if (!parsed.financeData) {
+          parsed.financeData = financeService.getDefaultFinanceData();
+        }
+        // Ensure currentSection exists
+        if (!parsed.currentSection) {
+          parsed.currentSection = 'pages';
+        }
         return parsed;
       }
     } catch (error) {
@@ -56,6 +65,8 @@ export const storage = {
       rootPages: [],
       searchQuery: '',
       dailyTasks: {},
+      financeData: financeService.getDefaultFinanceData(),
+      currentSection: 'pages' as 'pages' | 'daily-tasks' | 'calendar' | 'finance',
     };
   },
 

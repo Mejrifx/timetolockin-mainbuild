@@ -60,11 +60,24 @@ CREATE TABLE IF NOT EXISTS finance_data (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 5. Create calendar_events table (for calendar functionality)
+CREATE TABLE IF NOT EXISTS calendar_events (
+  id TEXT PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  event_date DATE NOT NULL,
+  event_time TIME,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Enable Row Level Security
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE pages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE daily_tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE finance_data ENABLE ROW LEVEL SECURITY;
+ALTER TABLE calendar_events ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies for profiles
 CREATE POLICY "Users can view own profile" ON profiles
@@ -130,6 +143,9 @@ CREATE TRIGGER update_daily_tasks_updated_at BEFORE UPDATE ON daily_tasks
 CREATE TRIGGER update_finance_data_updated_at BEFORE UPDATE ON finance_data
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER update_calendar_events_updated_at BEFORE UPDATE ON calendar_events
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- Create RLS policies for finance_data
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'finance_data' AND policyname = 'Users can view own finance data') THEN
@@ -155,6 +171,35 @@ END $$;
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'finance_data' AND policyname = 'Users can delete own finance data') THEN
     CREATE POLICY "Users can delete own finance data" ON finance_data
+      FOR DELETE USING (auth.uid() = user_id);
+  END IF;
+END $$;
+
+-- Create RLS policies for calendar_events
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'calendar_events' AND policyname = 'Users can view own calendar events') THEN
+    CREATE POLICY "Users can view own calendar events" ON calendar_events
+      FOR SELECT USING (auth.uid() = user_id);
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'calendar_events' AND policyname = 'Users can insert own calendar events') THEN
+    CREATE POLICY "Users can insert own calendar events" ON calendar_events
+      FOR INSERT WITH CHECK (auth.uid() = user_id);
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'calendar_events' AND policyname = 'Users can update own calendar events') THEN
+    CREATE POLICY "Users can update own calendar events" ON calendar_events
+      FOR UPDATE USING (auth.uid() = user_id);
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'calendar_events' AND policyname = 'Users can delete own calendar events') THEN
+    CREATE POLICY "Users can delete own calendar events" ON calendar_events
       FOR DELETE USING (auth.uid() = user_id);
   END IF;
 END $$;

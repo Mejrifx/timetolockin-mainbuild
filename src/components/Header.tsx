@@ -107,9 +107,9 @@ export const Header = ({
           )}>
             <div className="flex items-center justify-center">
               <img 
-                src="/timetolockin HEADER LOGO - nobg.png" 
-                alt="timetolockin Logo" 
-                className="h-14 w-auto object-contain"
+                src="/timetolockin ICON LOGO - nobg.png" 
+                alt="timetolockin" 
+                className="h-12 w-12 object-contain hover:scale-110 transition-transform duration-300 ease-in-out drop-shadow-lg"
               />
             </div>
           </div>
@@ -119,8 +119,8 @@ export const Header = ({
           "flex-1 flex items-center justify-center transition-all duration-500 ease-in-out",
           sidebarOpen ? "md:ml-[29rem]" : "md:ml-[14rem]"
         )}>
-          <span className="text-white text-lg font-bold tracking-wide opacity-90 hover:opacity-100 transition-opacity duration-100 hidden md:block transform-gpu will-change-opacity">
-            The Private Platform To Lock In...
+          <span className="text-white text-2xl font-bold tracking-wide hidden md:block transform-gpu will-change-opacity animate-pulse-glow">
+            Lock in..
           </span>
         </div>
 
