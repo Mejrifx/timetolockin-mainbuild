@@ -119,8 +119,8 @@ export const Header = ({
           "flex-1 flex items-center justify-center transition-all duration-500 ease-in-out",
           sidebarOpen ? "md:ml-[29rem]" : "md:ml-[14rem]"
         )}>
-          <span className="text-white text-2xl font-bold tracking-wide hidden md:block transform-gpu will-change-opacity animate-pulse-glow">
-            Lock in..
+          <span className="text-white text-3xl font-bold tracking-tight hidden md:block transform-gpu will-change-opacity animate-pulse-glow font-sans">
+            Time to lock in...
           </span>
         </div>
 
