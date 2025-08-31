@@ -7,7 +7,7 @@ interface EmptyStateProps {
 
 export const EmptyState = ({ onCreatePage }: EmptyStateProps) => {
   return (
-    <div className="flex-1 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+    <div className="flex-1 flex items-center justify-center bg-black/5">
       <div className="text-center space-y-8 max-w-lg">
         <div className="mx-auto flex items-center justify-center mb-4">
           <img 

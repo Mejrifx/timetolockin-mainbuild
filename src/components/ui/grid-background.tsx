@@ -20,7 +20,7 @@ export const GridBackground = ({ children, className }: GridBackgroundProps) => 
       <BackgroundBeams className={cn(isMobile ? 'opacity-85' : 'opacity-100')} />
       
       {/* Subtle overlay for better content readability */}
-      <div className="absolute inset-0 bg-black/30 z-10 will-change-opacity pointer-events-none" />
+      <div className="absolute inset-0 bg-black/10 z-10 will-change-opacity pointer-events-none" />
       
       {/* Content */}
       <div className="relative z-20">

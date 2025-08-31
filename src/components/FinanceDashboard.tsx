@@ -412,7 +412,7 @@ export const FinanceDashboard = memo(({
   }, [showCurrencySelector]);
 
   return (
-    <div className="flex-1 p-8 overflow-y-auto bg-black/30 backdrop-blur-sm smooth-scroll">
+    <div className="flex-1 p-8 overflow-y-auto bg-black/10 smooth-scroll">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">

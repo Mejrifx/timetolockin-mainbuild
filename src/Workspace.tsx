@@ -268,7 +268,7 @@ Your intelligent workspace is ready! Here are some tips to get started:
               } catch (renderError) {
                 console.error('❌ Error rendering main content:', renderError)
                 return (
-                  <div className="flex-1 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+                  <div className="flex-1 flex items-center justify-center bg-black/5">
                     <div className="text-center">
                       <h3 className="text-red-400 text-xl mb-2">Rendering Error</h3>
                       <p className="text-gray-400 mb-4">Something went wrong while loading the workspace</p>

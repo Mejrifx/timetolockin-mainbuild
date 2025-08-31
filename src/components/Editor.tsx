@@ -45,7 +45,7 @@ export const Editor = ({ page, onUpdatePage }: EditorProps) => {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-black/30 backdrop-blur-sm">
+    <div className="flex-1 flex flex-col h-full bg-black/10">
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-5xl mx-auto px-12 py-12">
           <div className="space-y-8">
