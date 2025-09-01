@@ -107,7 +107,7 @@ export const Header = ({
           )}>
             <div className="flex items-center justify-center ml-[15px]">
               <img 
-                src="/timetolockin ICON LOGO - nobg.png" 
+                src="/timetolockin NEW HEADER LOGO 3.png" 
                 alt="timetolockin" 
                 className="h-12 w-12 object-contain hover:scale-110 transition-transform duration-300 ease-in-out drop-shadow-lg"
               />
