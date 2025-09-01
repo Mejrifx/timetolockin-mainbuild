@@ -105,7 +105,7 @@ export const Header = ({
             "flex items-center transition-all duration-500 ease-in-out",
             sidebarOpen ? "md:ml-20" : "md:ml-0"
           )}>
-            <div className="flex items-center justify-center ml-[15px]">
+            <div className="flex items-center justify-center ml-[-35px]">
               <img 
                 src="/timetolockin NEW HEADER LOGO 3.png" 
                 alt="timetolockin" 
