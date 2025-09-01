@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import { Page, DailyTask, WorkspaceState, FinanceData, Wallet, Transaction, Category, Budget, FinanceGoal, FinanceSettings } from '@/types'
+import { Page, DailyTask, WorkspaceState, FinanceData, Wallet, Transaction, Category, Budget, FinanceGoal, FinanceSettings, HealthData, HealthProtocol, QuitHabit, HealthSettings } from '@/types'
 
 // Database service for Pages
 export const pagesService = {
@@ -459,6 +459,224 @@ export const financeService = {
   }
 };
 
+// Health service for managing health lab data
+export const healthService = {
+  // Get health data for the current user
+  async getHealthData(): Promise<HealthData> {
+    console.log('🔍 Fetching health data from database...')
+    
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) {
+      console.log('👤 No user found, returning default health data')
+      return this.getDefaultHealthData();
+    }
+
+    try {
+      console.log('🔄 Querying health tables for user:', userData.user.id)
+      const [protocolsResult, habitsResult, settingsResult] = await Promise.allSettled([
+        supabase.from('health_protocols').select('*').eq('user_id', userData.user.id),
+        supabase.from('quit_habits').select('*').eq('user_id', userData.user.id),
+        supabase.from('health_settings').select('*').eq('user_id', userData.user.id).single()
+      ]);
+
+      // Log results for debugging
+      console.log('📊 Health query results:', {
+        protocols: protocolsResult.status,
+        habits: habitsResult.status,
+        settings: settingsResult.status
+      });
+
+      if (protocolsResult.status === 'rejected') {
+        console.error('❌ Failed to fetch protocols:', protocolsResult.reason);
+      }
+      if (habitsResult.status === 'rejected') {
+        console.error('❌ Failed to fetch habits:', habitsResult.reason);
+      }
+      if (settingsResult.status === 'rejected') {
+        console.error('❌ Failed to fetch settings:', settingsResult.reason);
+      }
+
+      // Convert protocols
+      const protocols: Record<string, HealthProtocol> = {};
+      if (protocolsResult.status === 'fulfilled' && protocolsResult.value.data) {
+        protocolsResult.value.data.forEach(dbProtocol => {
+          protocols[dbProtocol.id] = {
+            id: dbProtocol.id,
+            title: dbProtocol.title,
+            description: dbProtocol.description || '',
+            content: dbProtocol.content,
+            category: dbProtocol.category as HealthProtocol['category'],
+            isExpanded: dbProtocol.is_expanded,
+            isCompleted: dbProtocol.is_completed,
+            completedAt: dbProtocol.completed_at ? new Date(dbProtocol.completed_at).getTime() : undefined,
+            createdAt: new Date(dbProtocol.created_at).getTime(),
+            updatedAt: new Date(dbProtocol.updated_at).getTime(),
+          };
+        });
+      }
+
+      // Convert quit habits
+      const quitHabits: Record<string, QuitHabit> = {};
+      if (habitsResult.status === 'fulfilled' && habitsResult.value.data) {
+        habitsResult.value.data.forEach(dbHabit => {
+          quitHabits[dbHabit.id] = {
+            id: dbHabit.id,
+            name: dbHabit.name,
+            description: dbHabit.description || '',
+            quitDate: new Date(dbHabit.quit_date).getTime(),
+            category: dbHabit.category as QuitHabit['category'],
+            customCategory: dbHabit.custom_category,
+            isActive: dbHabit.is_active,
+            milestones: dbHabit.milestones || [],
+            createdAt: new Date(dbHabit.created_at).getTime(),
+          };
+        });
+      }
+
+      // Convert settings
+      let settings = this.getDefaultHealthData().settings;
+      if (settingsResult.status === 'fulfilled' && settingsResult.value.data) {
+        const dbSettings = settingsResult.value.data;
+        settings = {
+          reminderEnabled: dbSettings.reminder_enabled,
+          dailyCheckInTime: dbSettings.daily_checkin_time,
+          weeklyReviewDay: dbSettings.weekly_review_day,
+          notificationEnabled: dbSettings.notification_enabled,
+        };
+      }
+
+      console.log('✅ Health data fetched successfully');
+      return { protocols, quitHabits, settings };
+    } catch (error) {
+      console.error('❌ Error in getHealthData:', error);
+      return this.getDefaultHealthData();
+    }
+  },
+
+  // Save health protocol
+  async saveProtocol(protocol: HealthProtocol): Promise<boolean> {
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) return false
+
+    try {
+      const { error } = await supabase
+        .from('health_protocols')
+        .upsert({
+          id: protocol.id,
+          user_id: userData.user.id,
+          title: protocol.title,
+          description: protocol.description,
+          content: protocol.content,
+          category: protocol.category,
+          is_expanded: protocol.isExpanded,
+          is_completed: protocol.isCompleted,
+          completed_at: protocol.completedAt ? new Date(protocol.completedAt).toISOString() : null,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) {
+        console.error('❌ Error saving protocol:', error);
+        return false;
+      }
+
+      console.log('✅ Protocol saved successfully');
+      return true;
+    } catch (error) {
+      console.error('❌ Error in saveProtocol:', error);
+      return false;
+    }
+  },
+
+  // Save quit habit
+  async saveQuitHabit(habit: QuitHabit): Promise<boolean> {
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) return false
+
+    try {
+      const { error } = await supabase
+        .from('quit_habits')
+        .upsert({
+          id: habit.id,
+          user_id: userData.user.id,
+          name: habit.name,
+          description: habit.description,
+          quit_date: new Date(habit.quitDate).toISOString(),
+          category: habit.category,
+          custom_category: habit.customCategory,
+          is_active: habit.isActive,
+          milestones: habit.milestones,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) {
+        console.error('❌ Error saving quit habit:', error);
+        return false;
+      }
+
+      console.log('✅ Quit habit saved successfully');
+      return true;
+    } catch (error) {
+      console.error('❌ Error in saveQuitHabit:', error);
+      return false;
+    }
+  },
+
+  // Delete protocol
+  async deleteProtocol(protocolId: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('health_protocols')
+        .delete()
+        .eq('id', protocolId);
+
+      if (error) {
+        console.error('❌ Error deleting protocol:', error);
+        return false;
+      }
+
+      console.log('✅ Protocol deleted successfully');
+      return true;
+    } catch (error) {
+      console.error('❌ Error in deleteProtocol:', error);
+      return false;
+    }
+  },
+
+  // Delete quit habit
+  async deleteQuitHabit(habitId: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('quit_habits')
+        .delete()
+        .eq('id', habitId);
+
+      if (error) {
+        console.error('❌ Error deleting quit habit:', error);
+        return false;
+      }
+
+      console.log('✅ Quit habit deleted successfully');
+      return true;
+    } catch (error) {
+      console.error('❌ Error in deleteQuitHabit:', error);
+      return false;
+    }
+  },
+
+  // Get default health data structure
+  getDefaultHealthData(): HealthData {
+    return {
+      protocols: {},
+      quitHabits: {},
+      settings: {
+        reminderEnabled: true,
+        weeklyReviewDay: 0,
+        notificationEnabled: true,
+      },
+    };
+  }
+};
+
 // Workspace data service
 export const workspaceService = {
   // Load all user data from database
@@ -471,11 +689,13 @@ export const workspaceService = {
         pagesService.getAll(),
         dailyTasksService.getAll(),
         financeService.getFinanceData(),
+        healthService.getHealthData(),
       ])
       
       const pages = results[0].status === 'fulfilled' ? results[0].value : []
       const dailyTasks = results[1].status === 'fulfilled' ? results[1].value : []
       const financeData = results[2].status === 'fulfilled' ? results[2].value : financeService.getDefaultFinanceData()
+      const healthData = results[3].status === 'fulfilled' ? results[3].value : healthService.getDefaultHealthData()
       
       if (results[0].status === 'rejected') {
         console.warn('⚠️ Failed to load pages:', results[0].reason)
@@ -486,8 +706,11 @@ export const workspaceService = {
       if (results[2].status === 'rejected') {
         console.warn('⚠️ Failed to load finance data:', results[2].reason)
       }
+      if (results[3].status === 'rejected') {
+        console.warn('⚠️ Failed to load health data:', results[3].reason)
+      }
       
-      console.log('📊 Data loaded - Pages:', pages.length, 'Tasks:', dailyTasks.length, 'Finance: loaded')
+      console.log('📊 Data loaded - Pages:', pages.length, 'Tasks:', dailyTasks.length, 'Finance: loaded', 'Health: loaded')
 
       // Convert pages array to record and determine root pages
       const pagesRecord: Record<string, Page> = {}
@@ -511,8 +734,9 @@ export const workspaceService = {
         rootPages,
         dailyTasks: dailyTasksRecord,
         financeData,
+        healthData,
         searchQuery: '',
-        currentSection: 'pages' as 'pages' | 'daily-tasks' | 'calendar' | 'finance',
+        currentSection: 'pages' as 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab',
       }
       
       console.log('✅ Workspace data loaded successfully:', {
@@ -531,8 +755,9 @@ export const workspaceService = {
         rootPages: [],
         dailyTasks: {},
         financeData: financeService.getDefaultFinanceData(),
+        healthData: healthService.getDefaultHealthData(),
         searchQuery: '',
-        currentSection: 'pages' as 'pages' | 'daily-tasks' | 'calendar' | 'finance',
+        currentSection: 'pages' as 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab',
       }
     }
   },

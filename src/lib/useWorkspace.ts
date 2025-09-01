@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { WorkspaceState, Page, DailyTask, FinanceData } from '@/types';
-import { pagesService, dailyTasksService, workspaceService, financeService } from '@/lib/database';
+import { WorkspaceState, Page, DailyTask, FinanceData, HealthData } from '@/types';
+import { pagesService, dailyTasksService, workspaceService, financeService, healthService } from '@/lib/database';
 import { useAuth } from '@/lib/AuthContext';
 import { testSupabaseConnection, showSetupInstructions } from '@/lib/supabaseTest';
 
@@ -18,6 +18,15 @@ export const useWorkspace = () => {
     searchQuery: '',
     dailyTasks: {},
     financeData: financeService.getDefaultFinanceData(),
+    healthData: {
+      protocols: {},
+      quitHabits: {},
+      settings: {
+        reminderEnabled: true,
+        weeklyReviewDay: 0,
+        notificationEnabled: true,
+      },
+    },
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -77,6 +86,15 @@ export const useWorkspace = () => {
           rootPages: [],
           dailyTasks: {},
           financeData: financeService.getDefaultFinanceData(),
+          healthData: {
+            protocols: {},
+            quitHabits: {},
+            settings: {
+              reminderEnabled: true,
+              weeklyReviewDay: 0,
+              notificationEnabled: true,
+            },
+          },
           searchQuery: '',
           currentSection: 'pages',
         }));
@@ -271,7 +289,7 @@ export const useWorkspace = () => {
     }));
   }, []);
 
-  const setCurrentSection = useCallback((section: 'pages' | 'daily-tasks' | 'calendar' | 'finance') => {
+  const setCurrentSection = useCallback((section: 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab') => {
     setState(prevState => ({
       ...prevState,
       currentSection: section,
@@ -474,6 +492,36 @@ export const useWorkspace = () => {
     }
   }, [user, state.financeData]);
 
+  const updateHealthData = useCallback(async (updates: Partial<HealthData>) => {
+    if (!user) return;
+
+    // Optimistic update
+    setState(prevState => ({
+      ...prevState,
+      healthData: {
+        ...prevState.healthData,
+        ...updates,
+      },
+    }));
+
+    // Save to database
+    try {
+      if (updates.protocols) {
+        for (const protocol of Object.values(updates.protocols)) {
+          await healthService.saveProtocol(protocol);
+        }
+      }
+      if (updates.quitHabits) {
+        for (const habit of Object.values(updates.quitHabits)) {
+          await healthService.saveQuitHabit(habit);
+        }
+      }
+    } catch (error) {
+      console.error('Error updating health data:', error);
+      // Could implement rollback here if needed
+    }
+  }, [user, state.healthData]);
+
   // Memoize the return object to prevent unnecessary re-renders
   return useMemo(() => ({
     state,
@@ -491,6 +539,7 @@ export const useWorkspace = () => {
     toggleTaskCompletion,
     deleteDailyTask,
     updateFinanceData,
+    updateHealthData,
   }), [
     state,
     loading,
@@ -507,5 +556,6 @@ export const useWorkspace = () => {
     toggleTaskCompletion,
     deleteDailyTask,
     updateFinanceData,
+    updateHealthData,
   ]);
 };

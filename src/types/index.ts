@@ -23,10 +23,11 @@ export interface WorkspaceState {
   pages: Record<string, Page>;
   rootPages: string[];
   currentPageId?: string;
-  currentSection?: 'pages' | 'daily-tasks' | 'calendar' | 'finance';
+  currentSection?: 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab';
   searchQuery: string;
   dailyTasks: Record<string, DailyTask>;
   financeData: FinanceData;
+  healthData: HealthData;
 }
 
 export interface DailyTask {
@@ -131,4 +132,51 @@ export interface FinanceInsight {
   severity: 'info' | 'warning' | 'critical';
   actionable: boolean;
   createdAt: number;
+}
+
+export interface HealthData {
+  protocols: Record<string, HealthProtocol>;
+  quitHabits: Record<string, QuitHabit>;
+  settings: HealthSettings;
+}
+
+export interface HealthProtocol {
+  id: string;
+  title: string;
+  description: string;
+  content: string;
+  category: 'fitness' | 'nutrition' | 'sleep' | 'mental' | 'habits' | 'other';
+  isExpanded: boolean;
+  isCompleted: boolean;
+  completedAt?: number;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface QuitHabit {
+  id: string;
+  name: string;
+  description?: string;
+  quitDate: number;
+  category: 'smoking' | 'alcohol' | 'sugar' | 'social_media' | 'caffeine' | 'other';
+  customCategory?: string;
+  isActive: boolean;
+  milestones: QuitMilestone[];
+  createdAt: number;
+}
+
+export interface QuitMilestone {
+  id: string;
+  days: number;
+  title: string;
+  description: string;
+  isReached: boolean;
+  reachedAt?: number;
+}
+
+export interface HealthSettings {
+  reminderEnabled: boolean;
+  dailyCheckInTime?: string; // HH:MM format
+  weeklyReviewDay: number; // 0-6, Sunday = 0
+  notificationEnabled: boolean;
 }

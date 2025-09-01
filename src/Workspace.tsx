@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { DailyTasksDashboard } from '@/components/DailyTasksDashboard';
 import { CalendarDashboard } from '@/components/CalendarDashboard';
 import { FinanceDashboard } from '@/components/FinanceDashboard';
+import { HealthLabDashboard } from '@/components/HealthLabDashboard';
 import { GridBackground } from '@/components/ui/grid-background';
 import { cn } from '@/lib/utils';
 
@@ -27,6 +28,7 @@ export const Workspace = () => {
     toggleTaskCompletion,
     deleteDailyTask,
     updateFinanceData,
+    updateHealthData,
   } = useWorkspace();
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -241,6 +243,23 @@ Your intelligent workspace is ready! Here are some tips to get started:
                     <FinanceDashboard 
                       financeData={state.financeData}
                       onUpdateFinanceData={updateFinanceData}
+                      onCreateDailyTask={createDailyTask}
+                      onExportToWorkspace={(content, title) => {
+                        // Create a new page with the exported content
+                        createPage(title).then(pageId => {
+                          if (pageId) {
+                            updatePage(pageId, { content });
+                          }
+                        });
+                      }}
+                    />
+                  );
+                } else if (state.currentSection === 'health-lab') {
+                  console.log('💪 Rendering Health Lab Dashboard')
+                  return (
+                    <HealthLabDashboard 
+                      healthData={state.healthData}
+                      onUpdateHealthData={updateHealthData}
                       onCreateDailyTask={createDailyTask}
                       onExportToWorkspace={(content, title) => {
                         // Create a new page with the exported content

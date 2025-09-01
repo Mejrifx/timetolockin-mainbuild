@@ -19,7 +19,8 @@ import {
   Circle,
   CheckCircle2,
   Calendar as CalendarIcon,
-  DollarSign
+  DollarSign,
+  Heart
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -53,8 +54,8 @@ interface SidebarProps {
   onToggleExpansion: (pageId: string) => void;
   isOpen: boolean;
   onToggle: () => void;
-  currentSection: 'pages' | 'daily-tasks' | 'calendar' | 'finance';
-  onSectionSelect: (section: 'pages' | 'daily-tasks' | 'calendar' | 'finance') => void;
+  currentSection: 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab';
+  onSectionSelect: (section: 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab') => void;
   dailyTasks: Record<string, DailyTask>;
   onCreateDailyTask: (title: string, timeAllocation: number, priority: DailyTask['priority'], category: string, description?: string) => void;
   onUpdateDailyTask: (taskId: string, updates: Partial<DailyTask>) => void;
@@ -606,6 +607,30 @@ export const Sidebar = ({
                   )}
                 </div>
               )}
+            </div>
+
+            {/* Health Lab Section */}
+            <div className="border-b border-green-500/10">
+              {/* Section Header */}
+              <div className="p-6 pb-4">
+                <Button
+                  variant="ghost"
+                  onClick={() => onSectionSelect('health-lab')}
+                  className={cn(
+                    "w-full justify-start h-12 p-0 hover:bg-green-500/10 transition-all duration-300 rounded-lg group bg-black/20 backdrop-blur-xl",
+                    currentSection === 'health-lab' && "bg-green-500/20 border border-green-500/30"
+                  )}
+                >
+                  <div className="flex items-center w-full px-4">
+                    <div className="flex items-center gap-3">
+                      <Heart className="h-5 w-5 text-green-400" />
+                      <span className="text-white font-medium text-base group-hover:text-green-300 transition-colors duration-300">
+                        Health Lab
+                      </span>
+                    </div>
+                  </div>
+                </Button>
+              </div>
             </div>
 
             {/* Future sections placeholder */}

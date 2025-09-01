@@ -60,14 +60,23 @@ export const storage = {
       console.error('Failed to load workspace:', error);
     }
     
-    return {
-      pages: {},
-      rootPages: [],
-      searchQuery: '',
-      dailyTasks: {},
-      financeData: financeService.getDefaultFinanceData(),
-      currentSection: 'pages' as 'pages' | 'daily-tasks' | 'calendar' | 'finance',
-    };
+      return {
+    pages: {},
+    rootPages: [],
+    searchQuery: '',
+    dailyTasks: {},
+    financeData: financeService.getDefaultFinanceData(),
+    healthData: {
+      protocols: {},
+      quitHabits: {},
+      settings: {
+        reminderEnabled: true,
+        weeklyReviewDay: 0,
+        notificationEnabled: true,
+      },
+    },
+    currentSection: 'pages' as 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab',
+  };
   },
 
   createPage: (title: string, parentId?: string): Page => {

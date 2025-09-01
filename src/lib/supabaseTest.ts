@@ -96,7 +96,35 @@ export const testSupabaseConnection = async () => {
       return false
     }
     
-    console.log('✅ All database tables exist and are accessible!')
+    // Test health_protocols table (for Health Lab)
+    console.log('4️⃣ Testing Health Lab tables...')
+    const { error: healthError } = await supabase
+      .from('health_protocols')
+      .select('id')
+      .limit(1)
+    
+    if (healthError) {
+      console.error('❌ Health protocols table error:', healthError)
+      console.log('💡 Health Lab tables are missing! You need to run the health-lab-setup.sql script!')
+      // Don't return false here - let's continue testing other tables
+    } else {
+      console.log('✅ Health Lab tables accessible!')
+    }
+    
+    // Test quit_habits table
+    const { error: quitHabitsError } = await supabase
+      .from('quit_habits')
+      .select('id')
+      .limit(1)
+    
+    if (quitHabitsError) {
+      console.error('❌ Quit habits table error:', quitHabitsError)
+    } else {
+      console.log('✅ Quit habits table accessible!')
+    }
+    
+    // If core tables work, consider connection successful even if health tables have issues
+    console.log('✅ Core database tables exist and are accessible!')
     return true
     
   } catch (error) {
