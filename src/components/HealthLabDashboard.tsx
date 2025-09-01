@@ -436,7 +436,7 @@ const HealthLabDashboard = memo(({
     const habit = quitHabits[habitId];
     if (habit) {
       setEditingHabit(habitId);
-      setEditHabitDescription(habit.description);
+      setEditHabitDescription(habit.description || '');
     }
   }, [quitHabits]);
 
