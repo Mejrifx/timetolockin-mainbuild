@@ -405,7 +405,7 @@ export const Sidebar = ({
     <>
       {/* Sidebar with glass effect */}
       <aside className={cn(
-        "sidebar-container w-80 border-r border-green-500/20 transition-all duration-500 ease-in-out relative shadow-xl overflow-hidden bg-black/60 performance-blur",
+        "sidebar-container w-full sm:w-80 border-r border-green-500/20 transition-all duration-500 ease-in-out relative shadow-xl overflow-hidden bg-black/60 performance-blur",
         isOpen ? "translate-x-0" : "-translate-x-full md:-translate-x-80",
         "fixed md:static inset-y-0 left-0 z-40 md:z-0"
       )}>
@@ -415,12 +415,12 @@ export const Sidebar = ({
             {/* Calendar Section */}
             <div className="border-b border-green-500/10">
               {/* Section Header */}
-              <div className="p-6 pb-4">
+              <div className="p-4 md:p-6 pb-3 md:pb-4">
                 <Button
                   variant="ghost"
                   onClick={() => onSectionSelect('calendar')}
                   className={cn(
-                    "w-full justify-start h-12 p-0 hover:bg-green-500/10 transition-all duration-300 rounded-lg group bg-black/20 backdrop-blur-xl",
+                    "w-full justify-start h-12 md:h-12 p-0 hover:bg-green-500/10 transition-all duration-300 rounded-lg group bg-black/20 backdrop-blur-xl min-h-[48px]",
                     currentSection === 'calendar' && "bg-green-500/20 border border-green-500/30"
                   )}
                 >
@@ -649,8 +649,8 @@ export const Sidebar = ({
         size="sm"
         onClick={onToggle}
         className={cn(
-          "fixed top-1/2 -translate-y-1/2 z-50 h-10 w-10 p-0 bg-black/60 backdrop-blur-xl border border-green-500/30 shadow-xl hover:bg-black/80 text-white rounded-full transition-colors duration-200",
-          isOpen ? "left-[300px] md:left-[300px]" : "left-4"
+          "fixed top-1/2 -translate-y-1/2 z-50 h-12 w-12 md:h-10 md:w-10 p-0 bg-black/60 backdrop-blur-xl border border-green-500/30 shadow-xl hover:bg-black/80 text-white rounded-full transition-colors duration-200",
+          isOpen ? "left-[calc(100vw-3rem)] sm:left-[300px] md:left-[300px]" : "left-4"
         )}
         style={{
           transform: 'translateY(-50%)',

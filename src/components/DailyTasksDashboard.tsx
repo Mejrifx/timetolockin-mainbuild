@@ -113,8 +113,8 @@ export const DailyTasksDashboard = ({
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="bg-black/40 backdrop-blur-xl rounded-xl p-6 border border-green-500/20 shadow-lg">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+              <div className="bg-black/40 backdrop-blur-xl rounded-xl p-4 md:p-6 border border-green-500/20 shadow-lg">
                 <div className="flex items-center gap-3 mb-2">
                   <Target className="h-6 w-6 text-green-400" />
                   <span className="text-sm font-medium text-gray-300">Completion Rate</span>
@@ -123,7 +123,7 @@ export const DailyTasksDashboard = ({
                 <div className="text-xs text-gray-400">{completedTasks}/{totalTasks} completed today</div>
               </div>
 
-              <div className="bg-black/40 backdrop-blur-xl rounded-xl p-6 border border-green-500/20 shadow-lg">
+              <div className="bg-black/40 backdrop-blur-xl rounded-xl p-4 md:p-6 border border-green-500/20 shadow-lg">
                 <div className="flex items-center gap-3 mb-2">
                   <Clock className="h-6 w-6 text-blue-400" />
                   <span className="text-sm font-medium text-gray-300">Time Allocated</span>
@@ -132,7 +132,7 @@ export const DailyTasksDashboard = ({
                 <div className="text-xs text-gray-400">Total daily commitment</div>
               </div>
 
-              <div className="bg-black/40 backdrop-blur-xl rounded-xl p-6 border border-green-500/20 shadow-lg">
+              <div className="bg-black/40 backdrop-blur-xl rounded-xl p-4 md:p-6 border border-green-500/20 shadow-lg">
                 <div className="flex items-center gap-3 mb-2">
                   <Flame className="h-6 w-6 text-orange-400" />
                   <span className="text-sm font-medium text-gray-300">Average Streak</span>
@@ -141,7 +141,7 @@ export const DailyTasksDashboard = ({
                 <div className="text-xs text-gray-400">Days consistency</div>
               </div>
 
-              <div className="bg-black/40 backdrop-blur-xl rounded-xl p-6 border border-green-500/20 shadow-lg">
+              <div className="bg-black/40 backdrop-blur-xl rounded-xl p-4 md:p-6 border border-green-500/20 shadow-lg">
                 <div className="flex items-center gap-3 mb-2">
                   <Award className="h-6 w-6 text-green-400" />
                   <span className="text-sm font-medium text-gray-300">Total Tasks</span>
@@ -178,7 +178,7 @@ export const DailyTasksDashboard = ({
             {showTaskForm && (
               <div className="bg-black/40 backdrop-blur-xl rounded-xl p-8 border border-green-500/20 shadow-lg">
                 <h2 className="text-xl font-semibold text-white mb-6">Create New Non-Negotiable</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-4 md:gap-6">
                   <div className="space-y-4">
                     <div>
                       <label className="text-sm font-medium text-gray-300 mb-2 block">Task Title</label>

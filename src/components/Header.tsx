@@ -89,53 +89,52 @@ export const Header = ({
   };
 
   return (
-    <header className="h-16 border-b border-green-500/20 bg-black/60 backdrop-blur-xl sticky top-0 z-50 shadow-lg will-change-transform will-change-opacity">
-      <div className="flex items-center justify-between h-full px-8">
-        <div className="flex items-center gap-4">
+    <header className="h-14 md:h-16 border-b border-green-500/20 bg-black/60 backdrop-blur-xl sticky top-0 z-50 shadow-lg will-change-transform will-change-opacity">
+      <div className="flex items-center justify-between h-full px-4 md:px-8">
+        <div className="flex items-center gap-2 md:gap-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={onToggleSidebar}
-            className="md:hidden hover:bg-green-500/10 text-white"
+            className="md:hidden hover:bg-green-500/10 text-white h-10 w-10 p-0 rounded-lg"
           >
             <Menu className="h-5 w-5" />
           </Button>
           
-          <div className={cn(
-            "flex items-center transition-all duration-500 ease-in-out",
-            sidebarOpen ? "md:ml-20" : "md:ml-0"
-          )}>
-            <div className="flex items-center justify-center ml-[-35px]">
+          <div className="flex items-center md:ml-20">
+            <div 
+              className="flex items-center justify-center ml-0 md:ml-[-35px] transition-transform duration-500 ease-in-out"
+              style={{
+                transform: sidebarOpen ? 'translateX(0px)' : 'translateX(25px)'
+              }}
+            >
               <img 
                 src="/timetolockin-main-logo.png" 
                 alt="timetolockin" 
-                className="h-12 w-auto object-contain hover:scale-110 transition-transform duration-300 ease-in-out drop-shadow-lg"
+                className="h-8 md:h-12 w-auto object-contain hover:scale-110 transition-transform duration-300 ease-in-out drop-shadow-lg"
               />
             </div>
           </div>
         </div>
 
-        <div className={cn(
-          "flex-1 flex items-center justify-center transition-all duration-500 ease-in-out",
-          sidebarOpen ? "md:ml-[29rem]" : "md:ml-[14rem]"
-        )}>
-          <span className="text-white text-3xl font-bold tracking-tight hidden md:block transform-gpu will-change-opacity animate-pulse-glow font-sans">
-            Time to lock in...
-          </span>
-        </div>
+        {/* Mobile - No Title (Clean Look) */}
+        <div className="md:hidden flex-1"></div>
 
-        <div className="flex items-center gap-4 min-w-fit">
+        {/* Desktop - No Title (Clean Look) */}
+        <div className="hidden md:flex flex-1"></div>
+
+        <div className="flex items-center gap-2 md:gap-4 min-w-fit">
           <Button
             onClick={onCreatePage}
-            size="default"
-            className="bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 transition-all duration-300 px-6 shadow-lg hover:shadow-xl hover:scale-105"
+            size="sm"
+            className="hidden md:flex bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 transition-all duration-300 px-3 md:px-6 shadow-lg hover:shadow-xl hover:scale-105"
           >
-            <Plus className="h-4 w-4 mr-2" />
-            New Page
+            <Plus className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">New Page</span>
           </Button>
 
           {/* User Menu */}
-          <div className="flex items-center gap-2 px-3 py-2 bg-black/20 backdrop-blur-xl rounded-lg border border-green-500/30 w-40">
+          <div className="flex items-center gap-2 px-2 md:px-3 py-2 bg-black/20 backdrop-blur-xl rounded-lg border border-green-500/30 w-32 md:w-40">
             <User className="h-4 w-4 text-green-400" />
             {isEditingUsername ? (
               <div className="flex items-center gap-2">

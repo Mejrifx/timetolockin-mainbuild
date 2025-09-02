@@ -478,9 +478,9 @@ export const FinanceDashboard = memo(({
         </div>
 
         {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
           {/* Total Balance */}
-          <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-green-500/20 p-6">
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-green-500/20 p-4 md:p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="p-3 bg-green-500/20 rounded-xl">
@@ -508,7 +508,7 @@ export const FinanceDashboard = memo(({
           </div>
 
           {/* This Month's Spending */}
-          <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-green-500/20 p-6">
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-green-500/20 p-4 md:p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-red-500/20 rounded-xl">
                 <TrendingDown className="h-6 w-6 text-red-400" />
@@ -526,7 +526,7 @@ export const FinanceDashboard = memo(({
           </div>
 
           {/* Active Goals */}
-          <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-green-500/20 p-6">
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-green-500/20 p-4 md:p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-green-500/20 rounded-xl">
                 <Target className="h-6 w-6 text-green-400" />
@@ -555,7 +555,7 @@ export const FinanceDashboard = memo(({
           <div className="xl:col-span-2 space-y-8">
             {/* Insights */}
             {insights.length > 0 && (
-              <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-green-500/20 p-6">
+              <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-green-500/20 p-4 md:p-6">
                 <h3 className="text-xl font-semibold text-white mb-4">Insights & Tips</h3>
                 <div className="space-y-4">
                   {insights.map(insight => (
@@ -587,7 +587,7 @@ export const FinanceDashboard = memo(({
             )}
 
             {/* Recent Transactions */}
-            <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-green-500/20 p-6">
+            <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-green-500/20 p-4 md:p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-semibold text-white">Recent Transactions</h3>
                 <div className="flex items-center gap-2">
@@ -665,7 +665,7 @@ export const FinanceDashboard = memo(({
           {/* Right Column - Goals & Categories */}
           <div className="space-y-8">
             {/* Active Goals */}
-            <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-green-500/20 p-6">
+            <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-green-500/20 p-4 md:p-6">
               <h3 className="text-lg font-semibold text-white mb-4">Goals</h3>
               <div className="space-y-4">
                 {Object.values(goals).filter(g => !g.isCompleted).slice(0, 3).map(goal => {
@@ -692,7 +692,7 @@ export const FinanceDashboard = memo(({
             </div>
 
             {/* Spending Categories */}
-            <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-green-500/20 p-6">
+            <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-green-500/20 p-4 md:p-6">
               <h3 className="text-lg font-semibold text-white mb-4">Top Categories</h3>
               <div className="space-y-3">
                 {Object.entries(spendingByCategory)
