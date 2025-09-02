@@ -125,17 +125,24 @@ export const CalendarDashboard = ({ className }: CalendarDashboardProps) => {
   const selectedDateEvents = getEventsForDate(selectedDate);
 
   return (
-    <div className={cn("flex-1 p-8 overflow-y-auto bg-black/10", className)}>
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Calendar</h1>
-              <p className="text-gray-300">
-                Plan your days and stay organized with your schedule
-              </p>
-            </div>
+    <div className="h-full flex flex-col bg-black/20 backdrop-blur-xl overflow-hidden">
+      {/* Sticky Header */}
+      <div className="p-4 md:p-6 border-b border-green-500/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <CalendarIcon className="h-5 md:h-6 w-5 md:w-6 text-green-400" />
+            <h1 className="text-xl md:text-2xl font-bold text-white">Calendar</h1>
+          </div>
+          <div className="text-xs text-gray-400">
+            Plan your days and stay organized with your schedule
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-black/10">
+        <div className="max-w-7xl mx-auto">
+          {/* Action Buttons */}
+          <div className="mb-6 md:mb-8 flex justify-center md:justify-end">
             <div className="flex items-center gap-4">
               <Button
                 onClick={goToToday}

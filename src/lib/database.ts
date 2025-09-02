@@ -476,7 +476,7 @@ export const healthService = {
       const [protocolsResult, habitsResult, settingsResult] = await Promise.allSettled([
         supabase.from('health_protocols').select('*').eq('user_id', userData.user.id),
         supabase.from('quit_habits').select('*').eq('user_id', userData.user.id),
-        supabase.from('health_settings').select('*').eq('user_id', userData.user.id).single()
+        supabase.from('health_settings').select('*').eq('user_id', userData.user.id).maybeSingle()
       ]);
 
       // Log results for debugging
@@ -535,14 +535,33 @@ export const healthService = {
 
       // Convert settings
       let settings = this.getDefaultHealthData().settings;
-      if (settingsResult.status === 'fulfilled' && settingsResult.value.data) {
-        const dbSettings = settingsResult.value.data;
-        settings = {
-          reminderEnabled: dbSettings.reminder_enabled,
-          dailyCheckInTime: dbSettings.daily_checkin_time,
-          weeklyReviewDay: dbSettings.weekly_review_day,
-          notificationEnabled: dbSettings.notification_enabled,
-        };
+      if (settingsResult.status === 'fulfilled') {
+        if (settingsResult.value.data) {
+          // Settings exist, use them
+          const dbSettings = settingsResult.value.data;
+          settings = {
+            reminderEnabled: dbSettings.reminder_enabled ?? true,
+            dailyCheckInTime: dbSettings.daily_checkin_time,
+            weeklyReviewDay: dbSettings.weekly_review_day ?? 0,
+            notificationEnabled: dbSettings.notification_enabled ?? true,
+          };
+        } else {
+          // No settings exist, create default settings for this user
+          try {
+            const defaultSettings = this.getDefaultHealthData().settings;
+            await supabase.from('health_settings').insert({
+              user_id: userData.user.id,
+              reminder_enabled: defaultSettings.reminderEnabled,
+              daily_checkin_time: defaultSettings.dailyCheckInTime,
+              weekly_review_day: defaultSettings.weeklyReviewDay,
+              notification_enabled: defaultSettings.notificationEnabled,
+            });
+            console.log('✅ Created default health settings for user');
+          } catch (insertError) {
+            console.warn('⚠️ Could not create default health settings:', insertError);
+            // Continue with default settings
+          }
+        }
       }
 
       console.log('✅ Health data fetched successfully');

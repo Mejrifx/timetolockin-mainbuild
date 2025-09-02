@@ -18,6 +18,8 @@ import {
   Coffee,
   Home,
   BookOpen,
+  Coins,
+  ChevronDown,
   ShoppingCart,
   Car,
   Heart,
@@ -412,17 +414,90 @@ export const FinanceDashboard = memo(({
   }, [showCurrencySelector]);
 
   return (
-    <div className="flex-1 p-8 overflow-y-auto bg-black/10 smooth-scroll">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Finance Tracker</h1>
-              <p className="text-gray-300">
-                Master your money mindfully and build lasting wealth habits
-              </p>
+    <div className="h-full flex flex-col bg-black/20 backdrop-blur-xl overflow-hidden">
+      {/* Sticky Header */}
+      <div className="p-4 md:p-6 border-b border-green-500/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <DollarSign className="h-5 md:h-6 w-5 md:w-6 text-green-400" />
+            <h1 className="text-xl md:text-2xl font-bold text-white">Finance Tracker</h1>
+          </div>
+          <div className="text-xs text-gray-400">
+            Master your money mindfully and build lasting wealth habits
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-black/10 smooth-scroll">
+        <div className="max-w-7xl mx-auto">
+        {/* Action Buttons */}
+        <div className="mb-6 md:mb-8">
+          {/* Mobile Action Buttons */}
+          <div className="md:hidden space-y-4">
+            
+            {/* Mobile Action Buttons - Single Column */}
+            <div className="space-y-3">
+              <div className="relative" ref={currencySelectorRef}>
+                <Button
+                  onClick={() => setShowCurrencySelector(!showCurrencySelector)}
+                  variant="ghost"
+                  className="w-full border border-green-500/30 text-white hover:bg-green-500/10 bg-black/20 justify-center"
+                >
+                  <Coins className="h-4 w-4 mr-2" />
+                  Currency: {currentCurrency}
+                  <ChevronDown className="h-4 w-4 ml-2" />
+                </Button>
+                {showCurrencySelector && (
+                  <div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-black/80 backdrop-blur-xl rounded-lg border border-green-500/30 p-2 z-50 min-w-[120px]">
+                    {['USD', 'GBP', 'EUR'].map(currency => (
+                      <button
+                        key={currency}
+                        onClick={() => handleCurrencyChange(currency)}
+                        className={cn(
+                          "w-full text-left px-3 py-2 rounded text-sm transition-colors duration-200",
+                          currency === currentCurrency 
+                            ? "bg-green-500/20 text-green-300" 
+                            : "text-white hover:bg-green-500/10"
+                        )}
+                      >
+                        {currency}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  onClick={() => setBalanceVisible(!balanceVisible)}
+                  variant="ghost"
+                  className="border border-green-500/30 text-white hover:bg-green-500/10 bg-black/20 justify-center"
+                >
+                  {balanceVisible ? <Eye className="h-4 w-4 mr-2" /> : <EyeOff className="h-4 w-4 mr-2" />}
+                  {balanceVisible ? 'Hide' : 'Show'}
+                </Button>
+                <Button
+                  onClick={handleExportData}
+                  variant="ghost"
+                  className="border border-green-500/30 text-white hover:bg-green-500/10 bg-black/20 justify-center"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+              </div>
+              
+              <Button
+                onClick={() => setShowAddTransaction(true)}
+                className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-lg hover:shadow-xl transition-all duration-300 justify-center"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Transaction
+              </Button>
             </div>
+          </div>
+
+          {/* Desktop Action Buttons */}
+          <div className="hidden md:flex justify-end">
             <div className="flex items-center gap-4">
               <div className="relative" ref={currencySelectorRef}>
                 <Button
@@ -430,7 +505,9 @@ export const FinanceDashboard = memo(({
                   variant="ghost"
                   className="border border-green-500/30 text-white hover:bg-green-500/10 bg-black/20"
                 >
+                  <Coins className="h-4 w-4 mr-2" />
                   {currentCurrency}
+                  <ChevronDown className="h-4 w-4 ml-2" />
                 </Button>
                 {showCurrencySelector && (
                   <div className="absolute top-full mt-2 right-0 bg-black/80 backdrop-blur-xl rounded-lg border border-green-500/30 p-2 z-50 min-w-[100px]">
@@ -1093,6 +1170,7 @@ export const FinanceDashboard = memo(({
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

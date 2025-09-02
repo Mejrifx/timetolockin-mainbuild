@@ -347,6 +347,17 @@ export const Sidebar = ({
     category: 'Personal',
   });
 
+  // Helper function to handle section selection and auto-close sidebar on mobile
+  const handleSectionSelect = useCallback((section: 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab') => {
+    onSectionSelect(section);
+    
+    // Auto-close sidebar on mobile (screen width < 768px)
+    const isMobile = window.innerWidth < 768;
+    if (isMobile && isOpen) {
+      onToggle();
+    }
+  }, [onSectionSelect, isOpen, onToggle]);
+
   const filteredRootPages = rootPages.filter(pageId => {
     const page = pages[pageId];
     if (!page) return false;
@@ -418,7 +429,7 @@ export const Sidebar = ({
               <div className="p-4 md:p-6 pb-3 md:pb-4">
                 <Button
                   variant="ghost"
-                  onClick={() => onSectionSelect('calendar')}
+                  onClick={() => handleSectionSelect('calendar')}
                   className={cn(
                     "w-full justify-start h-12 md:h-12 p-0 hover:bg-green-500/10 transition-all duration-300 rounded-lg group bg-black/20 backdrop-blur-xl min-h-[48px]",
                     currentSection === 'calendar' && "bg-green-500/20 border border-green-500/30"
@@ -445,7 +456,7 @@ export const Sidebar = ({
                   onClick={() => {
                     setWorkspaceExpanded(!workspaceExpanded);
                     if (!workspaceExpanded) {
-                      onSectionSelect('pages');
+                      handleSectionSelect('pages');
                     }
                   }}
                   className={cn(
@@ -536,7 +547,7 @@ export const Sidebar = ({
                   variant="ghost"
                   onClick={() => {
                     setDailyTasksExpanded(!dailyTasksExpanded);
-                    onSectionSelect('daily-tasks');
+                    handleSectionSelect('daily-tasks');
                   }}
                   className={cn(
                     "w-full justify-start h-12 p-0 hover:bg-green-500/10 transition-all duration-300 rounded-lg group bg-black/20 backdrop-blur-xl",
@@ -591,7 +602,7 @@ export const Sidebar = ({
               <div className="p-6 pb-4">
                 <Button
                   variant="ghost"
-                  onClick={() => onSectionSelect('finance')}
+                  onClick={() => handleSectionSelect('finance')}
                   className={cn(
                     "w-full justify-start h-12 p-0 hover:bg-green-500/10 transition-all duration-300 rounded-lg group bg-black/20 backdrop-blur-xl",
                     currentSection === 'finance' && "bg-green-500/20 border border-green-500/30"
@@ -615,7 +626,7 @@ export const Sidebar = ({
               <div className="p-6 pb-4">
                 <Button
                   variant="ghost"
-                  onClick={() => onSectionSelect('health-lab')}
+                  onClick={() => handleSectionSelect('health-lab')}
                   className={cn(
                     "w-full justify-start h-12 p-0 hover:bg-green-500/10 transition-all duration-300 rounded-lg group bg-black/20 backdrop-blur-xl",
                     currentSection === 'health-lab' && "bg-green-500/20 border border-green-500/30"
@@ -643,14 +654,14 @@ export const Sidebar = ({
         </div>
       </aside>
 
-            {/* Toggle button - positioned outside sidebar */}
+            {/* Toggle button - positioned outside sidebar - Desktop only */}
       <Button
         variant="ghost"
         size="sm"
         onClick={onToggle}
         className={cn(
-          "fixed top-1/2 -translate-y-1/2 z-50 h-12 w-12 md:h-10 md:w-10 p-0 bg-black/60 backdrop-blur-xl border border-green-500/30 shadow-xl hover:bg-black/80 text-white rounded-full transition-colors duration-200",
-          isOpen ? "left-[calc(100vw-3rem)] sm:left-[300px] md:left-[300px]" : "left-4"
+          "hidden md:flex fixed top-1/2 -translate-y-1/2 z-50 h-10 w-10 p-0 bg-black/60 backdrop-blur-xl border border-green-500/30 shadow-xl hover:bg-black/80 text-white rounded-full transition-colors duration-200",
+          isOpen ? "left-[300px]" : "left-4"
         )}
         style={{
           transform: 'translateY(-50%)',

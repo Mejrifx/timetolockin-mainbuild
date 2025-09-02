@@ -96,12 +96,17 @@ export const Header = ({
             variant="ghost"
             size="sm"
             onClick={onToggleSidebar}
-            className="md:hidden hover:bg-green-500/10 text-white h-10 w-10 p-0 rounded-lg"
+            className="md:hidden hover:bg-green-500/10 text-white h-10 w-10 p-0 rounded-lg transition-all duration-300"
           >
-            <Menu className="h-5 w-5" />
+            <div className="flex flex-col justify-center items-center w-5 h-5">
+              <div className={`w-4 h-0.5 bg-white rounded transition-all duration-300 ${sidebarOpen ? 'rotate-45 translate-y-1' : ''}`}></div>
+              <div className={`w-4 h-0.5 bg-white rounded mt-1 transition-all duration-300 ${sidebarOpen ? 'opacity-0' : ''}`}></div>
+              <div className={`w-4 h-0.5 bg-white rounded mt-1 transition-all duration-300 ${sidebarOpen ? '-rotate-45 -translate-y-1' : ''}`}></div>
+            </div>
           </Button>
           
-          <div className="flex items-center md:ml-20">
+          {/* Desktop Logo - Slides with sidebar */}
+          <div className="hidden md:flex items-center md:ml-20">
             <div 
               className="flex items-center justify-center ml-0 md:ml-[-35px] transition-transform duration-500 ease-in-out"
               style={{
@@ -109,16 +114,22 @@ export const Header = ({
               }}
             >
               <img 
-                src="/timetolockin-main-logo.png" 
+                src="/timetolockin MAIN LOGO NEW.png" 
                 alt="timetolockin" 
-                className="h-8 md:h-12 w-auto object-contain hover:scale-110 transition-transform duration-300 ease-in-out drop-shadow-lg"
+                className="h-12 w-auto object-contain hover:scale-110 transition-transform duration-300 ease-in-out drop-shadow-lg"
               />
             </div>
           </div>
         </div>
 
-        {/* Mobile - No Title (Clean Look) */}
-        <div className="md:hidden flex-1"></div>
+        {/* Mobile Logo - Centered and Static */}
+        <div className="md:hidden flex-1 flex justify-center">
+          <img 
+            src="/timetolockin MAIN LOGO NEW.png" 
+            alt="timetolockin" 
+            className="h-8 w-auto object-contain drop-shadow-lg"
+          />
+        </div>
 
         {/* Desktop - No Title (Clean Look) */}
         <div className="hidden md:flex flex-1"></div>

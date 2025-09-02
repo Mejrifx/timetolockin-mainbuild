@@ -10,7 +10,8 @@ import {
   TrendingUp,
   Target,
   Calendar,
-  Award
+  Award,
+  CheckSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -93,19 +94,28 @@ export const DailyTasksDashboard = ({
   });
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-black/10">
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-7xl mx-auto px-12 py-12">
-          <div className="space-y-8">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-4xl font-bold text-white mb-2">Daily Non-Negotiables</h1>
-                <p className="text-gray-300 text-lg">Level up your life with consistent daily habits</p>
-              </div>
+    <div className="h-full flex flex-col bg-black/20 backdrop-blur-xl overflow-hidden">
+      {/* Sticky Header */}
+      <div className="p-4 md:p-6 border-b border-green-500/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <CheckSquare className="h-5 md:h-6 w-5 md:w-6 text-green-400" />
+            <h1 className="text-xl md:text-2xl font-bold text-white">Daily Non-Negotiables</h1>
+          </div>
+          <div className="text-xs text-gray-400">
+            Level up your life with consistent daily habits
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto bg-black/10">
+        <div className="max-w-7xl mx-auto px-4 md:px-12 py-6 md:py-12">
+          <div className="space-y-6 md:space-y-8">
+            {/* Add Task Button */}
+            <div className="flex justify-center md:justify-end">
               <Button
                 onClick={() => setShowTaskForm(!showTaskForm)}
-                className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                className="w-full md:w-auto bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 justify-center"
               >
                 <Plus className="h-5 w-5 mr-2" />
                 Add Non-Negotiable

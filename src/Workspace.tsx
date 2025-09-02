@@ -209,7 +209,7 @@ Your intelligent workspace is ready! Here are some tips to get started:
           )}
 
           <main className={cn(
-            "flex-1 flex flex-col overflow-hidden transition-all duration-500 ease-in-out",
+            "flex-1 flex flex-col overflow-hidden transition-all duration-500 ease-in-out max-w-full",
             sidebarOpen ? "md:ml-0" : "md:-ml-80"
           )}>
             {(() => {
