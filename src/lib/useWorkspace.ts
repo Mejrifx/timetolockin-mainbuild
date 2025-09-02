@@ -67,9 +67,23 @@ export const useWorkspace = () => {
         const workspaceData = await Promise.race([dataPromise, timeoutPromise]);
         
         console.log('📦 Setting workspace data...')
+        
+        // Load currentSection from localStorage if available
+        let savedCurrentSection: 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab' = 'pages';
+        try {
+          const saved = localStorage.getItem('currentSection');
+          if (saved && ['pages', 'daily-tasks', 'calendar', 'finance', 'health-lab'].includes(saved)) {
+            savedCurrentSection = saved as 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab';
+            console.log('🔄 Restored currentSection from localStorage:', savedCurrentSection);
+          }
+        } catch (error) {
+          console.warn('Failed to load currentSection from localStorage:', error);
+        }
+        
         setState(prevState => ({
           ...prevState,
           ...(workspaceData as Partial<WorkspaceState>),
+          currentSection: savedCurrentSection,
         }));
         
         console.log('✅ Workspace loaded successfully!')
@@ -78,6 +92,18 @@ export const useWorkspace = () => {
         
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         setError(`Failed to load workspace: ${errorMessage}`);
+        
+        // Load currentSection from localStorage even in error case
+        let savedCurrentSection: 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab' = 'pages';
+        try {
+          const saved = localStorage.getItem('currentSection');
+          if (saved && ['pages', 'daily-tasks', 'calendar', 'finance', 'health-lab'].includes(saved)) {
+            savedCurrentSection = saved as 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab';
+            console.log('🔄 Restored currentSection from localStorage (error case):', savedCurrentSection);
+          }
+        } catch (error) {
+          console.warn('Failed to load currentSection from localStorage (error case):', error);
+        }
         
         // Set default empty state on error
         setState(prevState => ({
@@ -96,7 +122,7 @@ export const useWorkspace = () => {
             },
           },
           searchQuery: '',
-          currentSection: 'pages',
+          currentSection: savedCurrentSection,
         }));
       } finally {
         console.log('🏁 Loading complete, setting loading to false')
@@ -290,11 +316,22 @@ export const useWorkspace = () => {
   }, []);
 
   const setCurrentSection = useCallback((section: 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab') => {
-    setState(prevState => ({
-      ...prevState,
-      currentSection: section,
-      currentPageId: section === 'pages' ? prevState.currentPageId : undefined,
-    }));
+    setState(prevState => {
+      const newState = {
+        ...prevState,
+        currentSection: section,
+        currentPageId: section === 'pages' ? prevState.currentPageId : undefined,
+      };
+      
+      // Persist currentSection to localStorage
+      try {
+        localStorage.setItem('currentSection', section);
+      } catch (error) {
+        console.warn('Failed to save currentSection to localStorage:', error);
+      }
+      
+      return newState;
+    });
   }, []);
 
   const setSearchQuery = useCallback((query: string) => {
