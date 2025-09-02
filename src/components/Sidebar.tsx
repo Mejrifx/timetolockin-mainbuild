@@ -528,30 +528,6 @@ export const Sidebar = ({
               )}
             </div>
 
-            {/* Finance Section */}
-            <div className="border-b border-green-500/10">
-              {/* Section Header */}
-              <div className="p-6 pb-4">
-                <Button
-                  variant="ghost"
-                  onClick={() => onSectionSelect('finance')}
-                  className={cn(
-                    "w-full justify-start h-12 p-0 hover:bg-green-500/10 transition-all duration-300 rounded-lg group bg-black/20 backdrop-blur-xl",
-                    currentSection === 'finance' && "bg-green-500/20 border border-green-500/30"
-                  )}
-                >
-                  <div className="flex items-center w-full px-4">
-                    <div className="flex items-center gap-3">
-                      <DollarSign className="h-5 w-5 text-green-400" />
-                      <span className="text-white font-medium text-base group-hover:text-green-300 transition-colors duration-300">
-                        Finance Tracker
-                      </span>
-                    </div>
-                  </div>
-                </Button>
-              </div>
-            </div>
-
             {/* Daily Non-Negotiables Section */}
             <div className="border-b border-green-500/10">
               {/* Section Header */}
@@ -607,6 +583,30 @@ export const Sidebar = ({
                   )}
                 </div>
               )}
+            </div>
+
+            {/* Finance Section */}
+            <div className="border-b border-green-500/10">
+              {/* Section Header */}
+              <div className="p-6 pb-4">
+                <Button
+                  variant="ghost"
+                  onClick={() => onSectionSelect('finance')}
+                  className={cn(
+                    "w-full justify-start h-12 p-0 hover:bg-green-500/10 transition-all duration-300 rounded-lg group bg-black/20 backdrop-blur-xl",
+                    currentSection === 'finance' && "bg-green-500/20 border border-green-500/30"
+                  )}
+                >
+                  <div className="flex items-center w-full px-4">
+                    <div className="flex items-center gap-3">
+                      <DollarSign className="h-5 w-5 text-green-400" />
+                      <span className="text-white font-medium text-base group-hover:text-green-300 transition-colors duration-300">
+                        Finance Tracker
+                      </span>
+                    </div>
+                  </div>
+                </Button>
+              </div>
             </div>
 
             {/* Health Lab Section */}
