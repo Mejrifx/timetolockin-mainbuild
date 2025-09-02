@@ -109,7 +109,7 @@ export const Header = ({
               <img 
                 src="/timetolockin-main-logo.png" 
                 alt="timetolockin" 
-                className="h-14 w-auto object-contain hover:scale-110 transition-transform duration-300 ease-in-out drop-shadow-lg"
+                className="h-12 w-auto object-contain hover:scale-110 transition-transform duration-300 ease-in-out drop-shadow-lg"
               />
             </div>
           </div>
