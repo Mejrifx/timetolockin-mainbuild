@@ -244,6 +244,7 @@ const HealthLabDashboard = memo(({
   const [showProtocolForm, setShowProtocolForm] = useState(false);
   const [showQuitHabitForm, setShowQuitHabitForm] = useState(false);
   const [editingHabit, setEditingHabit] = useState<string | null>(null);
+  const [editHabitTitle, setEditHabitTitle] = useState('');
   const [editHabitDescription, setEditHabitDescription] = useState('');
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [newProtocol, setNewProtocol] = useState({
@@ -436,17 +437,19 @@ const HealthLabDashboard = memo(({
     const habit = quitHabits[habitId];
     if (habit) {
       setEditingHabit(habitId);
+      setEditHabitTitle(habit.name);
       setEditHabitDescription(habit.description || '');
     }
   }, [quitHabits]);
 
-  const saveHabitDescription = useCallback(async () => {
-    if (!editingHabit) return;
+  const saveHabitChanges = useCallback(async () => {
+    if (!editingHabit || !editHabitTitle.trim()) return;
     
     const habit = quitHabits[editingHabit];
     if (habit) {
       const updatedHabit = {
         ...habit,
+        name: editHabitTitle.trim(),
         description: editHabitDescription.trim(),
         updatedAt: Date.now(),
       };
@@ -459,12 +462,14 @@ const HealthLabDashboard = memo(({
       });
       
       setEditingHabit(null);
+      setEditHabitTitle('');
       setEditHabitDescription('');
     }
-  }, [editingHabit, editHabitDescription, quitHabits, onUpdateHealthData]);
+  }, [editingHabit, editHabitTitle, editHabitDescription, quitHabits, onUpdateHealthData]);
 
   const cancelEditingHabit = useCallback(() => {
     setEditingHabit(null);
+    setEditHabitTitle('');
     setEditHabitDescription('');
   }, []);
 
@@ -741,75 +746,137 @@ const HealthLabDashboard = memo(({
               
               return (
                 <div key={habit.id} className="bg-black/40 backdrop-blur-xl border border-green-500/30 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <IconComponent className="h-6 w-6 text-red-400" />
+                  {editingHabit === habit.id ? (
+                    // Editing Mode
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <IconComponent className="h-6 w-6 text-red-400" />
+                          <div className="text-sm text-gray-400 capitalize">{displayCategory}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            onClick={saveHabitChanges}
+                            size="sm"
+                            className="bg-green-500/20 text-green-400 hover:bg-green-500/30 border-green-500/30"
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            onClick={cancelEditingHabit}
+                            variant="ghost"
+                            size="sm"
+                            className="border-gray-500 text-white hover:bg-gray-100/10"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      {/* Edit Title */}
                       <div>
-                        <h3 className="font-medium text-white">{habit.name}</h3>
-                        <p className="text-sm text-gray-400 capitalize">{displayCategory}</p>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Habit Name</label>
+                        <Input
+                          value={editHabitTitle}
+                          onChange={(e) => setEditHabitTitle(e.target.value)}
+                          className="bg-black/40 border-green-500/30 text-white placeholder-gray-400 focus:border-green-400"
+                          placeholder="Enter habit name..."
+                        />
+                      </div>
+                      
+                      {/* Edit Description */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Description (Optional)</label>
+                        <textarea
+                          value={editHabitDescription}
+                          onChange={(e) => setEditHabitDescription(e.target.value)}
+                          rows={3}
+                          className="w-full bg-black/40 border border-green-500/30 rounded-md px-3 py-2 text-white placeholder-gray-400 focus:border-green-400 focus:outline-none resize-none"
+                          placeholder="Add a description or motivation for quitting this habit..."
+                        />
                       </div>
                     </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:bg-gray-500/20">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="bg-black/90 border-green-500/30">
-                        <DropdownMenuItem onClick={(e) => {
-                          e.stopPropagation();
-                          deleteQuitHabit(habit.id);
-                        }} className="text-red-400 hover:bg-red-500/20">
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Stop Tracking
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                  
-                  {/* Live Counter */}
-                  <div className="grid grid-cols-4 gap-2 mb-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-400">{timeStats.days}</div>
-                      <div className="text-xs text-gray-400">Days</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-400">{timeStats.hours}</div>
-                      <div className="text-xs text-gray-400">Hours</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-400">{timeStats.minutes}</div>
-                      <div className="text-xs text-gray-400">Minutes</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-400">{timeStats.seconds}</div>
-                      <div className="text-xs text-gray-400">Seconds</div>
-                    </div>
-                  </div>
-
-                  {/* Milestones */}
-                  <div className="space-y-2">
-                    <div className="text-sm font-medium text-gray-300">Milestones</div>
-                    <div className="space-y-1">
-                      {habit.milestones.slice(0, 3).map((milestone) => {
-                        const isReached = timeStats.days >= milestone.days;
-                        return (
-                          <div key={milestone.id} className={cn(
-                            "flex items-center gap-2 text-xs",
-                            isReached ? "text-green-400" : "text-gray-500"
-                          )}>
-                            {isReached ? <CheckCircle2 className="h-3 w-3" /> : <Circle className="h-3 w-3" />}
-                            <span>{milestone.title}</span>
+                  ) : (
+                    // Normal Display Mode
+                    <>
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <IconComponent className="h-6 w-6 text-red-400" />
+                          <div>
+                            <h3 className="font-medium text-white">{habit.name}</h3>
+                            <p className="text-sm text-gray-400 capitalize">{displayCategory}</p>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:bg-gray-500/20">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="bg-black/90 border-green-500/30">
+                            <DropdownMenuItem onClick={(e) => {
+                              e.stopPropagation();
+                              startEditingHabit(habit.id);
+                            }} className="text-blue-400 hover:bg-blue-500/20">
+                              <Edit3 className="h-4 w-4 mr-2" />
+                              Edit Habit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={(e) => {
+                              e.stopPropagation();
+                              deleteQuitHabit(habit.id);
+                            }} className="text-red-400 hover:bg-red-500/20">
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Stop Tracking
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                      
+                      {/* Live Counter */}
+                      <div className="grid grid-cols-4 gap-2 mb-4">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-green-400">{timeStats.days}</div>
+                          <div className="text-xs text-gray-400">Days</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-green-400">{timeStats.hours}</div>
+                          <div className="text-xs text-gray-400">Hours</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-green-400">{timeStats.minutes}</div>
+                          <div className="text-xs text-gray-400">Minutes</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-green-400">{timeStats.seconds}</div>
+                          <div className="text-xs text-gray-400">Seconds</div>
+                        </div>
+                      </div>
 
-                  {habit.description && (
-                    <div className="mt-4 pt-4 border-t border-green-500/20">
-                      <p className="text-sm text-gray-400">{habit.description}</p>
-                    </div>
+                      {/* Milestones */}
+                      <div className="space-y-2">
+                        <div className="text-sm font-medium text-gray-300">Milestones</div>
+                        <div className="space-y-1">
+                          {habit.milestones.slice(0, 3).map((milestone) => {
+                            const isReached = timeStats.days >= milestone.days;
+                            return (
+                              <div key={milestone.id} className={cn(
+                                "flex items-center gap-2 text-xs",
+                                isReached ? "text-green-400" : "text-gray-500"
+                              )}>
+                                {isReached ? <CheckCircle2 className="h-3 w-3" /> : <Circle className="h-3 w-3" />}
+                                <span>{milestone.title}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {habit.description && (
+                        <div className="mt-4 pt-4 border-t border-green-500/20">
+                          <p className="text-sm text-gray-400">{habit.description}</p>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               );
