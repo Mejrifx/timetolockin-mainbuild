@@ -10,11 +10,18 @@ export const testSupabaseConnection = async () => {
     
     if (authError) {
       console.error('❌ Auth error:', authError)
+      
+      // If token is expired, sign out to clear the stale session
+      if (authError.message?.includes('expired') || authError.message?.includes('invalid JWT')) {
+        console.log('🔄 Clearing expired session...')
+        await supabase.auth.signOut()
+        console.log('✅ Session cleared. Please log in again.')
+      }
       return false
     }
     
     if (!user) {
-      console.error('❌ No user found')
+      console.error('❌ No user found - please log in')
       return false
     }
     
