@@ -48,10 +48,15 @@ export const Workspace = () => {
 
   // Memoized handlers to prevent re-renders
   const handleCreatePage = useMemo(() => {
-    return (parentId?: string) => {
-      createPage(`New Page ${Object.keys(state.pages).length + 1}`, parentId);
+    return async (parentId?: string) => {
+      const pageId = await createPage(`New Page ${Object.keys(state.pages).length + 1}`, parentId);
+      if (pageId) {
+        // Automatically navigate to the new page and switch to pages section
+        setCurrentSection('pages');
+        setCurrentPage(pageId);
+      }
     };
-  }, [createPage, state.pages]);
+  }, [createPage, state.pages, setCurrentSection, setCurrentPage]);
 
   const handleSectionSelect = useMemo(() => {
     return (section: 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab') => {

@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, memo } from 'react';
+import { useState, useCallback, useMemo, memo, useEffect } from 'react';
 import { useThrottle } from '@/hooks/useDebounce';
 import { 
   ChevronRight, 
@@ -362,6 +362,25 @@ export const Sidebar = ({
     }
   }, [throttledSectionSelect, isOpen, onToggle]);
 
+  // Prevent body scroll when sidebar is open on mobile
+  useEffect(() => {
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) {
+      if (isOpen) {
+        document.body.style.overflow = 'hidden';
+        document.body.style.touchAction = 'none';
+      } else {
+        document.body.style.overflow = '';
+        document.body.style.touchAction = '';
+      }
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, [isOpen]);
+
   const filteredRootPages = rootPages.filter(pageId => {
     const page = pages[pageId];
     if (!page) return false;
@@ -418,6 +437,15 @@ export const Sidebar = ({
 
   return (
     <>
+      {/* Mobile Overlay - Prevents background scrolling */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 md:hidden"
+          onClick={onToggle}
+          style={{ touchAction: 'none' }}
+        />
+      )}
+      
       {/* Sidebar with glass effect */}
       <aside className={cn(
         "sidebar-container w-full sm:w-80 border-r border-green-500/20 section-transition relative shadow-lg overflow-hidden bg-black/60 backdrop-blur-xl transform-gpu contain-layout mobile-optimized",
@@ -425,8 +453,8 @@ export const Sidebar = ({
         "fixed md:static inset-y-0 left-0 z-40 md:z-0"
       )}>
         {/* Sidebar content */}
-        <div className="relative h-full flex flex-col z-10">
-          <div className="flex-1 overflow-y-auto">
+        <div className="relative h-full flex flex-col z-10" style={{ overscrollBehavior: 'contain' }}>
+          <div className="flex-1 overflow-y-auto" style={{ overscrollBehavior: 'contain' }}>
             {/* Calendar Section */}
             <div className="border-b border-green-500/10">
               {/* Section Header */}

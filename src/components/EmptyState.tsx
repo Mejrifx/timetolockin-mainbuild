@@ -7,19 +7,19 @@ interface EmptyStateProps {
 
 export const EmptyState = ({ onCreatePage }: EmptyStateProps) => {
   return (
-    <div className="flex-1 flex items-center justify-center bg-black/5">
-      <div className="text-center space-y-8 max-w-lg">
+    <div className="h-full flex items-center justify-center bg-black/5 px-4 md:px-8">
+      <div className="text-center space-y-6 md:space-y-8 max-w-lg w-full">
         <div className="mx-auto flex items-center justify-center mb-4">
           <img 
             src="/timetolockin-icon-logo-nobg.png" 
             alt="timetolockin" 
-            className="h-24 w-24 object-contain hover:scale-105 transition-transform duration-300 ease-in-out drop-shadow-xl"
+            className="h-16 md:h-24 w-16 md:w-24 object-contain hover:scale-105 transition-transform duration-300 ease-in-out drop-shadow-xl"
           />
         </div>
         
         <div className="space-y-4">
-          <h3 className="text-2xl font-semibold text-white">Welcome, it's time for you to lock in...</h3>
-          <p className="text-gray-300 text-lg leading-relaxed">
+          <h3 className="text-xl md:text-2xl font-semibold text-white">Welcome, it's time for you to lock in...</h3>
+          <p className="text-gray-300 text-base md:text-lg leading-relaxed">
             This is your private and intelligent workspace for notes, documents, and ideas. 
             Get started by creating your first page and begin organizing your thoughts and much more. (Coming Soon)
           </p>

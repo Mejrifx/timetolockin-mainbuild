@@ -145,8 +145,8 @@ export const Header = ({
           </Button>
 
           {/* User Menu */}
-          <div className="flex items-center gap-2 px-2 md:px-3 py-2 bg-black/20 backdrop-blur-xl rounded-lg border border-green-500/30 w-32 md:w-40 mobile-optimized">
-            <User className="h-4 w-4 text-green-400" />
+          <div className="flex items-center gap-1 md:gap-2 px-1 md:px-3 py-1 md:py-2 bg-black/20 backdrop-blur-xl rounded-lg border border-green-500/30 w-24 md:w-40 mobile-optimized">
+            <User className="h-3 w-3 md:h-4 md:w-4 text-green-400" />
             {isEditingUsername ? (
               <div className="flex items-center gap-2">
                 <Input
@@ -164,17 +164,17 @@ export const Header = ({
               </div>
             ) : (
               <div className="flex items-center gap-1">
-                <span className="text-sm text-white max-w-32 truncate">
+                <span className="text-xs md:text-sm text-white max-w-16 md:max-w-32 truncate">
                   {username || 'User'}
                 </span>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={handleUsernameEdit}
-                  className="h-5 w-5 p-0 hover:bg-green-500/20 text-gray-400 hover:text-green-400 transition-all duration-300"
+                  className="h-4 w-4 md:h-5 md:w-5 p-0 hover:bg-green-500/20 text-gray-400 hover:text-green-400 transition-all duration-300"
                   title="Edit username"
                 >
-                  <Edit3 className="h-3 w-3" />
+                  <Edit3 className="h-2 w-2 md:h-3 md:w-3" />
                 </Button>
               </div>
             )}
