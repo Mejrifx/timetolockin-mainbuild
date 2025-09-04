@@ -483,33 +483,60 @@ export const Sidebar = ({
             <div className="border-b border-green-500/10">
               {/* Section Header */}
               <div className="p-6 pb-4">
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setWorkspaceExpanded(!workspaceExpanded);
-                    if (!workspaceExpanded) {
-                      handleSectionSelect('pages');
-                    }
-                  }}
-                  className={cn(
-                    "w-full justify-start h-12 p-0 hover:bg-green-500/10 transition-colors duration-150 rounded-lg group outline-none focus:outline-none hover:outline-none active:outline-none focus-visible:outline-none ring-0 focus:ring-0 hover:ring-0 active:ring-0 focus-visible:ring-0",
-                    currentSection === 'pages' && "bg-green-500/20 border border-green-500/30"
-                  )}
-                >
-                  <div className="flex items-center w-full px-4">
-                    <div className="flex items-center gap-3">
-                      {workspaceExpanded ? (
-                        <ChevronDown className="h-4 w-4 text-green-400 transition-transform duration-300" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4 text-green-400 transition-transform duration-300" />
-                      )}
-                      <Briefcase className="h-5 w-5 text-green-400" />
-                      <span className="text-white font-medium text-base group-hover:text-green-300 transition-colors duration-150">
-                        Workspace
-                      </span>
+                <div className="flex items-center w-full">
+                  {/* Dropdown Toggle Button (Mobile Only) */}
+                  <Button
+                    variant="ghost"
+                    onClick={() => setWorkspaceExpanded(!workspaceExpanded)}
+                    className="md:hidden h-12 p-0 hover:bg-green-500/10 transition-colors duration-150 rounded-lg mr-2 min-w-[48px] flex items-center justify-center"
+                  >
+                    {workspaceExpanded ? (
+                      <ChevronDown className="h-4 w-4 text-green-400 transition-transform duration-300" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 text-green-400 transition-transform duration-300" />
+                    )}
+                  </Button>
+                  
+                  {/* Section Navigation Button */}
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleSectionSelect('pages')}
+                    className={cn(
+                      "flex-1 justify-start h-12 p-0 hover:bg-green-500/10 transition-colors duration-150 rounded-lg group outline-none focus:outline-none hover:outline-none active:outline-none focus-visible:outline-none ring-0 focus:ring-0 hover:ring-0 active:ring-0 focus-visible:ring-0",
+                      currentSection === 'pages' && "bg-green-500/20 border border-green-500/30"
+                    )}
+                  >
+                    <div className="flex items-center w-full px-4">
+                      <div className="flex items-center gap-3">
+                        {/* Desktop Dropdown Toggle */}
+                        <div className="hidden md:block">
+                          {workspaceExpanded ? (
+                            <ChevronDown className="h-4 w-4 text-green-400 transition-transform duration-300" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4 text-green-400 transition-transform duration-300" />
+                          )}
+                        </div>
+                        <Briefcase className="h-5 w-5 text-green-400" />
+                        <span className="text-white font-medium text-base group-hover:text-green-300 transition-colors duration-150">
+                          Workspace
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </Button>
+                  </Button>
+                  
+                  {/* Desktop Dropdown Toggle Button */}
+                  <Button
+                    variant="ghost"
+                    onClick={() => setWorkspaceExpanded(!workspaceExpanded)}
+                    className="hidden md:flex h-12 p-0 hover:bg-green-500/10 transition-colors duration-150 rounded-lg ml-2 min-w-[48px] items-center justify-center"
+                  >
+                    {workspaceExpanded ? (
+                      <ChevronDown className="h-4 w-4 text-green-400 transition-transform duration-300" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 text-green-400 transition-transform duration-300" />
+                    )}
+                  </Button>
+                </div>
               </div>
 
               {/* Collapsible Content */}

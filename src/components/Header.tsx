@@ -122,19 +122,19 @@ export const Header = ({
           </div>
         </div>
 
-        {/* Mobile Logo - Centered and Static */}
-        <div className="md:hidden flex-1 flex justify-center">
+        {/* Mobile Logo - Left Positioned */}
+        <div className="md:hidden flex-1 flex justify-start pl-2">
           <img 
             src="/timetolockin MAIN LOGO NEW.png" 
             alt="timetolockin" 
-            className="h-8 w-auto object-contain drop-shadow-lg"
+            className="h-7 w-auto object-contain drop-shadow-lg"
           />
         </div>
 
         {/* Desktop - No Title (Clean Look) */}
         <div className="hidden md:flex flex-1"></div>
 
-        <div className="flex items-center gap-2 md:gap-4 min-w-fit">
+        <div className="flex items-center gap-1 md:gap-4 min-w-fit">
           <Button
             onClick={onCreatePage}
             size="sm"
@@ -145,7 +145,7 @@ export const Header = ({
           </Button>
 
           {/* User Menu */}
-          <div className="flex items-center gap-1 md:gap-2 px-1 md:px-3 py-1 md:py-2 bg-black/20 backdrop-blur-xl rounded-lg border border-green-500/30 w-24 md:w-40 mobile-optimized">
+          <div className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 md:py-2 bg-black/20 backdrop-blur-xl rounded-lg border border-green-500/30 w-28 md:w-40 mobile-optimized">
             <User className="h-3 w-3 md:h-4 md:w-4 text-green-400" />
             {isEditingUsername ? (
               <div className="flex items-center gap-2">
@@ -164,7 +164,7 @@ export const Header = ({
               </div>
             ) : (
               <div className="flex items-center gap-1">
-                <span className="text-xs md:text-sm text-white max-w-16 md:max-w-32 truncate">
+                <span className="text-xs md:text-sm text-white max-w-14 md:max-w-32 truncate">
                   {username || 'User'}
                 </span>
                 <Button
