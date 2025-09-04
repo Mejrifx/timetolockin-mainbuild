@@ -454,7 +454,7 @@ export const Sidebar = ({
       )}>
         {/* Sidebar content */}
         <div className="relative h-full flex flex-col z-10" style={{ overscrollBehavior: 'contain' }}>
-          <div className="flex-1 overflow-y-auto" style={{ overscrollBehavior: 'contain' }}>
+          <div className="flex-1 overflow-y-auto pt-14 md:pt-0" style={{ overscrollBehavior: 'contain' }}>
             {/* Calendar Section */}
             <div className="border-b border-green-500/10">
               {/* Section Header */}
