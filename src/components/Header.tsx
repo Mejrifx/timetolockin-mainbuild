@@ -89,7 +89,7 @@ export const Header = ({
   };
 
   return (
-    <header className="h-14 md:h-16 border-b border-green-500/20 bg-black/60 backdrop-blur-xl sticky top-0 z-50 shadow-lg will-change-transform will-change-opacity">
+    <header className="h-14 md:h-16 border-b border-green-500/20 bg-black/60 backdrop-blur-xl sticky top-0 z-50 shadow-lg transform-gpu contain-layout mobile-optimized">
       <div className="flex items-center justify-between h-full px-4 md:px-8">
         <div className="flex items-center gap-2 md:gap-4">
           <Button
@@ -145,7 +145,7 @@ export const Header = ({
           </Button>
 
           {/* User Menu */}
-          <div className="flex items-center gap-2 px-2 md:px-3 py-2 bg-black/20 backdrop-blur-xl rounded-lg border border-green-500/30 w-32 md:w-40">
+          <div className="flex items-center gap-2 px-2 md:px-3 py-2 bg-black/20 backdrop-blur-xl rounded-lg border border-green-500/30 w-32 md:w-40 mobile-optimized">
             <User className="h-4 w-4 text-green-400" />
             {isEditingUsername ? (
               <div className="flex items-center gap-2">

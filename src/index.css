@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import mobile performance optimizations */
+@import './styles/mobile-optimizations.css';
+
 /* Performance optimizations */
 /* CSS Containment for better performance */
 .page-item,

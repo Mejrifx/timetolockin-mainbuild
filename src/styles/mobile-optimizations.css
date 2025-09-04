@@ -1,0 +1,114 @@
+/* Mobile Performance Optimizations */
+
+/* Reduce backdrop-blur on mobile devices for better performance */
+@media (max-width: 768px) {
+  /* Replace expensive backdrop-blur with simple transparency on mobile */
+  .backdrop-blur-xl {
+    backdrop-filter: none !important;
+    background-color: rgba(0, 0, 0, 0.85) !important;
+  }
+  
+  .backdrop-blur-sm {
+    backdrop-filter: none !important;
+    background-color: rgba(0, 0, 0, 0.75) !important;
+  }
+  
+  /* Optimize will-change for better GPU utilization */
+  .mobile-optimized {
+    will-change: transform, opacity;
+    transform: translateZ(0); /* Force GPU layer */
+    backface-visibility: hidden;
+  }
+  
+  /* Reduce box-shadows on mobile */
+  .shadow-xl,
+  .shadow-2xl {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  .shadow-lg {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  /* Optimize transitions for mobile */
+  .transition-all {
+    transition-property: transform, opacity !important;
+    transition-duration: 200ms !important;
+  }
+  
+  /* Force hardware acceleration for smooth scrolling */
+  .overflow-y-auto,
+  .overflow-auto {
+    -webkit-overflow-scrolling: touch;
+    transform: translateZ(0);
+  }
+}
+
+/* Desktop keeps original effects */
+@media (min-width: 769px) {
+  .desktop-blur {
+    backdrop-filter: blur(20px);
+  }
+}
+
+/* GPU acceleration for animations */
+.transform-gpu {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Smooth section transitions */
+.section-transition {
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1), 
+              opacity 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+/* Reduce repaints */
+.contain-layout {
+  contain: layout style paint;
+}
+
+/* Optimize mobile touch interactions */
+@media (max-width: 768px) {
+  /* Increase touch targets */
+  button, 
+  .cursor-pointer {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Optimize hover states for touch devices */
+  .hover\:scale-105:hover {
+    transform: none !important;
+  }
+  
+  .hover\:bg-green-500\/10:hover {
+    background-color: rgba(34, 197, 94, 0.1) !important;
+  }
+  
+  /* Disable complex animations on mobile */
+  .animate-pulse,
+  .animate-spin {
+    animation-duration: 1s !important;
+  }
+}
+
+/* Optimize fonts for mobile */
+@media (max-width: 768px) {
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeSpeed;
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
