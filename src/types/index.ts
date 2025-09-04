@@ -23,7 +23,7 @@ export interface WorkspaceState {
   pages: Record<string, Page>;
   rootPages: string[];
   currentPageId?: string;
-  currentSection?: 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab';
+  currentSection: 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab';
   searchQuery: string;
   dailyTasks: Record<string, DailyTask>;
   financeData: FinanceData;
