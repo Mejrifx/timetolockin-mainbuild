@@ -1,114 +1,205 @@
 /* Mobile Performance Optimizations */
 
-/* Reduce backdrop-blur on mobile devices for better performance */
+/* Aggressive performance optimizations for mobile devices */
 @media (max-width: 768px) {
-  /* Replace expensive backdrop-blur with simple transparency on mobile */
-  .backdrop-blur-xl {
+  /* Disable expensive visual effects on mobile */
+  .backdrop-blur-xl,
+  .backdrop-blur-lg,
+  .backdrop-blur-md {
     backdrop-filter: none !important;
-    background-color: rgba(0, 0, 0, 0.85) !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(0, 0, 0, 0.8) !important;
   }
   
-  .backdrop-blur-sm {
-    backdrop-filter: none !important;
-    background-color: rgba(0, 0, 0, 0.75) !important;
-  }
-  
-  /* Optimize will-change for better GPU utilization */
-  .mobile-optimized {
-    will-change: transform, opacity;
-    transform: translateZ(0); /* Force GPU layer */
-    backface-visibility: hidden;
-  }
-  
-  /* Reduce box-shadows on mobile */
+  /* Simplify shadows on mobile */
   .shadow-xl,
-  .shadow-2xl {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
-  }
-  
   .shadow-lg {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
   }
   
-  /* Optimize transitions for mobile */
-  .transition-all {
-    transition-property: transform, opacity !important;
+  /* Disable hover effects on mobile */
+  .hover\:scale-105:hover,
+  .hover\:scale-110:hover {
+    transform: none !important;
+  }
+  
+  /* Reduce animation complexity */
+  * {
+    animation-duration: 200ms !important;
     transition-duration: 200ms !important;
   }
   
-  /* Force hardware acceleration for smooth scrolling */
-  .overflow-y-auto,
-  .overflow-auto {
+  /* Optimize text rendering for mobile */
+  body {
+    text-rendering: optimizeSpeed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Disable complex gradients */
+  .bg-gradient-to-r,
+  .bg-gradient-to-l,
+  .bg-gradient-to-t,
+  .bg-gradient-to-b {
+    background: #22c55e !important; /* Solid green instead of gradient */
+  }
+  
+  /* Simplify borders */
+  .border-gradient {
+    border: 1px solid rgba(34, 197, 94, 0.3) !important;
+  }
+  
+  /* Optimize scroll performance */
+  .overflow-auto,
+  .overflow-y-auto {
     -webkit-overflow-scrolling: touch;
+    scroll-behavior: auto; /* Disable smooth scrolling on mobile */
+  }
+  
+  /* Force hardware acceleration for critical elements */
+  .performance-critical {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+  
+  /* Optimize sidebar for mobile */
+  .sidebar-mobile {
+    contain: layout style paint;
     transform: translateZ(0);
   }
-}
-
-/* Desktop keeps original effects */
-@media (min-width: 769px) {
-  .desktop-blur {
-    backdrop-filter: blur(20px);
+  
+  /* Reduce complexity of glass effects */
+  .glass-effect {
+    background: rgba(0, 0, 0, 0.9) !important;
+    backdrop-filter: none !important;
+  }
+  
+  /* Optimize button interactions */
+  .btn-mobile {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Prevent zoom on input focus */
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+  
+  /* Optimize list rendering */
+  .mobile-list {
+    contain: layout style;
+    will-change: scroll-position;
+  }
+  
+  .mobile-list-item {
+    contain: layout;
+  }
+  
+  /* Reduce paint complexity */
+  .mobile-optimized {
+    contain: layout style paint;
+    will-change: transform;
+  }
+  
+  /* Disable expensive animations during touch */
+  .touching * {
+    animation-play-state: paused !important;
+    transition: none !important;
+  }
+  
+  /* Optimize virtual scrolling for mobile */
+  .virtual-scroll-mobile {
+    contain: strict;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Mobile-specific containment */
+  .mobile-contain {
+    contain: layout style paint;
+  }
+  
+  /* Optimize image loading on mobile */
+  img {
+    content-visibility: auto;
+    contain-intrinsic-size: 300px 200px;
+  }
+  
+  /* Reduce motion for better battery life */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation: none !important;
+      transition: none !important;
+    }
   }
 }
 
-/* GPU acceleration for animations */
-.transform-gpu {
-  transform: translateZ(0);
-  will-change: transform;
-  backface-visibility: hidden;
-}
-
-/* Smooth section transitions */
-.section-transition {
-  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1), 
-              opacity 200ms cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: transform, opacity;
-}
-
-/* Reduce repaints */
-.contain-layout {
-  contain: layout style paint;
-}
-
-/* Optimize mobile touch interactions */
-@media (max-width: 768px) {
+/* Touch-specific optimizations */
+@media (pointer: coarse) {
   /* Increase touch targets */
-  button, 
-  .cursor-pointer {
+  button,
+  .clickable {
     min-height: 44px;
     min-width: 44px;
   }
   
-  /* Optimize hover states for touch devices */
-  .hover\:scale-105:hover {
-    transform: none !important;
-  }
-  
-  .hover\:bg-green-500\/10:hover {
-    background-color: rgba(34, 197, 94, 0.1) !important;
-  }
-  
-  /* Disable complex animations on mobile */
-  .animate-pulse,
-  .animate-spin {
-    animation-duration: 1s !important;
+  /* Optimize touch feedback */
+  .touch-target {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(34, 197, 94, 0.2);
   }
 }
 
-/* Optimize fonts for mobile */
-@media (max-width: 768px) {
+/* Low-end device optimizations */
+@media (max-width: 480px) {
+  /* Further reduce visual complexity */
   * {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeSpeed;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    border-radius: 4px !important;
+  }
+  
+  /* Disable all animations on very small screens */
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  /* Optimize layout containment */
+  .low-end-optimize {
+    contain: layout;
+    will-change: auto;
   }
 }
 
-/* Reduce motion for users who prefer it */
-@media (prefers-reduced-motion: reduce) {
+/* Battery-conscious optimizations */
+@media (prefers-color-scheme: dark) and (max-width: 768px) {
+  /* Use true black for OLED displays */
+  .bg-black {
+    background-color: #000000 !important;
+  }
+  
+  /* Reduce brightness of green elements */
+  .text-green-500,
+  .border-green-500 {
+    color: #16a34a !important;
+    border-color: #16a34a !important;
+  }
+}
+
+/* Network-aware optimizations */
+@media (prefers-reduced-data: reduce) {
+  /* Disable background images */
   * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    background-image: none !important;
+  }
+  
+  /* Use system fonts */
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
   }
 }

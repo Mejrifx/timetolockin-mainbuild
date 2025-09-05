@@ -3,7 +3,11 @@ import { Workspace } from '@/Workspace';
 import { AuthPage } from '@/components/AuthPage';
 import { PerformanceOptimizer } from '@/components/PerformanceOptimizer';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { performanceMonitor } from '@/utils/performanceMonitor';
 import './App.css';
+
+// Initialize performance monitoring
+performanceMonitor.enable();
 
 const AppContent = () => {
   const { user, loading } = useAuth();

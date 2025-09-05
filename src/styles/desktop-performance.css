@@ -136,4 +136,27 @@
     will-change: scroll-position;
     contain: layout style;
   }
+  
+  /* Virtual scrolling optimizations */
+  .virtual-list-container {
+    contain: strict;
+    overflow: auto;
+    will-change: scroll-position;
+  }
+  
+  .virtual-list-item {
+    contain: layout style;
+    will-change: transform;
+  }
+  
+  /* Optimize large list rendering */
+  .large-list {
+    contain: layout style paint;
+    overflow-anchor: none;
+  }
+  
+  /* CSS containment for better performance */
+  .dashboard-section {
+    contain: layout style;
+  }
 }

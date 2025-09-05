@@ -3,6 +3,8 @@ import { WorkspaceState, Page, DailyTask, FinanceData, HealthData } from '@/type
 import { pagesService, dailyTasksService, workspaceService, financeService, healthService } from '@/lib/database';
 import { useAuth } from '@/lib/AuthContext';
 import { testSupabaseConnection, showSetupInstructions } from '@/lib/supabaseTest';
+import { useQueryCache } from '@/hooks/useQueryCache';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const generateId = () => {
   return Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
@@ -31,107 +33,60 @@ export const useWorkspace = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Load data from Supabase when user logs in
-  useEffect(() => {
-    const loadData = async () => {
-      if (!user) {
-        console.log('👤 No user found, stopping loading...')
-        setLoading(false);
-        return;
-      }
-
-      console.log('👤 User found, starting data load for:', user.email)
+  // Use cached query for loading workspace data
+  const {
+    data: workspaceData,
+    isLoading: workspaceLoading,
+    error: workspaceError,
+    refetch: refetchWorkspace,
+  } = useQueryCache(
+    async () => {
+      if (!user) throw new Error('No user found');
       
-      try {
-        setError(null); // Clear any previous errors
-        
-        // First test the Supabase connection and ensure user profile exists
-        console.log('🔧 Testing Supabase setup...')
-        const connectionOk = await testSupabaseConnection();
-        
-        if (!connectionOk) {
-          showSetupInstructions();
-          setError('Database tables not found. Please run the SQL setup script in your Supabase dashboard.');
-          return;
-        }
-        
-        console.log('✅ Database setup verified, loading workspace data...')
-        
-        // Load workspace data with timeout
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Loading timeout after 10 seconds')), 10000)
-        );
-        
-        const dataPromise = workspaceService.loadWorkspaceData();
-        
-        const workspaceData = await Promise.race([dataPromise, timeoutPromise]);
-        
-        console.log('📦 Setting workspace data...')
-        
-        // Load currentSection from localStorage if available
-        let savedCurrentSection: 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab' = 'pages';
-        try {
-          const saved = localStorage.getItem('currentSection');
-          if (saved && ['pages', 'daily-tasks', 'calendar', 'finance', 'health-lab'].includes(saved)) {
-            savedCurrentSection = saved as 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab';
-            console.log('🔄 Restored currentSection from localStorage:', savedCurrentSection);
-          }
-        } catch (error) {
-          console.warn('Failed to load currentSection from localStorage:', error);
-        }
-        
-        setState(prevState => ({
-          ...prevState,
-          ...(workspaceData as Partial<WorkspaceState>),
-          currentSection: savedCurrentSection,
-        }));
-        
-        console.log('✅ Workspace loaded successfully!')
-      } catch (error) {
-        console.error('❌ Error loading workspace data:', error);
-        
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-        setError(`Failed to load workspace: ${errorMessage}`);
-        
-        // Load currentSection from localStorage even in error case
-        let savedCurrentSection: 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab' = 'pages';
-        try {
-          const saved = localStorage.getItem('currentSection');
-          if (saved && ['pages', 'daily-tasks', 'calendar', 'finance', 'health-lab'].includes(saved)) {
-            savedCurrentSection = saved as 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab';
-            console.log('🔄 Restored currentSection from localStorage (error case):', savedCurrentSection);
-          }
-        } catch (error) {
-          console.warn('Failed to load currentSection from localStorage (error case):', error);
-        }
-        
-        // Set default empty state on error
-        setState(prevState => ({
-          ...prevState,
-          pages: {},
-          rootPages: [],
-          dailyTasks: {},
-          financeData: financeService.getDefaultFinanceData(),
-          healthData: {
-            protocols: {},
-            quitHabits: {},
-            settings: {
-              reminderEnabled: true,
-              weeklyReviewDay: 0,
-              notificationEnabled: true,
-            },
-          },
-          searchQuery: '',
-          currentSection: savedCurrentSection,
-        }));
-      } finally {
-        console.log('🏁 Loading complete, setting loading to false')
-        setLoading(false);
+      // Test connection first
+      const connectionOk = await testSupabaseConnection();
+      if (!connectionOk) {
+        showSetupInstructions();
+        throw new Error('Database tables not found. Please run the SQL setup script in your Supabase dashboard.');
       }
-    };
+      
+      return workspaceService.loadWorkspaceData();
+    },
+    [user?.id],
+    {
+      ttl: 2 * 60 * 1000, // 2 minutes cache
+      staleTime: 30 * 1000, // 30 seconds stale time
+      cacheKey: `workspace_${user?.id}`,
+    }
+  );
 
-    loadData();
-  }, [user]);
+  // Update state when workspace data changes
+  useEffect(() => {
+    if (workspaceData) {
+      // Load currentSection from localStorage
+      let savedCurrentSection: 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab' = 'pages';
+      try {
+        const saved = localStorage.getItem('currentSection');
+        if (saved && ['pages', 'daily-tasks', 'calendar', 'finance', 'health-lab'].includes(saved)) {
+          savedCurrentSection = saved as 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab';
+        }
+      } catch (error) {
+        console.warn('Failed to load currentSection from localStorage:', error);
+      }
+
+      setState(prevState => ({
+        ...prevState,
+        ...(workspaceData as Partial<WorkspaceState>),
+        currentSection: savedCurrentSection,
+      }));
+    }
+  }, [workspaceData]);
+
+  // Handle loading and error states
+  useEffect(() => {
+    setLoading(workspaceLoading);
+    setError(workspaceError?.message || null);
+  }, [workspaceLoading, workspaceError]);
 
   const createPage = useCallback(async (title: string, parentId?: string) => {
     if (!user) return '';

@@ -1,23 +1,18 @@
-import { useState, useEffect, useMemo, memo } from 'react';
+import { useState, useEffect, useMemo, memo, useCallback } from 'react';
 import { usePerformanceMode } from '@/hooks/usePerformanceMode';
 import { useWorkspace } from '@/lib/useWorkspace';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
-import { Editor } from '@/components/Editor';
 import { EmptyState } from '@/components/EmptyState';
-import { DailyTasksDashboard } from '@/components/DailyTasksDashboard';
-import { CalendarDashboard } from '@/components/CalendarDashboard';
-import { FinanceDashboard } from '@/components/FinanceDashboard';
-import { HealthLabDashboard } from '@/components/HealthLabDashboard';
+import { 
+  DailyTasksDashboard, 
+  CalendarDashboard, 
+  FinanceDashboard, 
+  HealthLabDashboard,
+  Editor
+} from '@/components/LazyComponents';
 import { GridBackground } from '@/components/ui/grid-background';
 import { cn } from '@/lib/utils';
-
-// Memoized dashboard components to prevent unnecessary re-renders
-const MemoizedDailyTasksDashboard = memo(DailyTasksDashboard);
-const MemoizedCalendarDashboard = memo(CalendarDashboard);
-const MemoizedFinanceDashboard = memo(FinanceDashboard);
-const MemoizedHealthLabDashboard = memo(HealthLabDashboard);
-const MemoizedEditor = memo(Editor);
 const MemoizedEmptyState = memo(EmptyState);
 
 export const Workspace = () => {
@@ -158,13 +153,15 @@ export const Workspace = () => {
                   : "opacity-0 translate-x-2 pointer-events-none z-0"
               )}
             >
-              <MemoizedDailyTasksDashboard
-                dailyTasks={state.dailyTasks}
-                onCreateDailyTask={createDailyTask}
-                onUpdateDailyTask={updateDailyTask}
-                onToggleTaskCompletion={toggleTaskCompletion}
-                onDeleteDailyTask={deleteDailyTask}
-              />
+              {state.currentSection === 'daily-tasks' && (
+                <DailyTasksDashboard
+                  dailyTasks={state.dailyTasks}
+                  onCreateDailyTask={createDailyTask}
+                  onUpdateDailyTask={updateDailyTask}
+                  onToggleTaskCompletion={toggleTaskCompletion}
+                  onDeleteDailyTask={deleteDailyTask}
+                />
+              )}
             </div>
 
             {/* Calendar Dashboard */}
@@ -177,7 +174,9 @@ export const Workspace = () => {
                   : "opacity-0 translate-x-2 pointer-events-none z-0"
               )}
             >
-              <MemoizedCalendarDashboard />
+              {state.currentSection === 'calendar' && (
+                <CalendarDashboard />
+              )}
             </div>
 
             {/* Finance Dashboard */}
@@ -190,12 +189,14 @@ export const Workspace = () => {
                   : "opacity-0 translate-x-2 pointer-events-none z-0"
               )}
             >
-              <MemoizedFinanceDashboard 
-                financeData={state.financeData}
-                onUpdateFinanceData={updateFinanceData}
-                onCreateDailyTask={createDailyTask}
-                onExportToWorkspace={handleExportToWorkspace}
-              />
+              {state.currentSection === 'finance' && (
+                <FinanceDashboard 
+                  financeData={state.financeData}
+                  onUpdateFinanceData={updateFinanceData}
+                  onCreateDailyTask={createDailyTask}
+                  onExportToWorkspace={handleExportToWorkspace}
+                />
+              )}
             </div>
 
             {/* Health Lab Dashboard */}
@@ -208,12 +209,14 @@ export const Workspace = () => {
                   : "opacity-0 translate-x-2 pointer-events-none z-0"
               )}
             >
-              <MemoizedHealthLabDashboard 
-                healthData={state.healthData}
-                onUpdateHealthData={updateHealthData}
-                onCreateDailyTask={createDailyTask}
-                onExportToWorkspace={handleExportToWorkspace}
-              />
+              {state.currentSection === 'health-lab' && (
+                <HealthLabDashboard 
+                  healthData={state.healthData}
+                  onUpdateHealthData={updateHealthData}
+                  onCreateDailyTask={createDailyTask}
+                  onExportToWorkspace={handleExportToWorkspace}
+                />
+              )}
             </div>
 
             {/* Pages/Editor Section */}
@@ -226,17 +229,19 @@ export const Workspace = () => {
                   : "opacity-0 translate-x-2 pointer-events-none z-0"
               )}
             >
-              {currentPage ? (
-                <MemoizedEditor
-                  key={currentPage.id}
-                  page={currentPage}
-                  onUpdatePage={updatePage}
-                />
-              ) : (
-                <MemoizedEmptyState 
-                  onCreatePage={() => handleCreatePage()} 
-                  sidebarOpen={sidebarOpen}
-                />
+              {state.currentSection === 'pages' && (
+                currentPage ? (
+                  <Editor
+                    key={currentPage.id}
+                    page={currentPage}
+                    onUpdatePage={updatePage}
+                  />
+                ) : (
+                  <MemoizedEmptyState 
+                    onCreatePage={() => handleCreatePage()} 
+                    sidebarOpen={sidebarOpen}
+                  />
+                )
               )}
             </div>
           </main>
