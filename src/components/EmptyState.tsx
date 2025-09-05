@@ -1,14 +1,22 @@
 import { FileText, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface EmptyStateProps {
   onCreatePage: () => void;
+  sidebarOpen?: boolean;
 }
 
-export const EmptyState = ({ onCreatePage }: EmptyStateProps) => {
+export const EmptyState = ({ onCreatePage, sidebarOpen = true }: EmptyStateProps) => {
   return (
     <div className="h-full flex items-center justify-center bg-black/5 px-4 md:px-8">
-      <div className="text-center space-y-6 md:space-y-8 max-w-lg w-full">
+      <div 
+        className={cn(
+          "text-center space-y-6 md:space-y-8 max-w-lg w-full",
+          "md:transition-transform md:duration-500 md:ease-in-out",
+          sidebarOpen ? "md:translate-x-0" : "md:-translate-x-40"
+        )}
+      >
         <div className="mx-auto flex items-center justify-center mb-4">
           <img 
             src="/timetolockin-icon-logo-nobg.png" 

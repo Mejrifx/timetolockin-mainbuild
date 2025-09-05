@@ -229,7 +229,10 @@ export const Workspace = () => {
                   onUpdatePage={updatePage}
                 />
               ) : (
-                <MemoizedEmptyState onCreatePage={() => handleCreatePage()} />
+                <MemoizedEmptyState 
+                  onCreatePage={() => handleCreatePage()} 
+                  sidebarOpen={sidebarOpen}
+                />
               )}
             </div>
           </main>
