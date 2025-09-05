@@ -1,0 +1,139 @@
+/* Desktop Performance Optimizations */
+
+/* Reduce animation complexity on desktop */
+@media (min-width: 768px) {
+  /* Optimize backdrop-blur for better desktop performance */
+  .backdrop-blur-xl {
+    backdrop-filter: blur(12px) !important; /* Reduced from 20px */
+  }
+  
+  .backdrop-blur-sm {
+    backdrop-filter: blur(4px) !important; /* Reduced from 8px */
+  }
+  
+  /* Optimize transitions for desktop - reduce duration for snappier feel */
+  .section-transition {
+    transition: transform 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  }
+  
+  /* Reduce sidebar transition time */
+  .sidebar-container {
+    transition: transform 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  }
+  
+  /* Optimize header logo animation */
+  .logo-slide {
+    transition: transform 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  }
+  
+  /* Reduce welcome message animation time */
+  .welcome-slide {
+    transition: transform 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  }
+  
+  /* Optimize hover effects - reduce complexity */
+  .hover\:scale-105:hover {
+    transform: scale(1.02) !important; /* Reduced from 1.05 */
+  }
+  
+  .hover\:scale-110:hover {
+    transform: scale(1.05) !important; /* Reduced from 1.10 */
+  }
+  
+  /* Disable expensive animations on complex elements */
+  .complex-animation {
+    animation: none !important;
+  }
+  
+  /* Force hardware acceleration for critical elements */
+  .critical-gpu {
+    transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+  
+  /* Optimize shadow rendering */
+  .shadow-xl {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25) !important; /* Simplified */
+  }
+  
+  .shadow-lg {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important; /* Simplified */
+  }
+  
+  /* Reduce animation complexity for hamburger menu */
+  .hamburger-line {
+    transition: all 200ms ease-out !important; /* Reduced from 300ms */
+  }
+  
+  /* Optimize dropdown animations */
+  .dropdown-animation {
+    transition: opacity 150ms ease-out, transform 150ms ease-out !important;
+  }
+  
+  /* Disable complex gradients during animations */
+  .animating .bg-gradient-to-r {
+    background: #22c55e !important; /* Solid color during animation */
+  }
+}
+
+/* Performance mode for reduced motion users */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Critical performance classes */
+.performance-critical {
+  contain: layout style paint;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.no-animation {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Optimize text rendering for performance */
+.performance-text {
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
+}
+
+/* Reduce repaints during scrolling */
+.scroll-optimized {
+  will-change: scroll-position;
+  contain: layout;
+}
+
+/* Desktop-specific optimizations */
+@media (min-width: 768px) {
+  /* Reduce complexity of glass effects */
+  .glass-effect {
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(8px) !important; /* Reduced complexity */
+  }
+  
+  /* Optimize button hover states */
+  .btn-optimized:hover {
+    background-color: rgba(34, 197, 94, 0.1) !important;
+    transform: none !important; /* Remove transform on hover */
+  }
+  
+  /* Simplify complex animations */
+  .animate-in {
+    animation-duration: 200ms !important;
+  }
+  
+  /* Optimize sidebar content */
+  .sidebar-content {
+    will-change: scroll-position;
+    contain: layout style;
+  }
+}

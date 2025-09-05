@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, memo } from 'react';
+import { usePerformanceMode } from '@/hooks/usePerformanceMode';
 import { useWorkspace } from '@/lib/useWorkspace';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
@@ -40,6 +41,9 @@ export const Workspace = () => {
   } = useWorkspace();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Performance monitoring
+  const { isHighPerformanceMode, frameRate } = usePerformanceMode();
 
   // Memoize current page to prevent unnecessary recalculations
   const currentPage = useMemo(() => {
@@ -147,7 +151,7 @@ export const Workspace = () => {
             {/* Daily Tasks Dashboard */}
             <div 
               className={cn(
-                "absolute inset-0 transition-all duration-150 ease-out",
+                "absolute inset-0 transition-all duration-100 ease-out performance-critical",
                 "will-change-transform transform-gpu",
                 state.currentSection === 'daily-tasks' 
                   ? "opacity-100 translate-x-0 pointer-events-auto z-10" 
@@ -166,7 +170,7 @@ export const Workspace = () => {
             {/* Calendar Dashboard */}
             <div 
               className={cn(
-                "absolute inset-0 transition-all duration-150 ease-out",
+                "absolute inset-0 transition-all duration-100 ease-out performance-critical",
                 "will-change-transform transform-gpu",
                 state.currentSection === 'calendar' 
                   ? "opacity-100 translate-x-0 pointer-events-auto z-10" 
@@ -179,7 +183,7 @@ export const Workspace = () => {
             {/* Finance Dashboard */}
             <div 
               className={cn(
-                "absolute inset-0 transition-all duration-150 ease-out",
+                "absolute inset-0 transition-all duration-100 ease-out performance-critical",
                 "will-change-transform transform-gpu",
                 state.currentSection === 'finance' 
                   ? "opacity-100 translate-x-0 pointer-events-auto z-10" 
@@ -197,7 +201,7 @@ export const Workspace = () => {
             {/* Health Lab Dashboard */}
             <div 
               className={cn(
-                "absolute inset-0 transition-all duration-150 ease-out",
+                "absolute inset-0 transition-all duration-100 ease-out performance-critical",
                 "will-change-transform transform-gpu",
                 state.currentSection === 'health-lab' 
                   ? "opacity-100 translate-x-0 pointer-events-auto z-10" 
@@ -215,7 +219,7 @@ export const Workspace = () => {
             {/* Pages/Editor Section */}
             <div 
               className={cn(
-                "absolute inset-0 transition-all duration-150 ease-out",
+                "absolute inset-0 transition-all duration-100 ease-out performance-critical",
                 "will-change-transform transform-gpu",
                 state.currentSection === 'pages' 
                   ? "opacity-100 translate-x-0 pointer-events-auto z-10" 

@@ -349,7 +349,7 @@ export const Sidebar = ({
   });
 
   // Throttled section selection to prevent rapid switching performance issues
-  const throttledSectionSelect = useThrottle(onSectionSelect, 100);
+  const throttledSectionSelect = useThrottle(onSectionSelect, 50);
 
   // Helper function to handle section selection and auto-close sidebar on mobile
   const handleSectionSelect = useCallback((section: 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab') => {
@@ -448,7 +448,7 @@ export const Sidebar = ({
       
       {/* Sidebar with glass effect */}
       <aside className={cn(
-        "sidebar-container w-full sm:w-80 border-r border-green-500/20 section-transition relative shadow-lg overflow-hidden bg-black/60 backdrop-blur-xl transform-gpu contain-layout mobile-optimized",
+        "sidebar-container w-full sm:w-80 border-r border-green-500/20 relative shadow-lg overflow-hidden bg-black/60 backdrop-blur-xl critical-gpu contain-layout mobile-optimized",
         isOpen ? "translate-x-0" : "-translate-x-full md:-translate-x-80",
         "fixed md:static inset-y-0 left-0 z-40 md:z-0"
       )}>

@@ -12,8 +12,7 @@ export const EmptyState = ({ onCreatePage, sidebarOpen = true }: EmptyStateProps
     <div className="h-full flex items-center justify-center bg-black/5 px-4 md:px-8">
       <div 
         className={cn(
-          "text-center space-y-6 md:space-y-8 max-w-lg w-full",
-          "md:transition-transform md:duration-500 md:ease-in-out",
+          "text-center space-y-6 md:space-y-8 max-w-lg w-full welcome-slide critical-gpu",
           sidebarOpen ? "md:translate-x-0" : "md:-translate-x-40"
         )}
       >

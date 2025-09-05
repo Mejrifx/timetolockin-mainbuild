@@ -99,16 +99,16 @@ export const Header = ({
             className="md:hidden hover:bg-green-500/10 text-white h-10 w-10 p-0 rounded-lg transition-all duration-300"
           >
             <div className="flex flex-col justify-center items-center w-5 h-5">
-              <div className={`w-4 h-0.5 bg-white rounded transition-all duration-300 ${sidebarOpen ? 'rotate-45 translate-y-1' : ''}`}></div>
-              <div className={`w-4 h-0.5 bg-white rounded mt-1 transition-all duration-300 ${sidebarOpen ? 'opacity-0' : ''}`}></div>
-              <div className={`w-4 h-0.5 bg-white rounded mt-1 transition-all duration-300 ${sidebarOpen ? '-rotate-45 -translate-y-1' : ''}`}></div>
+              <div className={`w-4 h-0.5 bg-white rounded hamburger-line ${sidebarOpen ? 'rotate-45 translate-y-1' : ''}`}></div>
+              <div className={`w-4 h-0.5 bg-white rounded mt-1 hamburger-line ${sidebarOpen ? 'opacity-0' : ''}`}></div>
+              <div className={`w-4 h-0.5 bg-white rounded mt-1 hamburger-line ${sidebarOpen ? '-rotate-45 -translate-y-1' : ''}`}></div>
             </div>
           </Button>
           
           {/* Desktop Logo - Slides with sidebar */}
           <div className="hidden md:flex items-center md:ml-20">
             <div 
-              className="flex items-center justify-center ml-0 md:ml-[-35px] transition-transform duration-500 ease-in-out"
+              className="flex items-center justify-center ml-0 md:ml-[-35px] logo-slide critical-gpu"
               style={{
                 transform: sidebarOpen ? 'translateX(0px)' : 'translateX(25px)'
               }}
