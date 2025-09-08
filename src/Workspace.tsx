@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useWorkspace } from '@/lib/useWorkspace';
+import { useWorkspace } from '@/lib/useWorkspaceFixed';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
 import { Editor } from '@/components/Editor';
@@ -16,6 +16,7 @@ export const Workspace = () => {
     state,
     loading,
     error,
+    loadingStep,
     createPage,
     updatePage,
     deletePage,
@@ -118,7 +119,13 @@ Your intelligent workspace is ready! Here are some tips to get started:
           <div className="text-center max-w-md px-6">
             <div className="w-12 h-12 border-4 border-green-500/30 border-t-green-500 rounded-full animate-spin mx-auto mb-4" />
             <p className="text-white text-lg mb-2">Loading your workspace...</p>
+            {loadingStep && (
+              <p className="text-gray-300 text-sm mb-2">{loadingStep}</p>
+            )}
             <p className="text-gray-400 text-sm">This should only take a few seconds</p>
+            <div className="mt-4 bg-black/20 rounded-lg p-3 text-xs text-gray-400">
+              <p>If this takes too long, please refresh the page.</p>
+            </div>
           </div>
         </div>
       </GridBackground>
