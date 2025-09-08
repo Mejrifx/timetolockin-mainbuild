@@ -101,17 +101,12 @@ export const Header = ({
             <Menu className="h-5 w-5" />
           </Button>
           
-          <div className={cn(
-            "flex items-center transition-all duration-500 ease-in-out",
-            sidebarOpen ? "md:ml-20" : "md:ml-0"
-          )}>
-            <div className="flex items-center justify-center ml-[-35px]">
-              <img 
-                src="/timetolockin MAIN LOGO NEW.png" 
-                alt="timetolockin" 
-                className="h-16 w-auto object-contain hover:scale-110 transition-transform duration-300 ease-in-out drop-shadow-lg"
-              />
-            </div>
+          <div className="flex items-center ml-4">
+            <img 
+              src="/timetolockin MAIN LOGO NEW.png" 
+              alt="timetolockin" 
+              className="h-12 w-auto object-contain hover:scale-110 transition-transform duration-300 ease-in-out drop-shadow-lg"
+            />
           </div>
         </div>
 
