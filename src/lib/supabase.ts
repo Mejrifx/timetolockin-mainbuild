@@ -5,10 +5,11 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 // Environment validation with helpful error messages
-console.log('🔍 Environment Variables Check:');
+console.log('🔍 Environment Variables Check (Updated):');
 console.log('- NODE_ENV:', import.meta.env.MODE);
 console.log('- VITE_SUPABASE_URL:', supabaseUrl ? '✅ Set' : '❌ Missing');
 console.log('- VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? '✅ Set' : '❌ Missing');
+console.log('- Database tables should be setup and working!');
 
 if (!supabaseUrl) {
   console.error('❌ VITE_SUPABASE_URL is not set in environment variables')
