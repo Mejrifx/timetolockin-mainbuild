@@ -70,14 +70,50 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
     
     try {
-      const { error } = await supabase.auth.signUp({
+      console.log('🔄 Starting user signup...')
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       })
+      
+      if (error) {
+        console.error('❌ Signup error:', error)
+        return { error }
+      }
+      
+      // If signup successful and user is confirmed, create profile immediately
+      if (data.user && !data.user.email_confirmed_at) {
+        console.log('✅ User created, waiting for email confirmation')
+      } else if (data.user) {
+        console.log('✅ User created and confirmed, creating profile...')
+        try {
+          // Create profile immediately after successful signup
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .upsert({
+              id: data.user.id,
+              email: data.user.email || email,
+              username: email.split('@')[0]
+            }, {
+              onConflict: 'id'
+            })
+          
+          if (profileError) {
+            console.error('⚠️ Profile creation failed, but user was created:', profileError)
+            // Don't fail the signup, profile will be created on first login
+          } else {
+            console.log('✅ Profile created successfully')
+          }
+        } catch (profileErr) {
+          console.error('⚠️ Profile creation error:', profileErr)
+          // Don't fail the signup, profile will be created on first login
+        }
+      }
+      
       return { error }
     } catch (err) {
       console.error('SignUp error:', err)
-      return { error: { message: 'Authentication service unavailable' } as AuthError }
+      return { error: { message: 'Database error saving new user' } as AuthError }
     }
   }
 
