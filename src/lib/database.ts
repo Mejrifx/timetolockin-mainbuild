@@ -7,9 +7,16 @@ export const pagesService = {
   async getAll(): Promise<Page[]> {
     console.log('🔍 Fetching pages from database...')
     
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) {
+      console.log('👤 No user found, returning empty pages array')
+      return []
+    }
+    
     const { data, error } = await supabase
       .from('pages')
       .select('*')
+      .eq('user_id', userData.user.id)
       .order('created_at', { ascending: true })
 
     if (error) {
@@ -23,7 +30,7 @@ export const pagesService = {
       return []
     }
 
-    console.log('✅ Pages fetched successfully:', data?.length || 0, 'pages')
+    console.log('✅ Pages fetched successfully:', data?.length || 0, 'pages for user:', userData.user.id)
 
     return data.map(dbPage => ({
       id: dbPage.id,
@@ -127,9 +134,16 @@ export const dailyTasksService = {
   async getAll(): Promise<DailyTask[]> {
     console.log('🔍 Fetching daily tasks from database...')
     
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) {
+      console.log('👤 No user found, returning empty daily tasks array')
+      return []
+    }
+    
     const { data, error } = await supabase
       .from('daily_tasks')
       .select('*')
+      .eq('user_id', userData.user.id)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -143,7 +157,7 @@ export const dailyTasksService = {
       return []
     }
 
-    console.log('✅ Daily tasks fetched successfully:', data?.length || 0, 'tasks')
+    console.log('✅ Daily tasks fetched successfully:', data?.length || 0, 'tasks for user:', userData.user.id)
 
     return data.map(dbTask => ({
       id: dbTask.id,
@@ -473,33 +487,48 @@ export const healthService = {
 
     try {
       console.log('🔄 Querying health tables for user:', userData.user.id)
-      const [protocolsResult, habitsResult, settingsResult] = await Promise.allSettled([
-        supabase.from('health_protocols').select('*').eq('user_id', userData.user.id),
-        supabase.from('quit_habits').select('*').eq('user_id', userData.user.id),
-        supabase.from('health_settings').select('*').eq('user_id', userData.user.id).single()
-      ]);
+      
+      // Use sequential queries for better reliability instead of Promise.allSettled
+      console.log('🔍 Fetching health protocols...')
+      const { data: protocolsData, error: protocolsError } = await supabase
+        .from('health_protocols')
+        .select('*')
+        .eq('user_id', userData.user.id);
+
+      console.log('🔍 Fetching quit habits...')
+      const { data: habitsData, error: habitsError } = await supabase
+        .from('quit_habits')
+        .select('*')
+        .eq('user_id', userData.user.id);
+
+      console.log('🔍 Fetching health settings...')
+      const { data: settingsData, error: settingsError } = await supabase
+        .from('health_settings')
+        .select('*')
+        .eq('user_id', userData.user.id)
+        .single();
 
       // Log results for debugging
       console.log('📊 Health query results:', {
-        protocols: protocolsResult.status,
-        habits: habitsResult.status,
-        settings: settingsResult.status
+        protocols: protocolsError ? 'error' : 'success',
+        habits: habitsError ? 'error' : 'success', 
+        settings: settingsError ? 'error' : 'success'
       });
 
-      if (protocolsResult.status === 'rejected') {
-        console.error('❌ Failed to fetch protocols:', protocolsResult.reason);
+      if (protocolsError) {
+        console.error('❌ Failed to fetch protocols:', protocolsError);
       }
-      if (habitsResult.status === 'rejected') {
-        console.error('❌ Failed to fetch habits:', habitsResult.reason);
+      if (habitsError) {
+        console.error('❌ Failed to fetch habits:', habitsError);
       }
-      if (settingsResult.status === 'rejected') {
-        console.error('❌ Failed to fetch settings:', settingsResult.reason);
+      if (settingsError && settingsError.code !== 'PGRST116') {
+        console.error('❌ Failed to fetch settings:', settingsError);
       }
 
       // Convert protocols
       const protocols: Record<string, HealthProtocol> = {};
-      if (protocolsResult.status === 'fulfilled' && protocolsResult.value.data) {
-        protocolsResult.value.data.forEach(dbProtocol => {
+      if (protocolsData) {
+        protocolsData.forEach(dbProtocol => {
           protocols[dbProtocol.id] = {
             id: dbProtocol.id,
             title: dbProtocol.title,
@@ -517,8 +546,8 @@ export const healthService = {
 
       // Convert quit habits
       const quitHabits: Record<string, QuitHabit> = {};
-      if (habitsResult.status === 'fulfilled' && habitsResult.value.data) {
-        habitsResult.value.data.forEach(dbHabit => {
+      if (habitsData) {
+        habitsData.forEach(dbHabit => {
           quitHabits[dbHabit.id] = {
             id: dbHabit.id,
             name: dbHabit.name,
@@ -535,17 +564,22 @@ export const healthService = {
 
       // Convert settings
       let settings = this.getDefaultHealthData().settings;
-      if (settingsResult.status === 'fulfilled' && settingsResult.value.data) {
-        const dbSettings = settingsResult.value.data;
+      if (settingsData) {
         settings = {
-          reminderEnabled: dbSettings.reminder_enabled,
-          dailyCheckInTime: dbSettings.daily_checkin_time,
-          weeklyReviewDay: dbSettings.weekly_review_day,
-          notificationEnabled: dbSettings.notification_enabled,
+          reminderEnabled: settingsData.reminder_enabled,
+          dailyCheckInTime: settingsData.daily_checkin_time,
+          weeklyReviewDay: settingsData.weekly_review_day,
+          notificationEnabled: settingsData.notification_enabled,
         };
       }
 
       console.log('✅ Health data fetched successfully');
+      console.log('📊 Health data summary:', {
+        protocolCount: Object.keys(protocols).length,
+        habitCount: Object.keys(quitHabits).length,
+        settingsLoaded: !!settingsData
+      });
+      
       return { protocols, quitHabits, settings };
     } catch (error) {
       console.error('❌ Error in getHealthData:', error);
