@@ -9,6 +9,7 @@ import { CalendarDashboard } from '@/components/CalendarDashboard';
 import { FinanceDashboard } from '@/components/FinanceDashboard';
 import { HealthLabDashboard } from '@/components/HealthLabDashboard';
 import { WorkspaceDashboard } from '@/components/WorkspaceDashboard';
+import { PageCreationModal } from '@/components/PageCreationModal';
 import { GridBackground } from '@/components/ui/grid-background';
 import { cn } from '@/lib/utils';
 
@@ -34,24 +35,25 @@ export const Workspace = () => {
   } = useWorkspace();
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isPageCreationModalOpen, setIsPageCreationModalOpen] = useState(false);
 
   const currentPage = state.currentPageId ? state.pages[state.currentPageId] : null;
 
-  const handleCreatePage = async (parentId?: string) => {
-    console.log('🔄 Creating new page...');
+  const handleCreatePage = () => {
+    console.log('🔄 Opening page creation modal...');
+    setIsPageCreationModalOpen(true);
+  };
+
+  const handleCreatePageWithDetails = async (title: string, icon: string) => {
+    console.log('🔄 Creating new page with details:', { title, icon });
     try {
-      const pageId = await createPage('Untitled', parentId);
+      const pageId = await createPage(title, undefined, icon);
       console.log('✅ Page created with ID:', pageId);
-      if (pageId) {
-        setCurrentPage(pageId);
-        // Switch to editor view when a new page is created
-        setCurrentSection(null as any);
-        console.log('✅ Page set as current and switched to editor view');
-      } else {
-        console.error('❌ No page ID returned from createPage');
-      }
+      // Don't auto-select the page - just create it and stay in dashboard
+      console.log('✅ Page created successfully, staying in dashboard');
     } catch (error) {
       console.error('❌ Error creating page:', error);
+      throw error; // Re-throw so modal can handle it
     }
   };
 
@@ -349,6 +351,13 @@ Your intelligent workspace is ready! Here are some tips to get started:
           </main>
         </div>
       </div>
+
+      {/* Page Creation Modal */}
+      <PageCreationModal
+        isOpen={isPageCreationModalOpen}
+        onClose={() => setIsPageCreationModalOpen(false)}
+        onCreatePage={handleCreatePageWithDetails}
+      />
     </GridBackground>
   );
 };

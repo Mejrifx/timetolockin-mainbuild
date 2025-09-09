@@ -260,7 +260,7 @@ export const useWorkspace = () => {
   }, [user, session, authLoading, clearUserData]);
 
   // Page management
-  const createPage = useCallback(async (title: string, parentId?: string) => {
+  const createPage = useCallback(async (title: string, parentId?: string, icon?: string) => {
     if (!user) return '';
     
     const pageId = generateId();
@@ -271,7 +271,7 @@ export const useWorkspace = () => {
       content: '',
       blocks: [],
       children: [],
-      icon: '📄',
+      icon: icon || 'document',
       parentId,
       createdAt: now,
       updatedAt: now,

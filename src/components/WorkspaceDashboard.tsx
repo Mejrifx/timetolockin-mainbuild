@@ -114,10 +114,7 @@ export const WorkspaceDashboard = memo(({
     
     return (
       <div
-        className={cn(
-          "group relative bg-black/20 backdrop-blur-xl rounded-xl border border-green-500/20 p-6 hover:border-green-500/40 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-green-500/10 hover:scale-105 h-48 flex flex-col",
-          currentPageId === page.id && "border-green-500/60 bg-green-500/10 shadow-lg shadow-green-500/20"
-        )}
+        className="group relative bg-black/20 backdrop-blur-xl rounded-xl border border-green-500/20 p-6 hover:border-green-500/40 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-green-500/10 hover:scale-105 h-48 flex flex-col"
         onClick={() => onOpenPage(page.id)}
       >
         {/* Page Icon */}
