@@ -14,7 +14,13 @@ import {
   Star,
   Grid3X3,
   List,
-  Filter
+  Filter,
+  Image,
+  Video,
+  Music,
+  Code,
+  Heart,
+  Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -160,6 +166,46 @@ export const WorkspaceDashboard = memo(({
               <DropdownMenuItem 
                 onClick={(e) => {
                   e.stopPropagation();
+                  onUpdatePage(page.id, { icon: 'image' });
+                }}
+                className="text-white hover:bg-green-500/20"
+              >
+                <Image className="h-4 w-4 mr-2" />
+                Change to Image
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUpdatePage(page.id, { icon: 'video' });
+                }}
+                className="text-white hover:bg-green-500/20"
+              >
+                <Video className="h-4 w-4 mr-2" />
+                Change to Video
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUpdatePage(page.id, { icon: 'music' });
+                }}
+                className="text-white hover:bg-green-500/20"
+              >
+                <Music className="h-4 w-4 mr-2" />
+                Change to Music
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUpdatePage(page.id, { icon: 'code' });
+                }}
+                className="text-white hover:bg-green-500/20"
+              >
+                <Code className="h-4 w-4 mr-2" />
+                Change to Code
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={(e) => {
+                  e.stopPropagation();
                   onUpdatePage(page.id, { icon: 'book' });
                 }}
                 className="text-white hover:bg-green-500/20"
@@ -170,22 +216,62 @@ export const WorkspaceDashboard = memo(({
               <DropdownMenuItem 
                 onClick={(e) => {
                   e.stopPropagation();
-                  onUpdatePage(page.id, { icon: 'idea' });
+                  onUpdatePage(page.id, { icon: 'calendar' });
                 }}
                 className="text-white hover:bg-green-500/20"
               >
-                <Lightbulb className="h-4 w-4 mr-2" />
-                Change to Idea
+                <Calendar className="h-4 w-4 mr-2" />
+                Change to Calendar
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={(e) => {
                   e.stopPropagation();
-                  onUpdatePage(page.id, { icon: 'goal' });
+                  onUpdatePage(page.id, { icon: 'heart' });
+                }}
+                className="text-white hover:bg-green-500/20"
+              >
+                <Heart className="h-4 w-4 mr-2" />
+                Change to Heart
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUpdatePage(page.id, { icon: 'star' });
+                }}
+                className="text-white hover:bg-green-500/20"
+              >
+                <Star className="h-4 w-4 mr-2" />
+                Change to Star
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUpdatePage(page.id, { icon: 'zap' });
+                }}
+                className="text-white hover:bg-green-500/20"
+              >
+                <Zap className="h-4 w-4 mr-2" />
+                Change to Zap
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUpdatePage(page.id, { icon: 'target' });
                 }}
                 className="text-white hover:bg-green-500/20"
               >
                 <Target className="h-4 w-4 mr-2" />
-                Change to Goal
+                Change to Target
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUpdatePage(page.id, { icon: 'lightbulb' });
+                }}
+                className="text-white hover:bg-green-500/20"
+              >
+                <Lightbulb className="h-4 w-4 mr-2" />
+                Change to Lightbulb
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={(e) => {
