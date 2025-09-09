@@ -45,6 +45,7 @@ interface WorkspaceDashboardProps {
   onCreatePage: () => void;
   onDeletePage: (pageId: string) => void;
   onUpdatePage: (pageId: string, updates: Partial<Page>) => void;
+  onOpenPage: (pageId: string) => void;
 }
 
 export const WorkspaceDashboard = memo(({
@@ -57,6 +58,7 @@ export const WorkspaceDashboard = memo(({
   onCreatePage,
   onDeletePage,
   onUpdatePage,
+  onOpenPage,
 }: WorkspaceDashboardProps) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'name' | 'date' | 'type'>('date');
@@ -113,10 +115,10 @@ export const WorkspaceDashboard = memo(({
     return (
       <div
         className={cn(
-          "group relative bg-black/20 backdrop-blur-xl rounded-xl border border-green-500/20 p-6 hover:border-green-500/40 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-green-500/10 hover:scale-105",
+          "group relative bg-black/20 backdrop-blur-xl rounded-xl border border-green-500/20 p-6 hover:border-green-500/40 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-green-500/10 hover:scale-105 h-48 flex flex-col",
           currentPageId === page.id && "border-green-500/60 bg-green-500/10 shadow-lg shadow-green-500/20"
         )}
-        onClick={() => onPageSelect(page.id)}
+        onClick={() => onOpenPage(page.id)}
       >
         {/* Page Icon */}
         <div className="flex items-center justify-between mb-4">
@@ -190,7 +192,7 @@ export const WorkspaceDashboard = memo(({
         </div>
 
         {/* Page Title */}
-        <h3 className="text-white font-semibold text-lg mb-2 line-clamp-2 group-hover:text-green-300 transition-colors duration-200">
+        <h3 className="text-white font-semibold text-lg mb-2 line-clamp-2 group-hover:text-green-300 transition-colors duration-200 flex-1">
           {page.title}
         </h3>
 
@@ -221,7 +223,7 @@ export const WorkspaceDashboard = memo(({
           "group flex items-center justify-between p-4 bg-black/20 backdrop-blur-xl rounded-lg border border-green-500/20 hover:border-green-500/40 transition-all duration-200 cursor-pointer hover:bg-green-500/5",
           currentPageId === page.id && "border-green-500/60 bg-green-500/10"
         )}
-        onClick={() => onPageSelect(page.id)}
+        onClick={() => onOpenPage(page.id)}
       >
         <div className="flex items-center gap-4">
           <div className="p-2 bg-green-500/10 rounded-lg border border-green-500/20">

@@ -44,6 +44,13 @@ export const Workspace = () => {
     }
   };
 
+  const handleOpenPage = (pageId: string) => {
+    setCurrentPage(pageId);
+    // Switch to editor view by setting current section to null
+    // This will trigger the editor to render instead of the dashboard
+    setCurrentSection(null as any);
+  };
+
   const handleDeletePage = async (pageId: string) => {
     await deletePage(pageId);
   };
@@ -176,7 +183,6 @@ Your intelligent workspace is ready! Here are some tips to get started:
     <GridBackground className="h-screen overflow-hidden" blurBackground={true}>
       <div className="h-screen flex flex-col w-full">
         <Header
-          onCreatePage={() => handleCreatePage()}
           onToggleSidebar={handleToggleSidebar}
           sidebarOpen={sidebarOpen}
         />
@@ -244,6 +250,7 @@ Your intelligent workspace is ready! Here are some tips to get started:
                       onCreatePage={handleCreatePage}
                       onDeletePage={handleDeletePage}
                       onUpdatePage={updatePage}
+                      onOpenPage={handleOpenPage}
                     />
                   );
                 } else if (state.currentSection === 'daily-tasks') {
@@ -303,6 +310,9 @@ Your intelligent workspace is ready! Here are some tips to get started:
                       onUpdatePage={updatePage}
                     />
                   );
+                } else if (state.currentSection === null) {
+                  console.log('📄 Rendering Empty State - no current page')
+                  return <EmptyState onCreatePage={() => handleCreatePage()} />;
                 } else {
                   console.log('📄 Rendering Empty State - no current page')
                   return <EmptyState onCreatePage={() => handleCreatePage()} />;

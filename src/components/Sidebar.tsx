@@ -481,23 +481,6 @@ export const Sidebar = ({
                 </Button>
               </div>
 
-              {/* Compact Progress Bar - Only show if there are tasks */}
-              {totalTasks > 0 && (
-                <div className="px-6 pb-4">
-                  <div className="bg-black/20 backdrop-blur-xl rounded-lg p-2 border border-green-500/20">
-                    <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-green-500 to-green-400 transition-all duration-500"
-                        style={{ width: `${Math.round((completedTasks / totalTasks) * 100)}%` }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-xs text-gray-400 mt-1">
-                      <span>{completedTasks} completed</span>
-                      <span>{totalTasks - completedTasks} remaining</span>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Finance Section */}

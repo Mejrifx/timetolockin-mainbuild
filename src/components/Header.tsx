@@ -7,13 +7,11 @@ import { useState, useEffect } from 'react';
 import { profileService } from '@/lib/database';
 
 interface HeaderProps {
-  onCreatePage: () => void;
   onToggleSidebar: () => void;
   sidebarOpen: boolean;
 }
 
 export const Header = ({ 
-  onCreatePage, 
   onToggleSidebar,
   sidebarOpen 
 }: HeaderProps) => {
@@ -120,14 +118,6 @@ export const Header = ({
         </div>
 
         <div className="flex items-center gap-4 min-w-fit">
-          <Button
-            onClick={onCreatePage}
-            size="default"
-            className="bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 transition-all duration-300 px-6 shadow-lg hover:shadow-xl hover:scale-105"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            New Page
-          </Button>
 
           {/* User Menu */}
           <div className="flex items-center gap-2 px-3 py-2 bg-black/20 backdrop-blur-xl rounded-lg border border-green-500/30 w-40">
