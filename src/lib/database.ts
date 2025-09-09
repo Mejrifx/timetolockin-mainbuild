@@ -189,16 +189,34 @@ export const pagesService = {
 
   // Delete a page
   async delete(pageId: string): Promise<boolean> {
+    console.log('🔄 Deleting page from database:', pageId);
+    
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) {
+      console.error('❌ No user found for page deletion');
+      return false
+    }
+
+    console.log('👤 User found for page deletion:', userData.user.id);
+
     const { error } = await supabase
       .from('pages')
       .delete()
       .eq('id', pageId)
+      .eq('user_id', userData.user.id)
 
     if (error) {
-      console.error('Error deleting page:', error)
+      console.error('❌ Error deleting page from database:', error)
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
       return false
     }
 
+    console.log('✅ Page successfully deleted from database:', pageId);
     return true
   },
 }

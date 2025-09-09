@@ -323,21 +323,28 @@ export const useWorkspace = () => {
   const updatePage = useCallback(async (pageId: string, updates: Partial<Page>) => {
     if (!user) return false;
 
-    setState(prevState => {
-      const updatedPages = { ...prevState.pages };
-      if (updatedPages[pageId]) {
-        updatedPages[pageId] = { ...updatedPages[pageId], ...updates, updatedAt: Date.now() };
-      }
-      return { ...prevState, pages: updatedPages };
-    });
+    console.log('🔄 Updating page:', pageId, 'for user:', user.email);
 
     try {
       const page = state.pages[pageId];
       if (page) {
         const updatedPage = { ...page, ...updates, updatedAt: Date.now() };
-        await pagesService.update(pageId, updatedPage);
-        console.log('✅ Page updated and saved for user:', user.email, 'Page ID:', pageId);
-        return true;
+        const success = await pagesService.update(pageId, updatedPage);
+        if (success) {
+          // Only update local state if database update was successful
+          setState(prevState => {
+            const updatedPages = { ...prevState.pages };
+            if (updatedPages[pageId]) {
+              updatedPages[pageId] = { ...updatedPages[pageId], ...updates, updatedAt: Date.now() };
+            }
+            return { ...prevState, pages: updatedPages };
+          });
+          console.log('✅ Page updated and saved for user:', user.email, 'Page ID:', pageId);
+          return true;
+        } else {
+          console.error('❌ Database update failed for page:', pageId);
+          return false;
+        }
       }
     } catch (error) {
       console.error('❌ Failed to update page for user', user.email, ':', error);
@@ -349,29 +356,35 @@ export const useWorkspace = () => {
   const deletePage = useCallback(async (pageId: string) => {
     if (!user) return false;
 
-    setState(prevState => {
-      const updatedPages = { ...prevState.pages };
-      delete updatedPages[pageId];
-      
-      const updatedRootPages = prevState.rootPages.filter(id => id !== pageId);
-      
-      return {
-        ...prevState,
-        pages: updatedPages,
-        rootPages: updatedRootPages,
-        currentPageId: prevState.currentPageId === pageId ? undefined : prevState.currentPageId,
-      };
-    });
+    console.log('🔄 Deleting page:', pageId, 'for user:', user.email);
 
     try {
-      await pagesService.delete(pageId);
-      console.log('✅ Page deleted for user:', user.email, 'Page ID:', pageId);
-      return true;
+      const success = await pagesService.delete(pageId);
+      if (success) {
+        // Only update local state if database deletion was successful
+        setState(prevState => {
+          const updatedPages = { ...prevState.pages };
+          delete updatedPages[pageId];
+          
+          const updatedRootPages = prevState.rootPages.filter(id => id !== pageId);
+          
+          return {
+            ...prevState,
+            pages: updatedPages,
+            rootPages: updatedRootPages,
+            currentPageId: prevState.currentPageId === pageId ? undefined : prevState.currentPageId,
+          };
+        });
+        console.log('✅ Page deleted successfully for user:', user.email, 'Page ID:', pageId);
+        return true;
+      } else {
+        console.error('❌ Database deletion failed for page:', pageId);
+        return false;
+      }
     } catch (error) {
       console.error('❌ Failed to delete page for user', user.email, ':', error);
+      return false;
     }
-
-    return false;
   }, [user]);
 
   // Daily tasks management
