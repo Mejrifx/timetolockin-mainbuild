@@ -175,6 +175,35 @@ export const useWorkspace = () => {
         
         console.log('📊 Data loaded for user', user.email, '- Pages:', pages.length, 'Tasks:', dailyTasks.length)
 
+        // If no pages found for a new user, wait and retry once to catch welcome page creation
+        if (pages.length === 0) {
+          console.log('🔄 No pages found for user, waiting for welcome page creation...')
+          await new Promise(resolve => setTimeout(resolve, 2000)) // Wait 2 seconds
+          
+          // Retry loading pages
+          const { data: retryPages, error: retryError } = await supabase
+            .from('pages')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: true })
+          
+          if (!retryError && retryPages && retryPages.length > 0) {
+            console.log('✅ Welcome page found on retry:', retryPages.length, 'pages')
+            pages.push(...retryPages.map(dbPage => ({
+              id: dbPage.id,
+              title: dbPage.title,
+              content: dbPage.content,
+              blocks: (dbPage as any).blocks || [],
+              icon: dbPage.icon,
+              children: dbPage.children || [],
+              parentId: dbPage.parent_id,
+              isExpanded: dbPage.is_expanded,
+              createdAt: dbPage.created_at,
+              updatedAt: dbPage.updated_at
+            })))
+          }
+        }
+
         // Convert pages array to record and determine root pages
         const pagesRecord: Record<string, Page> = {}
         const rootPages: string[] = []
