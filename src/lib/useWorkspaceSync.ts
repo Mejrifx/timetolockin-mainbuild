@@ -284,10 +284,37 @@ export const useWorkspace = () => {
     }));
 
     try {
-      await pagesService.create(newPage);
-      console.log('✅ Page created and saved for user:', user.email, 'Title:', title);
+      console.log('🔄 Attempting to save page to database:', { pageId, title, icon, user: user.email });
+      const savedPage = await pagesService.create(newPage);
+      if (savedPage) {
+        console.log('✅ Page created and saved successfully for user:', user.email, 'Title:', title);
+      } else {
+        console.error('❌ Page creation returned null - database save failed');
+        // Remove from local state if database save failed
+        setState(prevState => {
+          const newPages = { ...prevState.pages };
+          delete newPages[pageId];
+          return {
+            ...prevState,
+            pages: newPages,
+            rootPages: parentId ? prevState.rootPages : prevState.rootPages.filter(id => id !== pageId),
+          };
+        });
+        return '';
+      }
     } catch (error) {
       console.error('❌ Failed to save page for user', user.email, ':', error);
+      // Remove from local state if database save failed
+      setState(prevState => {
+        const newPages = { ...prevState.pages };
+        delete newPages[pageId];
+        return {
+          ...prevState,
+          pages: newPages,
+          rootPages: parentId ? prevState.rootPages : prevState.rootPages.filter(id => id !== pageId),
+        };
+      });
+      return '';
     }
 
     return pageId;

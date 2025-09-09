@@ -49,29 +49,56 @@ export const pagesService = {
 
   // Create a new page
   async create(page: Omit<Page, 'createdAt' | 'updatedAt'>): Promise<Page | null> {
+    console.log('🔄 pagesService.create called with:', { pageId: page.id, title: page.title, icon: page.icon });
+    
     const { data: userData } = await supabase.auth.getUser()
-    if (!userData.user) return null
+    if (!userData.user) {
+      console.error('❌ No user found in pagesService.create');
+      return null
+    }
+
+    console.log('👤 User found for page creation:', userData.user.id);
+
+    // Get or create default workspace for user
+    let workspaceId = await this.getOrCreateDefaultWorkspace(userData.user.id);
+    if (!workspaceId) {
+      console.error('❌ Failed to get or create workspace for user');
+      return null;
+    }
+
+    const pageData = {
+      id: page.id,
+      user_id: userData.user.id,
+      workspace_id: workspaceId,
+      title: page.title,
+      content: page.content,
+      blocks: page.blocks || [],
+      icon: page.icon,
+      parent_id: page.parentId,
+      children: page.children,
+      is_expanded: page.isExpanded,
+    };
+
+    console.log('📝 Inserting page data:', pageData);
 
     const { data, error } = await supabase
       .from('pages')
-      .insert({
-        id: page.id,
-        user_id: userData.user.id,
-        title: page.title,
-        content: page.content,
-        blocks: page.blocks || [],
-        icon: page.icon,
-        parent_id: page.parentId,
-        children: page.children,
-        is_expanded: page.isExpanded,
-      })
+      .insert(pageData)
       .select()
       .single()
 
     if (error) {
-      console.error('Error creating page:', error)
+      console.error('❌ Error creating page in database:', error)
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
       return null
     }
+
+    console.log('✅ Page successfully created in database:', data);
 
     return {
       id: data.id,
@@ -84,6 +111,54 @@ export const pagesService = {
       isExpanded: data.is_expanded,
       createdAt: new Date(data.created_at).getTime(),
       updatedAt: new Date(data.updated_at).getTime(),
+    }
+  },
+
+  // Get or create default workspace for user
+  async getOrCreateDefaultWorkspace(userId: string): Promise<string | null> {
+    console.log('🔄 Getting or creating default workspace for user:', userId);
+    
+    try {
+      // First, try to get existing workspace
+      const { data: existingWorkspace, error: fetchError } = await supabase
+        .from('workspaces')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('is_default', true)
+        .single();
+
+      if (existingWorkspace && !fetchError) {
+        console.log('✅ Found existing default workspace:', existingWorkspace.id);
+        return existingWorkspace.id;
+      }
+
+      // If no default workspace exists, create one
+      console.log('🔄 Creating new default workspace for user:', userId);
+      const workspaceId = crypto.randomUUID();
+      
+      const { data: newWorkspace, error: createError } = await supabase
+        .from('workspaces')
+        .insert({
+          id: workspaceId,
+          user_id: userId,
+          name: 'My Workspace',
+          is_default: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (createError) {
+        console.error('❌ Error creating workspace:', createError);
+        return null;
+      }
+
+      console.log('✅ Created new default workspace:', newWorkspace.id);
+      return newWorkspace.id;
+    } catch (error) {
+      console.error('❌ Error in getOrCreateDefaultWorkspace:', error);
+      return null;
     }
   },
 
