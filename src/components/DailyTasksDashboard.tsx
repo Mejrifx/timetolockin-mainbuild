@@ -377,17 +377,7 @@ export const DailyTasksDashboard = ({
         </div>
       </div>
       
-      {/* Status bar */}
-      <div className="border-t border-green-500/20 px-12 py-4 bg-black/60 backdrop-blur-xl shadow-sm">
-        <div className="flex items-center justify-between text-sm text-gray-400 max-w-7xl mx-auto">
-          <div>
-            Daily Non-Negotiables Dashboard
-          </div>
-          <div>
-            {completedTasks}/{totalTasks} tasks completed • {totalTimeAllocated}m total time
-          </div>
-        </div>
-      </div>
+      {/* Status bar removed */}
     </div>
   );
 };
