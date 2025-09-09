@@ -1,7 +1,7 @@
 import { Search, Plus, Menu, LogOut, User, Edit3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/lib/AuthContextBulletproof';
+import { useAuth } from '@/lib/AuthContextSimple';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { profileService } from '@/lib/database';
