@@ -337,7 +337,6 @@ export const Sidebar = ({
   onDeleteDailyTask,
 }: SidebarProps) => {
   const [workspaceExpanded, setWorkspaceExpanded] = useState(false);
-  const [dailyTasksExpanded, setDailyTasksExpanded] = useState(false);
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [newTask, setNewTask] = useState({
     title: '',
@@ -534,10 +533,7 @@ export const Sidebar = ({
               <div className="p-6 pb-4">
                 <Button
                   variant="ghost"
-                  onClick={() => {
-                    setDailyTasksExpanded(!dailyTasksExpanded);
-                    onSectionSelect('daily-tasks');
-                  }}
+                  onClick={() => onSectionSelect('daily-tasks')}
                   className={cn(
                     "w-full justify-start h-12 p-0 hover:bg-green-500/10 transition-all duration-300 rounded-lg group bg-black/20 backdrop-blur-xl",
                     currentSection === 'daily-tasks' && "bg-green-500/20 border border-green-500/30"
@@ -545,11 +541,6 @@ export const Sidebar = ({
                 >
                   <div className="flex items-center w-full px-4">
                     <div className="flex items-center gap-3">
-                      {dailyTasksExpanded ? (
-                        <ChevronDown className="h-4 w-4 text-green-400 transition-transform duration-300" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4 text-green-400 transition-transform duration-300" />
-                      )}
                       <CheckSquare className="h-5 w-5 text-green-400" />
                       <span className="text-white font-medium text-base group-hover:text-green-300 transition-colors duration-300">
                         Daily Non-Negotiables
@@ -559,9 +550,8 @@ export const Sidebar = ({
                 </Button>
               </div>
 
-              {/* Collapsible Content */}
-              {dailyTasksExpanded && (
-                <div className="px-6 pb-6 space-y-4 animate-in slide-in-from-top-2 duration-300">
+              {/* Content - Always Visible */}
+              <div className="px-6 pb-6 space-y-4">
                   {/* Simple Progress Bar */}
                   {totalTasks > 0 ? (
                     <div className="bg-black/20 backdrop-blur-xl rounded-lg p-3 border border-green-500/20">
@@ -582,7 +572,6 @@ export const Sidebar = ({
                     </div>
                   )}
                 </div>
-              )}
             </div>
 
             {/* Finance Section */}
