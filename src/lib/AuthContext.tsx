@@ -166,21 +166,67 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         console.error('⚠️ Health settings creation failed:', healthError)
       }
       
-      // Create welcome page
-      const pageId = crypto.randomUUID()
-      const { error: pageError } = await supabase
+      // Check if welcome page already exists
+      const { data: existingWelcomePage } = await supabase
         .from('pages')
-        .insert({
-          id: pageId,
-          user_id: userId,
-          workspace_id: workspaceId,
-          title: 'Welcome to Your Workspace',
-          content: 'Welcome to your personal productivity workspace! Start by creating your first page or setting up your daily tasks.',
-          icon: '👋'
-        })
-      
-      if (pageError) {
-        console.error('⚠️ Welcome page creation failed:', pageError)
+        .select('id')
+        .eq('user_id', userId)
+        .eq('title', 'Welcome to Your Workspace')
+        .single()
+
+      // Only create welcome page if it doesn't exist
+      if (!existingWelcomePage) {
+        const pageId = crypto.randomUUID()
+        const { error: pageError } = await supabase
+          .from('pages')
+          .insert({
+            id: pageId,
+            user_id: userId,
+            workspace_id: workspaceId,
+            title: 'Welcome to Your Workspace',
+            content: `# Welcome to Your Workspace! 🚀
+
+This is your personal productivity hub where you can organize your thoughts, track your goals, and build better habits.
+
+## Getting Started
+
+### 📝 **Workspace Pages**
+- Create pages to organize your ideas, notes, and projects
+- Use different icons to categorize your content
+- Click on any page to start editing
+
+### ✅ **Daily Non-Negotiables**
+- Track your daily habits and tasks
+- Set priorities and time allocations
+- Build consistency with your goals
+
+### 💰 **Finance Tracker**
+- Monitor your income and expenses
+- Set financial goals and budgets
+- Track your financial progress
+
+### 🏥 **Health Lab**
+- Track your health protocols
+- Monitor habits you want to quit
+- Build a healthier lifestyle
+
+## Tips for Success
+- Start small and build momentum
+- Review your progress regularly
+- Use the workspace to plan your day
+- Stay consistent with your daily tasks
+
+Ready to get started? Create your first page or set up your daily tasks!`,
+            icon: 'document'
+          })
+        
+        if (pageError) {
+          console.error('⚠️ Welcome page creation failed:', pageError)
+        } else {
+          console.log('✅ Welcome page created for new user')
+        }
+      } else {
+        console.log('✅ Welcome page already exists for user')
       }
       
       console.log('✅ User profile and workspace setup complete')
