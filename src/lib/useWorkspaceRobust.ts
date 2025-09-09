@@ -1,7 +1,7 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { WorkspaceState, Page, DailyTask, FinanceData, HealthData } from '@/types';
 import { pagesService, dailyTasksService, workspaceService, financeService, healthService } from '@/lib/database';
-import { useAuth } from '@/lib/AuthContextFixed';
+import { useAuth } from '@/lib/AuthContextRobust';
 import { supabase } from './supabase';
 
 const generateId = () => {
@@ -9,7 +9,7 @@ const generateId = () => {
 };
 
 export const useWorkspace = () => {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [state, setState] = useState<WorkspaceState>({
     pages: {},
     rootPages: [],
@@ -31,56 +31,90 @@ export const useWorkspace = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadingStep, setLoadingStep] = useState<string>('');
+  
+  // Prevent duplicate loading calls
+  const isLoadingRef = useRef(false);
+  const lastUserIdRef = useRef<string | null>(null);
 
-  // Simple database test without complex timeouts
-  const testDatabaseConnection = async () => {
-    try {
-      // Just test if we can query profiles table
-      const { error } = await supabase
-        .from('profiles')
-        .select('id')
-        .limit(1);
-      
-      return !error;
-    } catch (error) {
-      console.warn('⚠️ Database test failed:', error);
-      return false;
-    }
-  };
+  // Clear all data when user changes
+  const clearUserData = useCallback(() => {
+    console.log('🧹 Clearing user data for user isolation...');
+    setState({
+      pages: {},
+      rootPages: [],
+      currentPageId: undefined,
+      currentSection: 'pages',
+      searchQuery: '',
+      dailyTasks: {},
+      financeData: financeService.getDefaultFinanceData(),
+      healthData: {
+        protocols: {},
+        quitHabits: {},
+        settings: {
+          reminderEnabled: true,
+          weeklyReviewDay: 0,
+          notificationEnabled: true,
+        },
+      },
+    });
+  }, []);
 
   // Load data from Supabase when user logs in
   useEffect(() => {
-    let isMounted = true;
-    let loadTimeout: NodeJS.Timeout;
+    // If no user or session, clear data and stop loading
+    if (!user || !session) {
+      console.log('👤 No user or session found, clearing data and stopping loading...')
+      clearUserData();
+      setLoading(false);
+      isLoadingRef.current = false;
+      return;
+    }
+
+    // If user changed, clear previous user's data immediately
+    if (lastUserIdRef.current && lastUserIdRef.current !== user.id) {
+      console.log('🔄 User changed, clearing previous user data...');
+      clearUserData();
+    }
+
+    // Prevent duplicate loading calls
+    if (isLoadingRef.current) {
+      console.log('⚠️ Loading already in progress, skipping...');
+      return;
+    }
+
+    // Set current user ID
+    lastUserIdRef.current = user.id;
+    isLoadingRef.current = true;
+    
+    console.log('👤 Loading data for user:', user.email, 'ID:', user.id)
     
     const loadData = async () => {
-      if (!user) {
-        console.log('👤 No user found, stopping loading...')
-        if (isMounted) {
-          setLoading(false);
-        }
-        return;
-      }
-
-      console.log('👤 User found, starting data load for:', user.email)
-      
       try {
-        if (isMounted) {
-          setError(null);
-          setLoadingStep('Connecting to database...');
+        setError(null);
+        setLoadingStep('Loading your data...');
+        
+        // Verify authentication before loading data
+        const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
+        
+        if (authError || !currentUser) {
+          console.error('❌ Authentication verification failed:', authError);
+          setError('Authentication failed. Please sign in again.');
+          setLoading(false);
+          isLoadingRef.current = false;
+          return;
         }
         
-        // Simple database test
-        const dbConnected = await testDatabaseConnection();
-        if (!dbConnected) {
-          console.warn('⚠️ Database connection issue, but continuing...');
+        if (currentUser.id !== user.id) {
+          console.error('❌ User ID mismatch:', currentUser.id, 'vs', user.id);
+          setError('User authentication mismatch. Please refresh the page.');
+          setLoading(false);
+          isLoadingRef.current = false;
+          return;
         }
         
-        if (isMounted) {
-          setLoadingStep('Loading your data...');
-        }
+        console.log('✅ Authentication verified for user:', currentUser.email);
         
-        // Load data with simple approach - no complex timeouts
+        // Load data with proper user isolation
         const [pagesResult, tasksResult, financeResult, healthResult] = await Promise.allSettled([
           pagesService.getAll(),
           dailyTasksService.getAll(),
@@ -88,15 +122,13 @@ export const useWorkspace = () => {
           healthService.getHealthData()
         ]);
         
-        if (!isMounted) return;
-        
         // Process results
         const pages = pagesResult.status === 'fulfilled' ? pagesResult.value : [];
         const dailyTasks = tasksResult.status === 'fulfilled' ? tasksResult.value : [];
         const financeData = financeResult.status === 'fulfilled' ? financeResult.value : financeService.getDefaultFinanceData();
         const healthData = healthResult.status === 'fulfilled' ? healthResult.value : healthService.getDefaultHealthData();
         
-        console.log('📊 Data loaded - Pages:', pages.length, 'Tasks:', dailyTasks.length)
+        console.log('📊 Data loaded for user', user.email, '- Pages:', pages.length, 'Tasks:', dailyTasks.length)
 
         // Convert pages array to record and determine root pages
         const pagesRecord: Record<string, Page> = {}
@@ -115,73 +147,68 @@ export const useWorkspace = () => {
           dailyTasksRecord[task.id] = task
         })
 
-        if (isMounted) {
-          setState(prevState => ({
-            ...prevState,
-            pages: pagesRecord,
-            rootPages,
-            dailyTasks: dailyTasksRecord,
-            financeData,
-            healthData,
-            searchQuery: '',
-            currentSection: 'pages' as 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab',
-          }));
-          
-          setLoadingStep('Ready!');
-          console.log('✅ Workspace loaded successfully!')
-        }
-      } catch (error) {
-        console.error('❌ Error loading workspace data:', error);
+        setState(prevState => ({
+          ...prevState,
+          pages: pagesRecord,
+          rootPages,
+          dailyTasks: dailyTasksRecord,
+          financeData,
+          healthData,
+          searchQuery: '',
+          currentSection: 'pages' as 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab',
+        }));
         
-        if (isMounted) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-          setError(`Failed to load workspace: ${errorMessage}`);
-          
-          // Set default empty state on error
-          setState(prevState => ({
-            ...prevState,
-            pages: {},
-            rootPages: [],
-            dailyTasks: {},
-            financeData: financeService.getDefaultFinanceData(),
-            healthData: {
-              protocols: {},
-              quitHabits: {},
-              settings: {
-                reminderEnabled: true,
-                weeklyReviewDay: 0,
-                notificationEnabled: true,
-              },
+        setLoadingStep('Ready!');
+        console.log('✅ Workspace loaded successfully for user:', user.email)
+      } catch (error) {
+        console.error('❌ Error loading workspace data for user', user.email, ':', error);
+        
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        setError(`Failed to load workspace: ${errorMessage}`);
+        
+        // Set default empty state on error
+        setState(prevState => ({
+          ...prevState,
+          pages: {},
+          rootPages: [],
+          dailyTasks: {},
+          financeData: financeService.getDefaultFinanceData(),
+          healthData: {
+            protocols: {},
+            quitHabits: {},
+            settings: {
+              reminderEnabled: true,
+              weeklyReviewDay: 0,
+              notificationEnabled: true,
             },
-            searchQuery: '',
-            currentSection: 'pages',
-          }));
-        }
+          },
+          searchQuery: '',
+          currentSection: 'pages',
+        }));
       } finally {
-        if (isMounted) {
-          console.log('🏁 Loading complete, setting loading to false')
-          setLoading(false);
-          setLoadingStep('');
-        }
+        console.log('🏁 Loading complete for user:', user.email)
+        setLoading(false);
+        setLoadingStep('');
+        isLoadingRef.current = false;
       }
     };
 
     // Set a maximum loading time to prevent infinite loading
-    loadTimeout = setTimeout(() => {
-      if (isMounted && loading) {
+    const loadTimeout = setTimeout(() => {
+      if (isLoadingRef.current) {
         console.warn('⚠️ Loading timeout reached, stopping...');
         setLoading(false);
         setError('Loading timed out. Please refresh the page.');
+        isLoadingRef.current = false;
       }
-    }, 15000); // 15 second timeout
+    }, 8000); // 8 second timeout
 
     loadData();
     
     return () => {
-      isMounted = false;
       clearTimeout(loadTimeout);
     };
-  }, [user]);
+  }, [user, session, clearUserData]);
 
   // Page management
   const createPage = useCallback(async (title: string, parentId?: string) => {
@@ -209,9 +236,9 @@ export const useWorkspace = () => {
 
     try {
       await pagesService.create(newPage);
-      console.log('✅ Page created and saved:', title);
+      console.log('✅ Page created and saved for user:', user.email, 'Title:', title);
     } catch (error) {
-      console.error('❌ Failed to save page:', error);
+      console.error('❌ Failed to save page for user', user.email, ':', error);
     }
 
     return pageId;
@@ -233,11 +260,11 @@ export const useWorkspace = () => {
       if (page) {
         const updatedPage = { ...page, ...updates, updatedAt: Date.now() };
         await pagesService.update(pageId, updatedPage);
-        console.log('✅ Page updated and saved:', pageId);
+        console.log('✅ Page updated and saved for user:', user.email, 'Page ID:', pageId);
         return true;
       }
     } catch (error) {
-      console.error('❌ Failed to update page:', error);
+      console.error('❌ Failed to update page for user', user.email, ':', error);
     }
 
     return false;
@@ -262,10 +289,10 @@ export const useWorkspace = () => {
 
     try {
       await pagesService.delete(pageId);
-      console.log('✅ Page deleted:', pageId);
+      console.log('✅ Page deleted for user:', user.email, 'Page ID:', pageId);
       return true;
     } catch (error) {
-      console.error('❌ Failed to delete page:', error);
+      console.error('❌ Failed to delete page for user', user.email, ':', error);
     }
 
     return false;
@@ -297,9 +324,9 @@ export const useWorkspace = () => {
 
     try {
       await dailyTasksService.create(newTask);
-      console.log('✅ Daily task created and saved:', title);
+      console.log('✅ Daily task created and saved for user:', user.email, 'Title:', title);
     } catch (error) {
-      console.error('❌ Failed to save daily task:', error);
+      console.error('❌ Failed to save daily task for user', user.email, ':', error);
     }
 
     return taskId;
@@ -321,11 +348,11 @@ export const useWorkspace = () => {
       if (task) {
         const updatedTask = { ...task, ...updates, updatedAt: Date.now() };
         await dailyTasksService.update(taskId, updatedTask);
-        console.log('✅ Daily task updated and saved:', taskId);
+        console.log('✅ Daily task updated and saved for user:', user.email, 'Task ID:', taskId);
         return true;
       }
     } catch (error) {
-      console.error('❌ Failed to update daily task:', error);
+      console.error('❌ Failed to update daily task for user', user.email, ':', error);
     }
 
     return false;
@@ -342,10 +369,10 @@ export const useWorkspace = () => {
 
     try {
       await dailyTasksService.delete(taskId);
-      console.log('✅ Daily task deleted:', taskId);
+      console.log('✅ Daily task deleted for user:', user.email, 'Task ID:', taskId);
       return true;
     } catch (error) {
-      console.error('❌ Failed to delete daily task:', error);
+      console.error('❌ Failed to delete daily task for user', user.email, ':', error);
     }
 
     return false;
@@ -370,11 +397,11 @@ export const useWorkspace = () => {
       };
       const success = await financeService.saveFinanceData(completeData);
       if (success) {
-        console.log('✅ Finance data updated and saved');
+        console.log('✅ Finance data updated and saved for user:', user.email);
         return true;
       }
     } catch (error) {
-      console.error('❌ Error updating finance data:', error);
+      console.error('❌ Error updating finance data for user', user.email, ':', error);
     }
 
     return false;
@@ -407,14 +434,14 @@ export const useWorkspace = () => {
         }
       }
       if (allSuccess) {
-        console.log('✅ Health data updated and saved to database');
+        console.log('✅ Health data updated and saved for user:', user.email);
         return true;
       } else {
-        console.error('❌ Some health data failed to save to database');
+        console.error('❌ Some health data failed to save for user', user.email);
         return false;
       }
     } catch (error) {
-      console.error('❌ Error updating health data:', error);
+      console.error('❌ Error updating health data for user', user.email, ':', error);
       return false;
     }
   }, [user]);
