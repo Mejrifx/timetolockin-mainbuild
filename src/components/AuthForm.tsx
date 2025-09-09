@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { useAuth } from '@/lib/AuthContextStable'
+import { useAuth } from '@/lib/AuthContextSync'
 import { ConfigurationStatus } from '@/components/ConfigurationStatus'
 import { cn } from '@/lib/utils'
 

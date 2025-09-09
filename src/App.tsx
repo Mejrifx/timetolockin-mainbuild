@@ -1,4 +1,4 @@
-import { AuthProvider, useAuth } from '@/lib/AuthContextStable';
+import { AuthProvider, useAuth } from '@/lib/AuthContextSync';
 import { Workspace } from '@/Workspace';
 import { AuthPage } from '@/components/AuthPage';
 import { PerformanceOptimizer } from '@/components/PerformanceOptimizer';
