@@ -336,7 +336,6 @@ export const Sidebar = ({
   onToggleTaskCompletion,
   onDeleteDailyTask,
 }: SidebarProps) => {
-  const [workspaceExpanded, setWorkspaceExpanded] = useState(false);
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [newTask, setNewTask] = useState({
     title: '',
@@ -435,96 +434,28 @@ export const Sidebar = ({
               </div>
             </div>
 
-            {/* Page Workspace Section */}
+            {/* Workspace Section */}
             <div className="border-b border-green-500/10">
               {/* Section Header */}
               <div className="p-6 pb-4">
                 <Button
                   variant="ghost"
-                  onClick={() => {
-                    setWorkspaceExpanded(!workspaceExpanded);
-                    if (!workspaceExpanded) {
-                      onSectionSelect('pages');
-                    }
-                  }}
+                  onClick={() => onSectionSelect('pages')}
                   className={cn(
-                    "w-full justify-start h-12 p-0 hover:bg-green-500/10 transition-colors duration-150 rounded-lg group outline-none focus:outline-none hover:outline-none active:outline-none focus-visible:outline-none ring-0 focus:ring-0 hover:ring-0 active:ring-0 focus-visible:ring-0",
+                    "w-full justify-start h-12 p-0 hover:bg-green-500/10 transition-all duration-300 rounded-lg group bg-black/20 backdrop-blur-xl",
                     currentSection === 'pages' && "bg-green-500/20 border border-green-500/30"
                   )}
                 >
                   <div className="flex items-center w-full px-4">
                     <div className="flex items-center gap-3">
-                      {workspaceExpanded ? (
-                        <ChevronDown className="h-4 w-4 text-green-400 transition-transform duration-300" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4 text-green-400 transition-transform duration-300" />
-                      )}
                       <Briefcase className="h-5 w-5 text-green-400" />
-                      <span className="text-white font-medium text-base group-hover:text-green-300 transition-colors duration-150">
+                      <span className="text-white font-medium text-base group-hover:text-green-300 transition-colors duration-300">
                         Workspace
                       </span>
                     </div>
                   </div>
                 </Button>
               </div>
-
-              {/* Collapsible Content */}
-              {workspaceExpanded && (
-                 <div className="px-6 pb-6 space-y-4 animate-in slide-in-from-top-2 duration-200">
-                  {/* Search Bar */}
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      type="text"
-                      placeholder="Search pages..."
-                      value={searchQuery}
-                      onChange={(e) => onSearchChange(e.target.value)}
-                      className="pl-10 bg-black/20 backdrop-blur-xl border-green-500/30 focus-visible:ring-green-500/50 focus-visible:ring-2 focus-visible:outline-none text-white placeholder:text-gray-400 hover:bg-black/30 transition-all duration-300 shadow-sm"
-                    />
-                  </div>
-
-                  {/* New Page Button */}
-                  <Button
-                    onClick={() => onCreatePage()}
-                    variant="outline"
-                    className="w-full justify-start h-10 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 border-green-500/30 text-white transition-colors duration-200 shadow-lg hover:shadow-xl transform-gpu hover:scale-105 backdrop-blur-xl"
-                  >
-                    <Plus className="h-4 w-4 mr-3" />
-                    New Page
-                  </Button>
-
-                  {/* Pages List */}
-                  <div className="space-y-1 pt-2">
-                    {filteredRootPages.length === 0 ? (
-                      <div className="p-4 text-center text-gray-400 text-sm">
-                        {searchQuery ? 'No pages found' : 'No pages yet. Create your first page!'}
-                      </div>
-                    ) : (
-                      filteredRootPages.map(pageId => {
-                        const page = pages[pageId];
-                        if (!page) return null;
-
-                        return (
-                          <PageItem
-                            key={pageId}
-                            page={page}
-                            level={0}
-                            isSelected={pageId === currentPageId}
-                            pages={pages}
-                            currentPageId={currentPageId}
-                            searchQuery={searchQuery}
-                            onPageSelect={onPageSelect}
-                            onCreatePage={onCreatePage}
-                            onDeletePage={onDeletePage}
-                            onUpdatePage={onUpdatePage}
-                            onToggleExpansion={onToggleExpansion}
-                          />
-                        );
-                      })
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Daily Non-Negotiables Section */}

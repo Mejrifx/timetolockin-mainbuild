@@ -8,6 +8,7 @@ import { DailyTasksDashboard } from '@/components/DailyTasksDashboard';
 import { CalendarDashboard } from '@/components/CalendarDashboard';
 import { FinanceDashboard } from '@/components/FinanceDashboard';
 import { HealthLabDashboard } from '@/components/HealthLabDashboard';
+import { WorkspaceDashboard } from '@/components/WorkspaceDashboard';
 import { GridBackground } from '@/components/ui/grid-background';
 import { cn } from '@/lib/utils';
 
@@ -230,7 +231,22 @@ Your intelligent workspace is ready! Here are some tips to get started:
               });
 
               try {
-                if (state.currentSection === 'daily-tasks') {
+                if (state.currentSection === 'pages') {
+                  console.log('📁 Rendering Workspace Dashboard')
+                  return (
+                    <WorkspaceDashboard
+                      pages={state.pages}
+                      rootPages={state.rootPages}
+                      currentPageId={state.currentPageId}
+                      searchQuery={state.searchQuery}
+                      onSearchChange={setSearchQuery}
+                      onPageSelect={setCurrentPage}
+                      onCreatePage={handleCreatePage}
+                      onDeletePage={handleDeletePage}
+                      onUpdatePage={updatePage}
+                    />
+                  );
+                } else if (state.currentSection === 'daily-tasks') {
                   console.log('📋 Rendering Daily Tasks Dashboard')
                   return (
                     <DailyTasksDashboard
