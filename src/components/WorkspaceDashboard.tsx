@@ -325,7 +325,10 @@ export const WorkspaceDashboard = memo(({
                 <p className="text-gray-300 text-lg">Organize your thoughts and ideas</p>
               </div>
               <Button
-                onClick={onCreatePage}
+                onClick={() => {
+                  console.log('🔄 New Page button clicked in WorkspaceDashboard');
+                  onCreatePage();
+                }}
                 className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
               >
                 <Plus className="h-5 w-5 mr-2" />
@@ -460,7 +463,10 @@ export const WorkspaceDashboard = memo(({
                   </p>
                   {!searchQuery && (
                     <Button
-                      onClick={onCreatePage}
+                      onClick={() => {
+                        console.log('🔄 Create First Page button clicked in WorkspaceDashboard');
+                        onCreatePage();
+                      }}
                       className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
                     >
                       <Plus className="h-4 w-4 mr-2" />

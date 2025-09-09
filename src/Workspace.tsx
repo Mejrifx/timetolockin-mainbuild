@@ -38,9 +38,20 @@ export const Workspace = () => {
   const currentPage = state.currentPageId ? state.pages[state.currentPageId] : null;
 
   const handleCreatePage = async (parentId?: string) => {
-    const pageId = await createPage('Untitled', parentId);
-    if (pageId) {
-      setCurrentPage(pageId);
+    console.log('🔄 Creating new page...');
+    try {
+      const pageId = await createPage('Untitled', parentId);
+      console.log('✅ Page created with ID:', pageId);
+      if (pageId) {
+        setCurrentPage(pageId);
+        // Switch to editor view when a new page is created
+        setCurrentSection(null as any);
+        console.log('✅ Page set as current and switched to editor view');
+      } else {
+        console.error('❌ No page ID returned from createPage');
+      }
+    } catch (error) {
+      console.error('❌ Error creating page:', error);
     }
   };
 
@@ -182,11 +193,11 @@ Your intelligent workspace is ready! Here are some tips to get started:
   return (
     <GridBackground className="h-screen overflow-hidden" blurBackground={true}>
       <div className="h-screen flex flex-col w-full">
-        <Header
+        <Header 
           onToggleSidebar={handleToggleSidebar}
           sidebarOpen={sidebarOpen}
         />
-
+        
         <div className="flex-1 flex overflow-hidden relative">
           <Sidebar
             pages={state.pages}
@@ -257,12 +268,12 @@ Your intelligent workspace is ready! Here are some tips to get started:
                   console.log('📋 Rendering Daily Tasks Dashboard')
                   return (
                     <DailyTasksDashboard
-                      dailyTasks={state.dailyTasks}
-                      onCreateDailyTask={createDailyTask}
-                      onUpdateDailyTask={updateDailyTask}
-                      onToggleTaskCompletion={toggleTaskCompletion}
-                      onDeleteDailyTask={deleteDailyTask}
-                    />
+                dailyTasks={state.dailyTasks}
+                onCreateDailyTask={createDailyTask}
+                onUpdateDailyTask={updateDailyTask}
+                onToggleTaskCompletion={toggleTaskCompletion}
+                onDeleteDailyTask={deleteDailyTask}
+              />
                   );
                 } else if (state.currentSection === 'calendar') {
                   console.log('📅 Rendering Calendar Dashboard')
@@ -271,9 +282,9 @@ Your intelligent workspace is ready! Here are some tips to get started:
                   console.log('💰 Rendering Finance Dashboard')
                   return (
                     <FinanceDashboard 
-                      financeData={state.financeData}
-                      onUpdateFinanceData={updateFinanceData}
-                      onCreateDailyTask={createDailyTask}
+                financeData={state.financeData}
+                onUpdateFinanceData={updateFinanceData}
+                onCreateDailyTask={createDailyTask}
                       onExportToWorkspace={(content, title) => {
                         // Create a new page with the exported content
                         createPage(title).then(pageId => {
@@ -288,9 +299,9 @@ Your intelligent workspace is ready! Here are some tips to get started:
                   console.log('💪 Rendering Health Lab Dashboard')
                   return (
                     <HealthLabDashboard 
-                      healthData={state.healthData}
-                      onUpdateHealthData={updateHealthData}
-                      onCreateDailyTask={createDailyTask}
+                healthData={state.healthData}
+                onUpdateHealthData={updateHealthData}
+                onCreateDailyTask={createDailyTask}
                       onExportToWorkspace={(content, title) => {
                         // Create a new page with the exported content
                         createPage(title).then(pageId => {
@@ -305,10 +316,10 @@ Your intelligent workspace is ready! Here are some tips to get started:
                   console.log('📝 Rendering Editor for page:', currentPage.title)
                   return (
                     <Editor
-                      key={currentPage.id}
-                      page={currentPage}
-                      onUpdatePage={updatePage}
-                    />
+                  key={currentPage.id}
+                  page={currentPage}
+                  onUpdatePage={updatePage}
+                />
                   );
                 } else if (state.currentSection === null) {
                   console.log('📄 Rendering Empty State - no current page')
@@ -331,7 +342,7 @@ Your intelligent workspace is ready! Here are some tips to get started:
                         Reload
                       </button>
                     </div>
-                  </div>
+            </div>
                 );
               }
             })()}
