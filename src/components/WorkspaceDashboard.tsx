@@ -208,15 +208,15 @@ export const WorkspaceDashboard = memo(({
 
         {/* Page Meta - Single Line */}
         <div className="flex items-center justify-between text-xs text-gray-400">
-          <span>Created at: {formatDateShort(page.createdAt)}</span>
           <div className="flex items-center gap-1">
             <Calendar className="h-3 w-3" />
             <span>Last Edited: {formatDate(page.updatedAt)}</span>
           </div>
+          <span>Created at: {formatDateShort(page.createdAt)}</span>
         </div>
 
         {/* Hover Effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
+        <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl pointer-events-none" />
       </div>
     );
   };
