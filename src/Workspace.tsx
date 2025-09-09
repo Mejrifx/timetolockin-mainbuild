@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useWorkspace } from '@/lib/useWorkspaceFixed';
+import { useWorkspace } from '@/lib/useWorkspaceRobust';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
 import { Editor } from '@/components/Editor';
