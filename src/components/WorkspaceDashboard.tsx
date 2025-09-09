@@ -114,7 +114,7 @@ export const WorkspaceDashboard = memo(({
     
     return (
       <div
-        className="group relative bg-black/20 backdrop-blur-xl rounded-xl border border-green-500/20 p-6 hover:border-green-500/40 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-green-500/10 hover:scale-105 h-48 flex flex-col"
+        className="group relative bg-black/20 backdrop-blur-xl rounded-xl border border-green-500/20 p-6 hover:border-green-500/40 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-green-500/10 hover:scale-105 h-48 flex flex-col self-start"
         onClick={() => onOpenPage(page.id)}
       >
         {/* Page Icon */}
@@ -474,9 +474,8 @@ export const WorkspaceDashboard = memo(({
               </div>
             ) : (
               <div className={cn(
-                "space-y-6",
                 viewMode === 'grid' 
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-start" 
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-start content-start" 
                   : "space-y-3"
               )}>
                 {filteredAndSortedPages.map((page) => (
