@@ -123,7 +123,7 @@ export const useWorkspace = () => {
         const pagesRecord: Record<string, Page> = {}
         const rootPages: string[] = []
 
-        pages.forEach(page => {
+        pages.forEach((page: Page) => {
           pagesRecord[page.id] = page
           if (!page.parentId) {
             rootPages.push(page.id)
@@ -132,7 +132,7 @@ export const useWorkspace = () => {
 
         // Convert daily tasks array to record
         const dailyTasksRecord: Record<string, DailyTask> = {}
-        dailyTasks.forEach(task => {
+        dailyTasks.forEach((task: DailyTask) => {
           dailyTasksRecord[task.id] = task
         })
 
@@ -381,15 +381,21 @@ export const useWorkspace = () => {
   }, []);
 
   // Daily tasks functions
-  const createDailyTask = useCallback(async (task: Omit<DailyTask, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const createDailyTask = useCallback(async (title: string, timeAllocation: number, priority: DailyTask['priority'], category: string, description?: string) => {
     if (!user) return '';
 
     const taskId = generateId();
     const now = Date.now();
     
     const newTask: DailyTask = {
-      ...task,
       id: taskId,
+      title,
+      description: description || '',
+      timeAllocation,
+      priority,
+      category,
+      completed: false,
+      streak: 0,
       createdAt: now,
       updatedAt: now,
     };
@@ -510,7 +516,13 @@ export const useWorkspace = () => {
 
     // Save to database
     try {
-      const success = await financeService.updateFinanceData(data);
+      // Merge with existing data to ensure we have a complete FinanceData object
+      const completeData = {
+        ...state.financeData,
+        ...data,
+      };
+      
+      const success = await financeService.saveFinanceData(completeData);
       if (success) {
         console.log('✅ Finance data updated and saved to database');
         return true;
@@ -537,14 +549,31 @@ export const useWorkspace = () => {
       },
     }));
 
-    // Save to database
+    // Save individual components to database
     try {
-      const success = await healthService.updateHealthData(data);
-      if (success) {
+      let allSuccess = true;
+      
+      // Save protocols if they exist
+      if (data.protocols) {
+        for (const protocol of Object.values(data.protocols)) {
+          const success = await healthService.saveProtocol(protocol);
+          if (!success) allSuccess = false;
+        }
+      }
+      
+      // Save quit habits if they exist
+      if (data.quitHabits) {
+        for (const habit of Object.values(data.quitHabits)) {
+          const success = await healthService.saveQuitHabit(habit);
+          if (!success) allSuccess = false;
+        }
+      }
+      
+      if (allSuccess) {
         console.log('✅ Health data updated and saved to database');
         return true;
       } else {
-        console.error('❌ Failed to save health data to database');
+        console.error('❌ Some health data failed to save to database');
         return false;
       }
     } catch (error) {
