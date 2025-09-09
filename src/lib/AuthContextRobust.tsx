@@ -246,6 +246,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       console.log('👤 Creating user profile for:', email, 'ID:', userId)
       
+      // Check if profile already exists first
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', userId)
+        .single()
+      
+      if (existingProfile) {
+        console.log('✅ User profile already exists for:', email)
+        return
+      }
+      
       // Simple profile creation without timeout
       const { error: profileError } = await supabase
         .from('profiles')

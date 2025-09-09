@@ -580,6 +580,13 @@ export const healthService = {
         settingsLoaded: !!settingsData
       });
       
+      // Debug: Log the actual quit habits data
+      if (Object.keys(quitHabits).length > 0) {
+        console.log('🔍 Quit habits found:', Object.values(quitHabits));
+      } else {
+        console.log('⚠️ No quit habits found in database');
+      }
+      
       return { protocols, quitHabits, settings };
     } catch (error) {
       console.error('❌ Error in getHealthData:', error);
