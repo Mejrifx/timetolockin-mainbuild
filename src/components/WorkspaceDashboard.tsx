@@ -127,19 +127,23 @@ export const WorkspaceDashboard = memo(({
         onClick={() => onOpenPage(page.id)}
       >
         {/* Page Icon */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-            <IconComponent className="h-6 w-6 text-green-400" />
+        <div className="flex justify-center mb-4">
+          <div className="p-2 bg-green-500/10 rounded-lg border border-green-500/20">
+            <IconComponent className="h-4 w-4 text-green-400" />
           </div>
+        </div>
+
+        {/* Menu Button - Positioned absolutely */}
+        <div className="absolute top-2 right-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-green-500/20"
+                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-green-500/20"
                 onClick={(e) => e.stopPropagation()}
               >
-                <MoreHorizontal className="h-4 w-4 text-gray-400" />
+                <MoreHorizontal className="h-3 w-3 text-gray-400" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-black/80 backdrop-blur-xl border border-green-500/20">
@@ -198,24 +202,16 @@ export const WorkspaceDashboard = memo(({
         </div>
 
         {/* Page Title */}
-        <h3 className="text-white font-semibold text-lg mb-4 line-clamp-2 group-hover:text-green-300 transition-colors duration-200 flex-1">
+        <h3 className="text-white font-semibold text-lg mb-4 line-clamp-2 group-hover:text-green-300 transition-colors duration-200 flex-1 text-center">
           {page.title}
         </h3>
 
-        {/* Page Meta */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm text-gray-400">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span>Last Edited: {formatDate(page.updatedAt)}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Star className="h-4 w-4" />
-              <span>{page.children?.length || 0}</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <span>Created at: {formatDateShort(page.createdAt)}</span>
+        {/* Page Meta - Single Line */}
+        <div className="flex items-center justify-between text-xs text-gray-400">
+          <span>Created at: {formatDateShort(page.createdAt)}</span>
+          <div className="flex items-center gap-1">
+            <Calendar className="h-3 w-3" />
+            <span>Last Edited: {formatDate(page.updatedAt)}</span>
           </div>
         </div>
 
