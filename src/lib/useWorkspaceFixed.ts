@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { WorkspaceState, Page, DailyTask, FinanceData, HealthData } from '@/types';
 import { pagesService, dailyTasksService, workspaceService, financeService, healthService } from '@/lib/database';
 import { useAuth } from '@/lib/AuthContext';
-import { testSupabaseConnection, showSetupInstructions } from '@/lib/supabaseTest';
+import { testSupabaseConnection, showSetupInstructions } from '@/lib/supabaseTestFixed';
 
 const generateId = () => {
   return Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
@@ -53,15 +53,23 @@ export const useWorkspace = () => {
           setLoadingStep('Testing database connection...');
         }
         
-        // Test connection with timeout
+        // Test connection with shorter timeout
         const connectionTimeout = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Connection test timeout')), 5000)
+          setTimeout(() => reject(new Error('Connection test timeout')), 3000)
         );
         
-        const connectionOk = await Promise.race([
-          testSupabaseConnection(),
-          connectionTimeout
-        ]);
+        let connectionOk = false;
+        try {
+          const result = await Promise.race([
+            testSupabaseConnection(),
+            connectionTimeout
+          ]);
+          connectionOk = Boolean(result);
+        } catch (error) {
+          console.warn('⚠️ Connection test failed, but continuing with data load:', error);
+          // Don't fail completely - try to load data anyway
+          connectionOk = true;
+        }
         
         if (!connectionOk) {
           if (isMounted) {
