@@ -72,65 +72,8 @@ export const Workspace = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  // Initialize with a welcome page if no pages exist
-  // IMPORTANT: This useEffect must be called BEFORE any early returns to maintain hook order
-  useEffect(() => {
-    // Always call this effect, but only do work if conditions are met
-    if (!loading && !error && Object.keys(state.pages).length === 0) {
-      console.log('👋 New user detected, creating welcome page...')
-      
-      const createWelcomePage = async () => {
-        try {
-          const welcomePageId = await createPage('Welcome to timetolockin');
-          if (welcomePageId) {
-            const welcomeContent = `# Welcome to timetolockin
-
-Your intelligent workspace is ready! Here are some tips to get started:
-
-## Features
-- **Rich Text Editing**: Type naturally and use markdown formatting
-- **Page Organization**: Create nested pages and organize your thoughts
-- **Quick Search**: Find anything instantly with the search bar
-- **Auto-Save**: Your work is automatically saved as you type
-
-## Getting Started
-1. Create new pages using the "New Page" button
-2. Organize pages by creating sub-pages
-3. Use the sidebar to navigate between pages
-4. Search across all your content
-
-## Keyboard Shortcuts
-- **Enter** in title: Move to content
-- **Tab** in content: Add indentation
-- **Ctrl/Cmd + K**: Focus search
-
- Start creating your workspace and let timetolockin help you stay organized and productive!`;
-            await updatePage(welcomePageId, {
-              content: welcomeContent,
-              blocks: [
-                {
-                  id: `block_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                  type: 'text',
-                  content: welcomeContent,
-                  order: 0,
-                }
-              ]
-            });
-            setCurrentPage(welcomePageId);
-            console.log('✅ Welcome page created successfully!')
-          } else {
-            console.error('❌ Failed to create welcome page - no page ID returned')
-          }
-        } catch (error) {
-          console.error('❌ Failed to create welcome page:', error)
-        }
-      };
-
-      // Small delay to ensure state is stable
-      const timer = setTimeout(createWelcomePage, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [loading, error, state.pages, createPage, updatePage, setCurrentPage]);
+  // Note: Welcome page creation is now handled by AuthContext.tsx
+  // This ensures each user gets exactly one welcome page with consistent content
 
   // Show loading state while data is being fetched
   if (loading) {
