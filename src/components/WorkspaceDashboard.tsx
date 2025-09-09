@@ -109,6 +109,15 @@ export const WorkspaceDashboard = memo(({
     return date.toLocaleDateString();
   };
 
+  const formatDateShort = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+    });
+  };
+
   const PageCard = ({ page }: { page: Page }) => {
     const IconComponent = getPageIcon(page.icon);
     
@@ -189,19 +198,24 @@ export const WorkspaceDashboard = memo(({
         </div>
 
         {/* Page Title */}
-        <h3 className="text-white font-semibold text-lg mb-2 line-clamp-2 group-hover:text-green-300 transition-colors duration-200 flex-1">
+        <h3 className="text-white font-semibold text-lg mb-4 line-clamp-2 group-hover:text-green-300 transition-colors duration-200 flex-1">
           {page.title}
         </h3>
 
         {/* Page Meta */}
-        <div className="flex items-center justify-between text-sm text-gray-400">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            <span>{formatDate(page.updatedAt)}</span>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm text-gray-400">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              <span>Last Edited: {formatDate(page.updatedAt)}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Star className="h-4 w-4" />
+              <span>{page.children?.length || 0}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1">
-            <Star className="h-4 w-4" />
-            <span>{page.children?.length || 0}</span>
+          <div className="flex items-center gap-2 text-xs text-gray-500">
+            <span>Created at: {formatDateShort(page.createdAt)}</span>
           </div>
         </div>
 
