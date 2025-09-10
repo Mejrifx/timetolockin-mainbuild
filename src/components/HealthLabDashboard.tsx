@@ -483,35 +483,30 @@ const HealthLabDashboard = memo(({
 
   return (
     <div className="h-full flex flex-col bg-black/20 backdrop-blur-xl overflow-hidden">
-      {/* Header */}
-      <div className="p-6 border-b border-green-500/20">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Heart className="h-6 w-6 text-green-400" />
-            <h1 className="text-2xl font-bold text-white">Health Lab</h1>
-          </div>
-          <div className="text-xs text-gray-400">
-            Your personal health optimization dashboard
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-6 space-y-8">
-        {/* Health Protocols Section */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-              <FlaskConical className="h-5 w-5 text-green-400" />
-              Health Protocols
-            </h2>
-            <Button
-              onClick={() => setShowProtocolForm(true)}
-              className="bg-green-500 hover:bg-green-600 text-white"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Protocol
-            </Button>
-          </div>
+      <div className="flex-1 overflow-y-auto p-6">
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          
+          {/* Health Protocols Section */}
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-green-500/20 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-semibold text-white flex items-center gap-3 mb-2">
+                  <FlaskConical className="h-6 w-6 text-green-400" />
+                  Health Protocols
+                </h2>
+                <p className="text-gray-400 text-sm">
+                  Track and manage your health optimization routines
+                </p>
+              </div>
+              <Button
+                onClick={() => setShowProtocolForm(true)}
+                className="bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Protocol
+              </Button>
+            </div>
 
           {/* Protocol Form */}
           {showProtocolForm && (
@@ -652,21 +647,28 @@ const HealthLabDashboard = memo(({
           </div>
         </div>
 
-        {/* Quit Bad Habits Section */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-              <Activity className="h-5 w-5 text-green-400" />
-              Quit Bad Habits
-            </h2>
-            <Button
-              onClick={() => setShowQuitHabitForm(true)}
-              className="bg-green-500 hover:bg-green-600 text-white"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Track New Habit
-            </Button>
           </div>
+          
+          {/* Quit Bad Habits Section */}
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-green-500/20 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-semibold text-white flex items-center gap-3 mb-2">
+                  <Activity className="h-6 w-6 text-red-400" />
+                  Quit Bad Habits
+                </h2>
+                <p className="text-gray-400 text-sm">
+                  Track your progress in breaking unhealthy habits
+                </p>
+              </div>
+              <Button
+                onClick={() => setShowQuitHabitForm(true)}
+                className="bg-red-500 hover:bg-red-600 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Track New Habit
+              </Button>
+            </div>
 
           {/* Quit Habit Form */}
           {showQuitHabitForm && (
@@ -816,13 +818,14 @@ const HealthLabDashboard = memo(({
             })}
           </div>
 
-          {Object.values(quitHabits).filter(habit => habit.isActive).length === 0 && (
-            <div className="text-center py-12 text-gray-400">
-              <Activity className="h-12 w-12 mx-auto mb-4 text-gray-600" />
-              <p>No habits being tracked yet.</p>
-              <p className="text-sm">Add a habit you want to quit to start your journey!</p>
-            </div>
-          )}
+            {Object.values(quitHabits).filter(habit => habit.isActive).length === 0 && (
+              <div className="text-center py-12 text-gray-400">
+                <Activity className="h-12 w-12 mx-auto mb-4 text-gray-600" />
+                <p>No habits being tracked yet.</p>
+                <p className="text-sm">Add a habit you want to quit to start your journey!</p>
+              </div>
+            )}
+          
         </div>
       </div>
     </div>
