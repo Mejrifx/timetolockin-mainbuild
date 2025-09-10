@@ -241,6 +241,7 @@ const HealthLabDashboard = memo(({
   onAddToCalendar,
   onExportToWorkspace,
 }: HealthLabDashboardProps) => {
+  const [currentSection, setCurrentSection] = useState<'protocols' | 'habits' | 'nutrition' | 'fitness' | 'sleep' | 'mental'>('protocols');
   const [showProtocolForm, setShowProtocolForm] = useState(false);
   const [showQuitHabitForm, setShowQuitHabitForm] = useState(false);
   const [editingHabit, setEditingHabit] = useState<string | null>(null);
@@ -481,189 +482,227 @@ const HealthLabDashboard = memo(({
     return { days, hours, minutes, seconds };
   }, [currentTime]);
 
+  // Health Lab subsections configuration
+  const healthSections = [
+    { id: 'protocols', label: 'Protocols', icon: FlaskConical, color: 'text-green-400', bgColor: 'bg-green-500/20' },
+    { id: 'habits', label: 'Habits', icon: Activity, color: 'text-red-400', bgColor: 'bg-red-500/20' },
+    { id: 'nutrition', label: 'Nutrition', icon: Apple, color: 'text-orange-400', bgColor: 'bg-orange-500/20' },
+    { id: 'fitness', label: 'Fitness', icon: Dumbbell, color: 'text-blue-400', bgColor: 'bg-blue-500/20' },
+    { id: 'sleep', label: 'Sleep', icon: Moon, color: 'text-purple-400', bgColor: 'bg-purple-500/20' },
+    { id: 'mental', label: 'Mental', icon: Brain, color: 'text-pink-400', bgColor: 'bg-pink-500/20' },
+  ];
+
   return (
     <div className="h-full flex flex-col bg-black/20 backdrop-blur-xl overflow-hidden">
+      {/* Health Lab Navigation */}
+      <div className="p-6 border-b border-green-500/20">
+        <div className="flex items-center gap-3 mb-4">
+          <Heart className="h-6 w-6 text-green-400" />
+          <h1 className="text-2xl font-bold text-white">Health Lab</h1>
+        </div>
+        <p className="text-gray-400 text-sm mb-6">
+          Your personal health optimization dashboard
+        </p>
+        
+        {/* Navigation Tabs */}
+        <div className="flex flex-wrap gap-2">
+          {healthSections.map((section) => {
+            const IconComponent = section.icon;
+            const isActive = currentSection === section.id;
+            return (
+              <Button
+                key={section.id}
+                onClick={() => setCurrentSection(section.id as any)}
+                variant="ghost"
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200",
+                  isActive 
+                    ? `${section.bgColor} border border-green-500/30 text-white` 
+                    : "text-gray-400 hover:text-white hover:bg-black/40"
+                )}
+              >
+                <IconComponent className={cn("h-4 w-4", isActive ? section.color : "text-gray-400")} />
+                {section.label}
+              </Button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Content Area */}
       <div className="flex-1 overflow-y-auto p-6">
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-          
-          {/* Health Protocols Section */}
-          <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-green-500/20 p-6">
-            <div className="flex items-center justify-between mb-6">
+        {currentSection === 'protocols' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-semibold text-white flex items-center gap-3 mb-2">
-                  <FlaskConical className="h-6 w-6 text-green-400" />
+                <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <FlaskConical className="h-5 w-5 text-green-400" />
                   Health Protocols
                 </h2>
-                <p className="text-gray-400 text-sm">
-                  Track and manage your health optimization routines
-                </p>
+                <p className="text-gray-400 text-sm">Track and manage your health optimization routines</p>
               </div>
               <Button
                 onClick={() => setShowProtocolForm(true)}
-                className="bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                className="bg-green-500 hover:bg-green-600 text-white"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Protocol
               </Button>
             </div>
 
-          {/* Protocol Form */}
-          {showProtocolForm && (
-            <div className="bg-black/40 backdrop-blur-xl border border-green-500/30 rounded-lg p-6 space-y-4">
-              <h3 className="text-lg font-medium text-white">Create New Protocol</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Protocol Form */}
+            {showProtocolForm && (
+              <div className="bg-black/40 backdrop-blur-xl border border-green-500/30 rounded-lg p-6 space-y-4">
+                <h3 className="text-lg font-medium text-white">Create New Protocol</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input
+                    placeholder="Protocol title..."
+                    value={newProtocol.title}
+                    onChange={(e) => setNewProtocol({ ...newProtocol, title: e.target.value })}
+                    className="bg-black/20 border-green-500/30 text-white"
+                  />
+                  <Select value={newProtocol.category} onValueChange={(value) => setNewProtocol({ ...newProtocol, category: value as HealthProtocol['category'] })}>
+                    <SelectTrigger className="bg-black/20 border-green-500/30 text-white">
+                      <SelectValue placeholder="Category" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-black/90 border-green-500/30">
+                      <SelectItem value="fitness" className="text-white hover:bg-green-500/20 focus:bg-green-500/20 focus:text-white">Fitness</SelectItem>
+                      <SelectItem value="nutrition" className="text-white hover:bg-green-500/20 focus:bg-green-500/20 focus:text-white">Nutrition</SelectItem>
+                      <SelectItem value="sleep" className="text-white hover:bg-green-500/20 focus:bg-green-500/20 focus:text-white">Sleep</SelectItem>
+                      <SelectItem value="mental" className="text-white hover:bg-green-500/20 focus:bg-green-500/20 focus:text-white">Mental Health</SelectItem>
+                      <SelectItem value="habits" className="text-white hover:bg-green-500/20 focus:bg-green-500/20 focus:text-white">Habits</SelectItem>
+                      <SelectItem value="other" className="text-white hover:bg-green-500/20 focus:bg-green-500/20 focus:text-white">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Input
-                  placeholder="Protocol title..."
-                  value={newProtocol.title}
-                  onChange={(e) => setNewProtocol({ ...newProtocol, title: e.target.value })}
+                  placeholder="Brief description..."
+                  value={newProtocol.description}
+                  onChange={(e) => setNewProtocol({ ...newProtocol, description: e.target.value })}
                   className="bg-black/20 border-green-500/30 text-white"
                 />
-                <Select value={newProtocol.category} onValueChange={(value) => setNewProtocol({ ...newProtocol, category: value as HealthProtocol['category'] })}>
-                  <SelectTrigger className="bg-black/20 border-green-500/30 text-white">
-                    <SelectValue placeholder="Category" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-black/90 border-green-500/30">
-                    <SelectItem value="fitness" className="text-white hover:bg-green-500/20 focus:bg-green-500/20 focus:text-white">Fitness</SelectItem>
-                    <SelectItem value="nutrition" className="text-white hover:bg-green-500/20 focus:bg-green-500/20 focus:text-white">Nutrition</SelectItem>
-                    <SelectItem value="sleep" className="text-white hover:bg-green-500/20 focus:bg-green-500/20 focus:text-white">Sleep</SelectItem>
-                    <SelectItem value="mental" className="text-white hover:bg-green-500/20 focus:bg-green-500/20 focus:text-white">Mental Health</SelectItem>
-                    <SelectItem value="habits" className="text-white hover:bg-green-500/20 focus:bg-green-500/20 focus:text-white">Habits</SelectItem>
-                    <SelectItem value="other" className="text-white hover:bg-green-500/20 focus:bg-green-500/20 focus:text-white">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Input
-                placeholder="Brief description..."
-                value={newProtocol.description}
-                onChange={(e) => setNewProtocol({ ...newProtocol, description: e.target.value })}
-                className="bg-black/20 border-green-500/30 text-white"
-              />
-              <Textarea
-                placeholder="Protocol content (markdown supported)..."
-                value={newProtocol.content}
-                onChange={(e) => setNewProtocol({ ...newProtocol, content: e.target.value })}
-                className="bg-black/20 border-green-500/30 text-white min-h-[200px]"
-              />
-                             <div className="flex gap-2">
-                 <Button onClick={handleCreateProtocol} className="bg-green-500 hover:bg-green-600 text-white">
-                   Create Protocol
-                 </Button>
-                 <Button onClick={() => setShowProtocolForm(false)} variant="outline" className="border-gray-500 text-black hover:bg-gray-100">
-                   Cancel
-                 </Button>
-               </div>
-            </div>
-          )}
-
-          {/* Protocols List */}
-          <div className="space-y-3">
-            {Object.values(protocols).map((protocol) => {
-              const IconComponent = protocolIcons[protocol.category];
-              return (
-                <div key={protocol.id} className="bg-black/40 backdrop-blur-xl border border-green-500/30 rounded-lg overflow-hidden">
-                  <div className="p-4 flex items-center justify-between cursor-pointer hover:bg-green-500/10 transition-colors" onClick={() => toggleProtocolExpansion(protocol.id)}>
-                    <div className="flex items-center gap-3">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 hover:bg-green-500/20"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleProtocolExpansion(protocol.id);
-                        }}
-                      >
-                        {protocol.isExpanded ? <ChevronDown className="h-4 w-4 text-green-400" /> : <ChevronRight className="h-4 w-4 text-green-400" />}
-                      </Button>
-                      <IconComponent className="h-5 w-5 text-green-400" />
-                      <div>
-                        <h3 className="font-medium text-white">{protocol.title}</h3>
-                        <p className="text-sm text-gray-400">{protocol.description}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleProtocolCompletion(protocol.id);
-                        }}
-                        className={cn(
-                          "h-8 w-8 p-0 transition-colors",
-                          protocol.isCompleted 
-                            ? "text-green-400 hover:bg-green-500/20" 
-                            : "text-gray-400 hover:bg-gray-500/20"
-                        )}
-                      >
-                        {protocol.isCompleted ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
-                      </Button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:bg-gray-500/20" onClick={(e) => e.stopPropagation()}>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-black/90 border-green-500/30">
-                          {onCreateDailyTask && (
-                            <DropdownMenuItem onClick={(e) => {
-                              e.stopPropagation();
-                              onCreateDailyTask(protocol.title, 30, 'medium', 'Health');
-                            }} className="text-white hover:bg-green-500/20">
-                              Add to Daily Tasks
-                            </DropdownMenuItem>
-                          )}
-                          {onExportToWorkspace && (
-                            <DropdownMenuItem onClick={(e) => {
-                              e.stopPropagation();
-                              onExportToWorkspace(protocol.content, protocol.title);
-                            }} className="text-white hover:bg-green-500/20">
-                              Export to Workspace
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuItem onClick={(e) => {
-                            e.stopPropagation();
-                            deleteProtocol(protocol.id);
-                          }} className="text-red-400 hover:bg-red-500/20">
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                  {protocol.isExpanded && (
-                    <div className="border-t border-green-500/20 p-4 bg-black/20">
-                      <div className="prose prose-invert prose-green max-w-none">
-                        <pre className="whitespace-pre-wrap text-sm text-gray-300 leading-relaxed">
-                          {protocol.content}
-                        </pre>
-                      </div>
-                    </div>
-                  )}
+                <Textarea
+                  placeholder="Protocol content (markdown supported)..."
+                  value={newProtocol.content}
+                  onChange={(e) => setNewProtocol({ ...newProtocol, content: e.target.value })}
+                  className="bg-black/20 border-green-500/30 text-white min-h-[200px]"
+                />
+                <div className="flex gap-2">
+                  <Button onClick={handleCreateProtocol} className="bg-green-500 hover:bg-green-600 text-white">
+                    Create Protocol
+                  </Button>
+                  <Button onClick={() => setShowProtocolForm(false)} variant="outline" className="border-gray-500 text-black hover:bg-gray-100">
+                    Cancel
+                  </Button>
                 </div>
-              );
-            })}
-          </div>
-        </div>
+              </div>
+            )}
 
+            {/* Protocols List */}
+            <div className="space-y-3">
+              {Object.values(protocols).map((protocol) => {
+                const IconComponent = protocolIcons[protocol.category];
+                return (
+                  <div key={protocol.id} className="bg-black/40 backdrop-blur-xl border border-green-500/30 rounded-lg overflow-hidden">
+                    <div className="p-4 flex items-center justify-between cursor-pointer hover:bg-green-500/10 transition-colors" onClick={() => toggleProtocolExpansion(protocol.id)}>
+                      <div className="flex items-center gap-3">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 hover:bg-green-500/20"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleProtocolExpansion(protocol.id);
+                          }}
+                        >
+                          {protocol.isExpanded ? <ChevronDown className="h-4 w-4 text-green-400" /> : <ChevronRight className="h-4 w-4 text-green-400" />}
+                        </Button>
+                        <IconComponent className="h-5 w-5 text-green-400" />
+                        <div>
+                          <h3 className="font-medium text-white">{protocol.title}</h3>
+                          <p className="text-sm text-gray-400">{protocol.description}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleProtocolCompletion(protocol.id);
+                          }}
+                          className={cn(
+                            "h-8 w-8 p-0 transition-colors",
+                            protocol.isCompleted 
+                              ? "text-green-400 hover:bg-green-500/20" 
+                              : "text-gray-400 hover:bg-gray-500/20"
+                          )}
+                        >
+                          {protocol.isCompleted ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:bg-gray-500/20" onClick={(e) => e.stopPropagation()}>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="bg-black/90 border-green-500/30">
+                            {onCreateDailyTask && (
+                              <DropdownMenuItem onClick={(e) => {
+                                e.stopPropagation();
+                                onCreateDailyTask(protocol.title, 30, 'medium', 'Health');
+                              }} className="text-white hover:bg-green-500/20">
+                                Add to Daily Tasks
+                              </DropdownMenuItem>
+                            )}
+                            {onExportToWorkspace && (
+                              <DropdownMenuItem onClick={(e) => {
+                                e.stopPropagation();
+                                onExportToWorkspace(protocol.content, protocol.title);
+                              }} className="text-white hover:bg-green-500/20">
+                                Export to Workspace
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem onClick={(e) => {
+                              e.stopPropagation();
+                              deleteProtocol(protocol.id);
+                            }} className="text-red-400 hover:bg-red-500/20">
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                    {protocol.isExpanded && (
+                      <div className="border-t border-green-500/20 p-4 bg-black/20">
+                        <div className="prose prose-invert prose-green max-w-none">
+                          <pre className="whitespace-pre-wrap text-sm text-gray-300 leading-relaxed">
+                            {protocol.content}
+                          </pre>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          
-          {/* Quit Bad Habits Section */}
-          <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-green-500/20 p-6">
-            <div className="flex items-center justify-between mb-6">
+        )}
+
+        {currentSection === 'habits' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-semibold text-white flex items-center gap-3 mb-2">
-                  <Activity className="h-6 w-6 text-red-400" />
+                <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <Activity className="h-5 w-5 text-red-400" />
                   Quit Bad Habits
                 </h2>
-                <p className="text-gray-400 text-sm">
-                  Track your progress in breaking unhealthy habits
-                </p>
+                <p className="text-gray-400 text-sm">Track your progress in breaking unhealthy habits</p>
               </div>
               <Button
                 onClick={() => setShowQuitHabitForm(true)}
-                className="bg-red-500 hover:bg-red-600 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                className="bg-red-500 hover:bg-red-600 text-white"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Track New Habit
@@ -825,8 +864,100 @@ const HealthLabDashboard = memo(({
                 <p className="text-sm">Add a habit you want to quit to start your journey!</p>
               </div>
             )}
-          
-        </div>
+          </div>
+        )}
+
+        {currentSection === 'nutrition' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <Apple className="h-5 w-5 text-orange-400" />
+                  Nutrition Tracking
+                </h2>
+                <p className="text-gray-400 text-sm">Track your nutrition goals and meal planning</p>
+              </div>
+              <Button className="bg-orange-500 hover:bg-orange-600 text-white">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Meal
+              </Button>
+            </div>
+            <div className="text-center py-12 text-gray-400">
+              <Apple className="h-12 w-12 mx-auto mb-4 text-gray-600" />
+              <p>Nutrition tracking coming soon!</p>
+              <p className="text-sm">Track your meals, macros, and nutrition goals</p>
+            </div>
+          </div>
+        )}
+
+        {currentSection === 'fitness' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <Dumbbell className="h-5 w-5 text-blue-400" />
+                  Fitness Tracking
+                </h2>
+                <p className="text-gray-400 text-sm">Track your workouts and fitness progress</p>
+              </div>
+              <Button className="bg-blue-500 hover:bg-blue-600 text-white">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Workout
+              </Button>
+            </div>
+            <div className="text-center py-12 text-gray-400">
+              <Dumbbell className="h-12 w-12 mx-auto mb-4 text-gray-600" />
+              <p>Fitness tracking coming soon!</p>
+              <p className="text-sm">Log workouts, track progress, and set fitness goals</p>
+            </div>
+          </div>
+        )}
+
+        {currentSection === 'sleep' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <Moon className="h-5 w-5 text-purple-400" />
+                  Sleep Tracking
+                </h2>
+                <p className="text-gray-400 text-sm">Monitor your sleep patterns and quality</p>
+              </div>
+              <Button className="bg-purple-500 hover:bg-purple-600 text-white">
+                <Plus className="h-4 w-4 mr-2" />
+                Log Sleep
+              </Button>
+            </div>
+            <div className="text-center py-12 text-gray-400">
+              <Moon className="h-12 w-12 mx-auto mb-4 text-gray-600" />
+              <p>Sleep tracking coming soon!</p>
+              <p className="text-sm">Track sleep duration, quality, and patterns</p>
+            </div>
+          </div>
+        )}
+
+        {currentSection === 'mental' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-pink-400" />
+                  Mental Health
+                </h2>
+                <p className="text-gray-400 text-sm">Track mood, meditation, and mental wellness</p>
+              </div>
+              <Button className="bg-pink-500 hover:bg-pink-600 text-white">
+                <Plus className="h-4 w-4 mr-2" />
+                Log Mood
+              </Button>
+            </div>
+            <div className="text-center py-12 text-gray-400">
+              <Brain className="h-12 w-12 mx-auto mb-4 text-gray-600" />
+              <p>Mental health tracking coming soon!</p>
+              <p className="text-sm">Track mood, meditation, and mental wellness activities</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
