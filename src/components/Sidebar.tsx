@@ -403,7 +403,7 @@ export const Sidebar = ({
     <>
       {/* Sidebar with glass effect */}
       <aside className={cn(
-        "sidebar-container w-80 border-r border-green-500/20 transition-all duration-500 ease-in-out relative shadow-xl overflow-hidden bg-black/60 performance-blur",
+        "sidebar-container w-80 border-r border-green-500/20 transition-all duration-500 ease-in-out relative shadow-xl overflow-hidden bg-black/30 backdrop-blur-xl performance-blur",
         isOpen ? "translate-x-0" : "-translate-x-full md:-translate-x-80",
         "fixed md:static inset-y-0 left-0 z-40 md:z-0"
       )}>

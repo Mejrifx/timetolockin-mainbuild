@@ -99,7 +99,7 @@ export const Header = ({
             <Menu className="h-5 w-5" />
           </Button>
           
-          <div className="flex items-center ml-6">
+          <div className="flex items-center ml-8">
             <img 
               src="/timetolockin MAIN LOGO NEW.png" 
               alt="timetolockin" 

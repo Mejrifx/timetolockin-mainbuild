@@ -140,7 +140,7 @@ export const CalendarDashboard = ({ className }: CalendarDashboardProps) => {
               <Button
                 onClick={goToToday}
                 variant="outline"
-                className="border-green-500/30 text-white hover:bg-green-500/10"
+                className="border-green-500/30 text-white hover:bg-green-500/10 bg-black/20 backdrop-blur-sm"
               >
                 Today
               </Button>
