@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import { Page, DailyTask, WorkspaceState, FinanceData, Wallet, Transaction, Category, Budget, FinanceGoal, FinanceSettings, HealthData, HealthProtocol, QuitHabit, HealthSettings, CalendarEvent } from '@/types'
+import { Page, DailyTask, WorkspaceState, FinanceData, Wallet, Transaction, Category, Budget, FinanceGoal, FinanceSettings, HealthData, HealthProtocol, QuitHabit, HealthSettings, CalendarEvent, PeptideCycle } from '@/types'
 
 // Database service for Pages
 export const pagesService = {
@@ -727,6 +727,177 @@ export const financeService = {
   }
 };
 
+// Peptide service for managing peptide cycles
+export const peptideService = {
+  // Fetch all peptide cycles for the current user
+  async getAll(): Promise<PeptideCycle[]> {
+    console.log('🔍 Fetching peptide cycles from database...')
+    
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) {
+      console.log('👤 No user found, returning empty peptide cycles array')
+      return []
+    }
+    
+    const { data, error } = await supabase
+      .from('peptide_cycles')
+      .select('*')
+      .eq('user_id', userData.user.id)
+      .eq('is_active', true)
+      .order('start_date', { ascending: false })
+
+    if (error) {
+      console.error('❌ Error fetching peptide cycles:', error)
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
+      return []
+    }
+
+    console.log('✅ Peptide cycles fetched successfully:', data?.length || 0, 'cycles for user:', userData.user.id)
+
+    return data.map(dbCycle => ({
+      id: dbCycle.id,
+      name: dbCycle.name,
+      dosage: dbCycle.dosage,
+      startDate: dbCycle.start_date,
+      cycleLength: dbCycle.cycle_length,
+      frequency: dbCycle.frequency,
+      notes: dbCycle.notes || undefined,
+      isActive: dbCycle.is_active,
+      createdAt: new Date(dbCycle.created_at).getTime(),
+      updatedAt: new Date(dbCycle.updated_at).getTime(),
+    }))
+  },
+
+  // Create a new peptide cycle
+  async create(cycle: Omit<PeptideCycle, 'createdAt' | 'updatedAt'>): Promise<PeptideCycle | null> {
+    console.log('🔍 Creating peptide cycle:', cycle.name)
+    
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) {
+      console.error('❌ No user found for peptide cycle creation')
+      return null
+    }
+
+    const { data, error } = await supabase
+      .from('peptide_cycles')
+      .insert({
+        id: cycle.id,
+        user_id: userData.user.id,
+        name: cycle.name,
+        dosage: cycle.dosage,
+        start_date: cycle.startDate,
+        cycle_length: cycle.cycleLength,
+        frequency: cycle.frequency,
+        notes: cycle.notes || null,
+        is_active: cycle.isActive,
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('❌ Error creating peptide cycle:', error)
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
+      return null
+    }
+
+    console.log('✅ Peptide cycle created successfully:', data.id)
+
+    return {
+      id: data.id,
+      name: data.name,
+      dosage: data.dosage,
+      startDate: data.start_date,
+      cycleLength: data.cycle_length,
+      frequency: data.frequency,
+      notes: data.notes || undefined,
+      isActive: data.is_active,
+      createdAt: new Date(data.created_at).getTime(),
+      updatedAt: new Date(data.updated_at).getTime(),
+    }
+  },
+
+  // Update a peptide cycle
+  async update(cycleId: string, updates: Partial<PeptideCycle>): Promise<boolean> {
+    console.log('🔍 Updating peptide cycle:', cycleId)
+    
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) {
+      console.error('❌ No user found for peptide cycle update')
+      return false
+    }
+
+    const updateData: any = {}
+    if (updates.name !== undefined) updateData.name = updates.name
+    if (updates.dosage !== undefined) updateData.dosage = updates.dosage
+    if (updates.startDate !== undefined) updateData.start_date = updates.startDate
+    if (updates.cycleLength !== undefined) updateData.cycle_length = updates.cycleLength
+    if (updates.frequency !== undefined) updateData.frequency = updates.frequency
+    if (updates.notes !== undefined) updateData.notes = updates.notes
+    if (updates.isActive !== undefined) updateData.is_active = updates.isActive
+
+    const { error } = await supabase
+      .from('peptide_cycles')
+      .update(updateData)
+      .eq('id', cycleId)
+      .eq('user_id', userData.user.id)
+
+    if (error) {
+      console.error('❌ Error updating peptide cycle:', error)
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
+      return false
+    }
+
+    console.log('✅ Peptide cycle updated successfully:', cycleId)
+    return true
+  },
+
+  // Delete a peptide cycle
+  async delete(cycleId: string): Promise<boolean> {
+    console.log('🔍 Deleting peptide cycle:', cycleId)
+    
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) {
+      console.error('❌ No user found for peptide cycle deletion')
+      return false
+    }
+
+    const { error } = await supabase
+      .from('peptide_cycles')
+      .delete()
+      .eq('id', cycleId)
+      .eq('user_id', userData.user.id)
+
+    if (error) {
+      console.error('❌ Error deleting peptide cycle:', error)
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
+      return false
+    }
+
+    console.log('✅ Peptide cycle deleted successfully:', cycleId)
+    return true
+  }
+};
+
 // Health service for managing health lab data
 export const healthService = {
   // Get health data for the current user
@@ -755,6 +926,13 @@ export const healthService = {
         .select('*')
         .eq('user_id', userData.user.id);
 
+      console.log('🔍 Fetching peptide cycles...')
+      const { data: peptideData, error: peptideError } = await supabase
+        .from('peptide_cycles')
+        .select('*')
+        .eq('user_id', userData.user.id)
+        .eq('is_active', true);
+
       console.log('🔍 Fetching health settings...')
       const { data: settingsData, error: settingsError } = await supabase
         .from('health_settings')
@@ -765,7 +943,8 @@ export const healthService = {
       // Log results for debugging
       console.log('📊 Health query results:', {
         protocols: protocolsError ? 'error' : 'success',
-        habits: habitsError ? 'error' : 'success', 
+        habits: habitsError ? 'error' : 'success',
+        peptides: peptideError ? 'error' : 'success',
         settings: settingsError ? 'error' : 'success'
       });
 
@@ -774,6 +953,9 @@ export const healthService = {
       }
       if (habitsError) {
         console.error('❌ Failed to fetch habits:', habitsError);
+      }
+      if (peptideError) {
+        console.error('❌ Failed to fetch peptide cycles:', peptideError);
       }
       if (settingsError && settingsError.code !== 'PGRST116') {
         console.error('❌ Failed to fetch settings:', settingsError);
@@ -816,6 +998,25 @@ export const healthService = {
         });
       }
 
+      // Convert peptide cycles
+      const peptideCycles: Record<string, PeptideCycle> = {};
+      if (peptideData) {
+        peptideData.forEach(dbCycle => {
+          peptideCycles[dbCycle.id] = {
+            id: dbCycle.id,
+            name: dbCycle.name,
+            dosage: dbCycle.dosage,
+            startDate: dbCycle.start_date,
+            cycleLength: dbCycle.cycle_length,
+            frequency: dbCycle.frequency as PeptideCycle['frequency'],
+            notes: dbCycle.notes || undefined,
+            isActive: dbCycle.is_active,
+            createdAt: new Date(dbCycle.created_at).getTime(),
+            updatedAt: new Date(dbCycle.updated_at).getTime(),
+          };
+        });
+      }
+
       // Convert settings
       let settings = this.getDefaultHealthData().settings;
       if (settingsData) {
@@ -831,6 +1032,7 @@ export const healthService = {
       console.log('📊 Health data summary:', {
         protocolCount: Object.keys(protocols).length,
         habitCount: Object.keys(quitHabits).length,
+        peptideCount: Object.keys(peptideCycles).length,
         settingsLoaded: !!settingsData
       });
       
@@ -841,7 +1043,7 @@ export const healthService = {
         console.log('⚠️ No quit habits found in database');
       }
       
-      return { protocols, quitHabits, settings };
+      return { protocols, quitHabits, peptideCycles, settings };
     } catch (error) {
       console.error('❌ Error in getHealthData:', error);
       return this.getDefaultHealthData();
@@ -963,6 +1165,7 @@ export const healthService = {
     return {
       protocols: {},
       quitHabits: {},
+      peptideCycles: {},
       settings: {
         reminderEnabled: true,
         weeklyReviewDay: 0,

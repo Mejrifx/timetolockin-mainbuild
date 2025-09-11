@@ -42,7 +42,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { HealthData, HealthProtocol, QuitHabit } from '@/types';
-import { healthService } from '@/lib/database';
+import { healthService, peptideService } from '@/lib/database';
 
 interface HealthLabDashboardProps {
   healthData: HealthData;
@@ -271,7 +271,7 @@ const HealthLabDashboard = memo(({
     frequency: 'daily',
     notes: '',
   });
-  const [peptideCycles, setPeptideCycles] = useState<Record<string, any>>({});
+  const peptideCycles = useMemo(() => healthData.peptideCycles || {}, [healthData.peptideCycles]);
 
   // Update time every second for live counters
   useEffect(() => {
@@ -494,7 +494,7 @@ const HealthLabDashboard = memo(({
   }, [currentTime]);
 
   // Peptide handlers
-  const handleCreatePeptide = useCallback(() => {
+  const handleCreatePeptide = useCallback(async () => {
     if (newPeptide.name.trim() && newPeptide.dosage.trim()) {
       const id = `peptide_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const peptide = {
@@ -503,35 +503,53 @@ const HealthLabDashboard = memo(({
         dosage: newPeptide.dosage.trim(),
         startDate: newPeptide.startDate,
         cycleLength: newPeptide.cycleLength,
-        frequency: newPeptide.frequency,
+        frequency: newPeptide.frequency as 'daily' | 'twice_daily' | 'every_other_day' | 'weekly',
         notes: newPeptide.notes.trim(),
+        isActive: true,
         createdAt: Date.now(),
+        updatedAt: Date.now(),
       };
 
-      setPeptideCycles(prev => ({
-        ...prev,
-        [id]: peptide,
-      }));
+      try {
+        const success = await peptideService.create(peptide);
+        if (success) {
+          onUpdateHealthData({
+            peptideCycles: {
+              ...peptideCycles,
+              [id]: peptide,
+            },
+          });
 
-      setNewPeptide({
-        name: '',
-        dosage: '',
-        startDate: new Date().toISOString().split('T')[0],
-        cycleLength: 30,
-        frequency: 'daily',
-        notes: '',
-      });
-      setShowPeptideForm(false);
+          setNewPeptide({
+            name: '',
+            dosage: '',
+            startDate: new Date().toISOString().split('T')[0],
+            cycleLength: 30,
+            frequency: 'daily',
+            notes: '',
+          });
+          setShowPeptideForm(false);
+        }
+      } catch (error) {
+        console.error('Error creating peptide cycle:', error);
+      }
     }
-  }, [newPeptide]);
+  }, [newPeptide, peptideCycles, onUpdateHealthData]);
 
-  const handleDeletePeptide = useCallback((peptideId: string) => {
-    setPeptideCycles(prev => {
-      const newCycles = { ...prev };
-      delete newCycles[peptideId];
-      return newCycles;
-    });
-  }, []);
+  const handleDeletePeptide = useCallback(async (peptideId: string) => {
+    try {
+      const success = await peptideService.delete(peptideId);
+      if (success) {
+        const newCycles = { ...peptideCycles };
+        delete newCycles[peptideId];
+        onUpdateHealthData({
+          peptideCycles: newCycles,
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting peptide cycle:', error);
+    }
+  }, [peptideCycles, onUpdateHealthData]);
 
   // Health Lab subsections configuration
   const healthSections = [
@@ -570,7 +588,7 @@ const HealthLabDashboard = memo(({
                   "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200",
                   isActive 
                     ? `${section.bgColor} border border-green-500/30 text-white` 
-                    : "text-gray-400 hover:text-white hover:bg-black/40"
+                    : `text-gray-400 hover:text-white hover:${section.bgColor.replace('bg-', 'hover:bg-').replace('/20', '/30')}`
                 )}
               >
                 <IconComponent className={cn("h-4 w-4", isActive ? section.color : "text-gray-400")} />

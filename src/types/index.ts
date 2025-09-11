@@ -148,6 +148,7 @@ export interface FinanceInsight {
 export interface HealthData {
   protocols: Record<string, HealthProtocol>;
   quitHabits: Record<string, QuitHabit>;
+  peptideCycles: Record<string, PeptideCycle>;
   settings: HealthSettings;
 }
 
@@ -183,6 +184,19 @@ export interface QuitMilestone {
   description: string;
   isReached: boolean;
   reachedAt?: number;
+}
+
+export interface PeptideCycle {
+  id: string;
+  name: string;
+  dosage: string;
+  startDate: string; // YYYY-MM-DD format
+  cycleLength: number; // days
+  frequency: 'daily' | 'twice_daily' | 'every_other_day' | 'weekly';
+  notes?: string;
+  isActive: boolean;
+  createdAt: number;
+  updatedAt: number;
 }
 
 export interface HealthSettings {

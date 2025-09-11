@@ -192,6 +192,44 @@ export interface Database {
           updated_at?: string
         }
       }
+      peptide_cycles: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          dosage: string
+          start_date: string
+          cycle_length: number
+          frequency: 'daily' | 'twice_daily' | 'every_other_day' | 'weekly'
+          notes: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          user_id: string
+          name: string
+          dosage: string
+          start_date: string
+          cycle_length: number
+          frequency: 'daily' | 'twice_daily' | 'every_other_day' | 'weekly'
+          notes?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          name?: string
+          dosage?: string
+          start_date?: string
+          cycle_length?: number
+          frequency?: 'daily' | 'twice_daily' | 'every_other_day' | 'weekly'
+          notes?: string | null
+          is_active?: boolean
+          updated_at?: string
+        }
+      }
     }
   }
 } 

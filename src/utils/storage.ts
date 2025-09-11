@@ -70,6 +70,7 @@ export const storage = {
     healthData: {
       protocols: {},
       quitHabits: {},
+      peptideCycles: {},
       settings: {
         reminderEnabled: true,
         weeklyReviewDay: 0,

@@ -22,6 +22,7 @@ export const useWorkspace = () => {
     healthData: {
       protocols: {},
       quitHabits: {},
+      peptideCycles: {},
       settings: {
         reminderEnabled: true,
         weeklyReviewDay: 0,
@@ -53,6 +54,7 @@ export const useWorkspace = () => {
       healthData: {
         protocols: {},
         quitHabits: {},
+        peptideCycles: {},
         settings: {
           reminderEnabled: true,
           weeklyReviewDay: 0,
@@ -196,6 +198,7 @@ export const useWorkspace = () => {
           healthData: {
             protocols: {},
             quitHabits: {},
+            peptideCycles: {},
             settings: {
               reminderEnabled: true,
               weeklyReviewDay: 0,

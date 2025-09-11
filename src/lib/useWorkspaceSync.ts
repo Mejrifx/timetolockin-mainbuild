@@ -22,6 +22,7 @@ export const useWorkspace = () => {
     healthData: {
       protocols: {},
       quitHabits: {},
+      peptideCycles: {},
       settings: {
         reminderEnabled: true,
         weeklyReviewDay: 0,
@@ -55,6 +56,7 @@ export const useWorkspace = () => {
       healthData: {
         protocols: {},
         quitHabits: {},
+        peptideCycles: {},
         settings: {
           reminderEnabled: true,
           weeklyReviewDay: 0,
@@ -260,15 +262,16 @@ export const useWorkspace = () => {
           dailyTasks: {},
           calendarEvents: {},
           financeData: financeService.getDefaultFinanceData(),
-          healthData: {
-            protocols: {},
-            quitHabits: {},
-            settings: {
-              reminderEnabled: true,
-              weeklyReviewDay: 0,
-              notificationEnabled: true,
-            },
+        healthData: {
+          protocols: {},
+          quitHabits: {},
+          peptideCycles: {},
+          settings: {
+            reminderEnabled: true,
+            weeklyReviewDay: 0,
+            notificationEnabled: true,
           },
+        },
           searchQuery: '',
           currentSection: 'pages',
         }));
