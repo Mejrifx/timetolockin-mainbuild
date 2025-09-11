@@ -588,7 +588,7 @@ const HealthLabDashboard = memo(({
                   "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200",
                   isActive 
                     ? `${section.bgColor} border border-green-500/30 text-white` 
-                    : `text-gray-400 hover:text-white hover:${section.bgColor.replace('bg-', 'hover:bg-').replace('/20', '/30')}`
+                    : "text-gray-400 hover:text-white hover:bg-black/40"
                 )}
               >
                 <IconComponent className={cn("h-4 w-4", isActive ? section.color : "text-gray-400")} />
