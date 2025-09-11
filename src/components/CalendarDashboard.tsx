@@ -31,13 +31,19 @@ export const CalendarDashboard = ({
 
   // Convert calendar events from database format to display format
   const events = useMemo(() => {
-    return Object.values(calendarEvents).map(event => ({
-      id: event.id,
-      title: event.title,
-      date: new Date(event.eventDate),
-      time: event.eventTime,
-      description: event.description
-    }));
+    return Object.values(calendarEvents).map(event => {
+      // Parse the date string in local timezone to avoid timezone shifts
+      const [year, month, day] = event.eventDate.split('-').map(Number);
+      const eventDate = new Date(year, month - 1, day); // month is 0-indexed
+      
+      return {
+        id: event.id,
+        title: event.title,
+        date: eventDate,
+        time: event.eventTime,
+        description: event.description
+      };
+    });
   }, [calendarEvents]);
 
   // Update current date every minute to keep it live
@@ -117,7 +123,12 @@ export const CalendarDashboard = ({
 
   const handleCreateEvent = useCallback(async () => {
     if (newEvent.title.trim()) {
-      const eventDate = selectedDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+      // Use local date formatting to avoid timezone issues
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const day = String(selectedDate.getDate()).padStart(2, '0');
+      const eventDate = `${year}-${month}-${day}`; // YYYY-MM-DD format
+      
       const success = await onCreateCalendarEvent(
         newEvent.title.trim(),
         eventDate,
