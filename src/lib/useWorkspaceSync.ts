@@ -154,9 +154,10 @@ export const useWorkspace = () => {
         console.log('✅ Authentication verified for user:', currentUser.email);
         
         // Load data with proper user isolation
-        const [pagesResult, tasksResult, financeResult, healthResult] = await Promise.allSettled([
+        const [pagesResult, tasksResult, calendarResult, financeResult, healthResult] = await Promise.allSettled([
           pagesService.getAll(),
           dailyTasksService.getAll(),
+          calendarService.getAll(),
           financeService.getFinanceData(),
           healthService.getHealthData()
         ]);
@@ -172,10 +173,11 @@ export const useWorkspace = () => {
         // Process results
         const pages = pagesResult.status === 'fulfilled' ? pagesResult.value : [];
         const dailyTasks = tasksResult.status === 'fulfilled' ? tasksResult.value : [];
+        const calendarEvents = calendarResult.status === 'fulfilled' ? calendarResult.value : [];
         const financeData = financeResult.status === 'fulfilled' ? financeResult.value : financeService.getDefaultFinanceData();
         const healthData = healthResult.status === 'fulfilled' ? healthResult.value : healthService.getDefaultHealthData();
         
-        console.log('📊 Data loaded for user', user.email, '- Pages:', pages.length, 'Tasks:', dailyTasks.length)
+        console.log('📊 Data loaded for user', user.email, '- Pages:', pages.length, 'Tasks:', dailyTasks.length, 'Events:', calendarEvents.length)
 
         // If no pages found for a new user, wait and retry once to catch welcome page creation
         if (pages.length === 0) {
@@ -223,11 +225,18 @@ export const useWorkspace = () => {
           dailyTasksRecord[task.id] = task
         })
 
+        // Convert calendar events array to record
+        const calendarEventsRecord: Record<string, CalendarEvent> = {}
+        calendarEvents.forEach((event: CalendarEvent) => {
+          calendarEventsRecord[event.id] = event
+        })
+
         setState(prevState => ({
           ...prevState,
           pages: pagesRecord,
           rootPages,
           dailyTasks: dailyTasksRecord,
+          calendarEvents: calendarEventsRecord,
           financeData,
           healthData,
           searchQuery: '',
@@ -249,6 +258,7 @@ export const useWorkspace = () => {
           pages: {},
           rootPages: [],
           dailyTasks: {},
+          calendarEvents: {},
           financeData: financeService.getDefaultFinanceData(),
           healthData: {
             protocols: {},
