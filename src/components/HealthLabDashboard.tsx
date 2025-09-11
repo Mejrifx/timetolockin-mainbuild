@@ -21,7 +21,8 @@ import {
   Coffee,
   Smartphone,
   MoreHorizontal,
-  FlaskConical
+  FlaskConical,
+  Pill
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -241,9 +242,10 @@ const HealthLabDashboard = memo(({
   onAddToCalendar,
   onExportToWorkspace,
 }: HealthLabDashboardProps) => {
-  const [currentSection, setCurrentSection] = useState<'protocols' | 'habits' | 'nutrition' | 'fitness' | 'sleep' | 'mental'>('protocols');
+  const [currentSection, setCurrentSection] = useState<'protocols' | 'habits' | 'peptides' | 'nutrition' | 'fitness' | 'sleep' | 'mental'>('protocols');
   const [showProtocolForm, setShowProtocolForm] = useState(false);
   const [showQuitHabitForm, setShowQuitHabitForm] = useState(false);
+  const [showPeptideForm, setShowPeptideForm] = useState(false);
   const [editingHabit, setEditingHabit] = useState<string | null>(null);
   const [editHabitDescription, setEditHabitDescription] = useState('');
   const [currentTime, setCurrentTime] = useState(Date.now());
@@ -261,6 +263,15 @@ const HealthLabDashboard = memo(({
     category: 'other' as QuitHabit['category'],
     customCategory: '',
   });
+  const [newPeptide, setNewPeptide] = useState({
+    name: '',
+    dosage: '',
+    startDate: new Date().toISOString().split('T')[0],
+    cycleLength: 30,
+    frequency: 'daily',
+    notes: '',
+  });
+  const [peptideCycles, setPeptideCycles] = useState<Record<string, any>>({});
 
   // Update time every second for live counters
   useEffect(() => {
@@ -482,10 +493,51 @@ const HealthLabDashboard = memo(({
     return { days, hours, minutes, seconds };
   }, [currentTime]);
 
+  // Peptide handlers
+  const handleCreatePeptide = useCallback(() => {
+    if (newPeptide.name.trim() && newPeptide.dosage.trim()) {
+      const id = `peptide_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const peptide = {
+        id,
+        name: newPeptide.name.trim(),
+        dosage: newPeptide.dosage.trim(),
+        startDate: newPeptide.startDate,
+        cycleLength: newPeptide.cycleLength,
+        frequency: newPeptide.frequency,
+        notes: newPeptide.notes.trim(),
+        createdAt: Date.now(),
+      };
+
+      setPeptideCycles(prev => ({
+        ...prev,
+        [id]: peptide,
+      }));
+
+      setNewPeptide({
+        name: '',
+        dosage: '',
+        startDate: new Date().toISOString().split('T')[0],
+        cycleLength: 30,
+        frequency: 'daily',
+        notes: '',
+      });
+      setShowPeptideForm(false);
+    }
+  }, [newPeptide]);
+
+  const handleDeletePeptide = useCallback((peptideId: string) => {
+    setPeptideCycles(prev => {
+      const newCycles = { ...prev };
+      delete newCycles[peptideId];
+      return newCycles;
+    });
+  }, []);
+
   // Health Lab subsections configuration
   const healthSections = [
     { id: 'protocols', label: 'Protocols', icon: FlaskConical, color: 'text-green-400', bgColor: 'bg-green-500/20' },
     { id: 'habits', label: 'Habits', icon: Activity, color: 'text-red-400', bgColor: 'bg-red-500/20' },
+    { id: 'peptides', label: 'Peptides', icon: Pill, color: 'text-cyan-400', bgColor: 'bg-cyan-500/20' },
     { id: 'nutrition', label: 'Nutrition', icon: Apple, color: 'text-orange-400', bgColor: 'bg-orange-500/20' },
     { id: 'fitness', label: 'Fitness', icon: Dumbbell, color: 'text-blue-400', bgColor: 'bg-blue-500/20' },
     { id: 'sleep', label: 'Sleep', icon: Moon, color: 'text-purple-400', bgColor: 'bg-purple-500/20' },
@@ -864,6 +916,215 @@ const HealthLabDashboard = memo(({
                 <p className="text-sm">Add a habit you want to quit to start your journey!</p>
               </div>
             )}
+          </div>
+        )}
+
+        {currentSection === 'peptides' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <Pill className="h-5 w-5 text-cyan-400" />
+                  Peptide Education & Tracking
+                </h2>
+                <p className="text-gray-400 text-sm">Learn about peptides and track your cycles</p>
+              </div>
+              <Button
+                onClick={() => setShowPeptideForm(true)}
+                className="bg-cyan-500 hover:bg-cyan-600 text-white"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Track Peptide
+              </Button>
+            </div>
+
+            {/* BPC-157 Educational Card */}
+            <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 backdrop-blur-xl border border-cyan-500/30 rounded-lg p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <Pill className="h-6 w-6 text-cyan-400" />
+                <h3 className="text-lg font-semibold text-white">BPC-157 (Body Protection Compound)</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="text-md font-medium text-cyan-300 mb-3">What is BPC-157?</h4>
+                  <p className="text-gray-300 text-sm mb-4">
+                    BPC-157 is a synthetic peptide derived from a protein found in gastric juice. 
+                    It's known for its remarkable healing properties and protective effects on various tissues.
+                  </p>
+                  <h4 className="text-md font-medium text-cyan-300 mb-3">Key Benefits:</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• Accelerates wound healing</li>
+                    <li>• Protects and heals gut lining</li>
+                    <li>• Reduces inflammation</li>
+                    <li>• Supports joint and tendon repair</li>
+                    <li>• May improve sleep quality</li>
+                    <li>• Neuroprotective properties</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="text-md font-medium text-cyan-300 mb-3">Typical Protocol:</h4>
+                  <div className="bg-black/20 rounded-lg p-4 space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">Dosage:</span>
+                      <span className="text-cyan-300">0.5mg daily</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">Duration:</span>
+                      <span className="text-cyan-300">30-60 days</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">Timing:</span>
+                      <span className="text-cyan-300">Morning or evening</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">Form:</span>
+                      <span className="text-cyan-300">Capsules/Sublingual</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                    <p className="text-yellow-300 text-xs">
+                      ⚠️ Always consult with a healthcare provider before starting any peptide protocol
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Peptide Tracking Form */}
+            {showPeptideForm && (
+              <div className="bg-black/40 backdrop-blur-xl border border-cyan-500/30 rounded-lg p-6 space-y-4">
+                <h3 className="text-lg font-medium text-white">Track Your Peptide Cycle</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input
+                    placeholder="Peptide name (e.g., BPC-157, TB-500, etc.)..."
+                    value={newPeptide.name}
+                    onChange={(e) => setNewPeptide({ ...newPeptide, name: e.target.value })}
+                    className="bg-black/20 border-cyan-500/30 text-white"
+                  />
+                  <Input
+                    placeholder="Dosage (e.g., 0.5mg, 250mcg, etc.)..."
+                    value={newPeptide.dosage}
+                    onChange={(e) => setNewPeptide({ ...newPeptide, dosage: e.target.value })}
+                    className="bg-black/20 border-cyan-500/30 text-white"
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Input
+                    type="date"
+                    placeholder="Start date"
+                    value={newPeptide.startDate}
+                    onChange={(e) => setNewPeptide({ ...newPeptide, startDate: e.target.value })}
+                    className="bg-black/20 border-cyan-500/30 text-white"
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Cycle length (days)"
+                    value={newPeptide.cycleLength}
+                    onChange={(e) => setNewPeptide({ ...newPeptide, cycleLength: parseInt(e.target.value) || 0 })}
+                    className="bg-black/20 border-cyan-500/30 text-white"
+                  />
+                  <Select value={newPeptide.frequency} onValueChange={(value) => setNewPeptide({ ...newPeptide, frequency: value })}>
+                    <SelectTrigger className="bg-black/20 border-cyan-500/30 text-white">
+                      <SelectValue placeholder="Frequency" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-black/90 border-cyan-500/30">
+                      <SelectItem value="daily" className="text-white hover:bg-cyan-500/20 focus:bg-cyan-500/20 focus:text-white">Daily</SelectItem>
+                      <SelectItem value="twice_daily" className="text-white hover:bg-cyan-500/20 focus:bg-cyan-500/20 focus:text-white">Twice Daily</SelectItem>
+                      <SelectItem value="every_other_day" className="text-white hover:bg-cyan-500/20 focus:bg-cyan-500/20 focus:text-white">Every Other Day</SelectItem>
+                      <SelectItem value="weekly" className="text-white hover:bg-cyan-500/20 focus:bg-cyan-500/20 focus:text-white">Weekly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Textarea
+                  placeholder="Notes about your cycle, effects, or protocol..."
+                  value={newPeptide.notes}
+                  onChange={(e) => setNewPeptide({ ...newPeptide, notes: e.target.value })}
+                  className="bg-black/20 border-cyan-500/30 text-white"
+                />
+                <div className="flex gap-2">
+                  <Button onClick={handleCreatePeptide} className="bg-cyan-500 hover:bg-cyan-600 text-white">
+                    Start Tracking
+                  </Button>
+                  <Button onClick={() => setShowPeptideForm(false)} variant="outline" className="border-gray-500 text-black hover:bg-gray-100">
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Active Peptide Cycles */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-white">Active Peptide Cycles</h3>
+              {Object.keys(peptideCycles).length > 0 ? (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {Object.values(peptideCycles).map((cycle) => {
+                    const daysElapsed = Math.floor((Date.now() - new Date(cycle.startDate).getTime()) / (1000 * 60 * 60 * 24));
+                    const daysRemaining = cycle.cycleLength - daysElapsed;
+                    const progressPercentage = Math.min((daysElapsed / cycle.cycleLength) * 100, 100);
+                    
+                    return (
+                      <div key={cycle.id} className="bg-black/40 backdrop-blur-xl border border-cyan-500/30 rounded-lg p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <Pill className="h-5 w-5 text-cyan-400" />
+                            <div>
+                              <h4 className="text-lg font-medium text-white">{cycle.name}</h4>
+                              <p className="text-cyan-300 text-sm">{cycle.dosage} • {cycle.frequency.replace('_', ' ')}</p>
+                            </div>
+                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="bg-black/90 border-cyan-500/30">
+                              <DropdownMenuItem 
+                                onClick={() => handleDeletePeptide(cycle.id)}
+                                className="text-red-400 hover:bg-red-500/20 focus:bg-red-500/20 focus:text-red-400"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete Cycle
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-400">Progress</span>
+                            <span className="text-cyan-300">{daysElapsed} / {cycle.cycleLength} days</span>
+                          </div>
+                          <div className="w-full bg-gray-700 rounded-full h-2">
+                            <div 
+                              className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${progressPercentage}%` }}
+                            />
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-400">Days remaining</span>
+                            <span className={daysRemaining > 0 ? "text-cyan-300" : "text-green-400"}>
+                              {daysRemaining > 0 ? `${daysRemaining} days` : "Cycle Complete!"}
+                            </span>
+                          </div>
+                          {cycle.notes && (
+                            <div className="mt-3 p-3 bg-black/20 rounded-lg">
+                              <p className="text-gray-300 text-sm">{cycle.notes}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-12 text-gray-400">
+                  <Pill className="h-12 w-12 mx-auto mb-4 text-cyan-400/50" />
+                  <p>No peptide cycles being tracked yet.</p>
+                  <p className="text-sm">Add a peptide cycle to start tracking your protocol!</p>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
