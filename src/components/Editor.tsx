@@ -12,22 +12,38 @@ interface EditorProps {
 export const Editor = ({ page, onUpdatePage }: EditorProps) => {
   const [title, setTitle] = useState(page.title);
   const titleRef = useRef<HTMLInputElement>(null);
+  const titleDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
   // Update local state when page changes
   useEffect(() => {
     setTitle(page.title);
   }, [page.id, page.title]);
 
-  // Auto-save title with debounce
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (title !== page.title) {
-        onUpdatePage(page.id, { title });
+  // Debounced title update
+  const handleTitleChange = (newTitle: string) => {
+    setTitle(newTitle);
+    
+    // Clear existing timeout
+    if (titleDebounceRef.current) {
+      clearTimeout(titleDebounceRef.current);
+    }
+    
+    // Set new timeout for debounced update
+    titleDebounceRef.current = setTimeout(() => {
+      if (newTitle !== page.title) {
+        onUpdatePage(page.id, { title: newTitle });
       }
     }, 500);
+  };
 
-    return () => clearTimeout(timer);
-  }, [title, page.id, page.title, onUpdatePage]);
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (titleDebounceRef.current) {
+        clearTimeout(titleDebounceRef.current);
+      }
+    };
+  }, []);
 
   const handleTitleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -53,7 +69,7 @@ export const Editor = ({ page, onUpdatePage }: EditorProps) => {
             <Input
               ref={titleRef}
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => handleTitleChange(e.target.value)}
               onKeyDown={handleTitleKeyDown}
               placeholder="Untitled"
               className="text-5xl font-bold border-0 p-0 bg-transparent focus-visible:ring-0 placeholder:text-gray-500 text-white h-auto leading-tight"

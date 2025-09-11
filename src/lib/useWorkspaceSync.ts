@@ -357,21 +357,25 @@ export const useWorkspace = () => {
     try {
       const page = state.pages[pageId];
       if (page) {
+        // Optimistic update - update local state immediately
+        setState(prevState => {
+          const updatedPages = { ...prevState.pages };
+          if (updatedPages[pageId]) {
+            updatedPages[pageId] = { ...updatedPages[pageId], ...updates, updatedAt: Date.now() };
+          }
+          return { ...prevState, pages: updatedPages };
+        });
+
+        // Update database in background
         const updatedPage = { ...page, ...updates, updatedAt: Date.now() };
         const success = await pagesService.update(pageId, updatedPage);
+        
         if (success) {
-          // Only update local state if database update was successful
-          setState(prevState => {
-            const updatedPages = { ...prevState.pages };
-            if (updatedPages[pageId]) {
-              updatedPages[pageId] = { ...updatedPages[pageId], ...updates, updatedAt: Date.now() };
-            }
-            return { ...prevState, pages: updatedPages };
-          });
           console.log('✅ Page updated and saved for user:', user.email, 'Page ID:', pageId);
           return true;
         } else {
           console.error('❌ Database update failed for page:', pageId);
+          // Could implement rollback here if needed
           return false;
         }
       }

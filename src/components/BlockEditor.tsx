@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { 
   Plus, 
   Type, 
@@ -72,28 +72,55 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
   };
 
   const [isHovered, setIsHovered] = useState(false);
+  const [localContent, setLocalContent] = useState(block.content);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleContentChange = (content: string) => {
-    onUpdate({ ...block, content });
-  };
+  // Sync local content with block content when block changes
+  useEffect(() => {
+    setLocalContent(block.content);
+  }, [block.id, block.content]);
+
+  // Debounced content update
+  const handleContentChange = useCallback((content: string) => {
+    setLocalContent(content);
+    
+    // Clear existing timeout
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    
+    // Set new timeout for debounced update
+    debounceRef.current = setTimeout(() => {
+      onUpdate({ ...block, content });
+    }, 300); // 300ms debounce
+  }, [block, onUpdate]);
 
   // Auto-resize textarea function
-  const autoResizeTextarea = () => {
+  const autoResizeTextarea = useCallback(() => {
     const textarea = textareaRef.current;
     if (textarea) {
       textarea.style.height = 'auto';
       textarea.style.height = `${textarea.scrollHeight}px`;
     }
-  };
+  }, []);
 
-  // Auto-resize on content change
+  // Auto-resize on local content change (not block.content)
   useEffect(() => {
     if (block.type === 'text') {
       autoResizeTextarea();
     }
-  }, [block.content, block.type]);
+  }, [localContent, block.type, autoResizeTextarea]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -116,10 +143,9 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
         return (
           <Textarea
             ref={textareaRef}
-            value={block.content}
+            value={localContent}
             onChange={(e) => {
               handleContentChange(e.target.value);
-              autoResizeTextarea();
             }}
             onInput={autoResizeTextarea}
             placeholder="Start writing..."
@@ -140,7 +166,7 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
 
         return (
           <Input
-            value={block.content}
+            value={localContent}
             onChange={(e) => handleContentChange(e.target.value)}
             placeholder={`Heading ${headerLevel}`}
             className={cn(
