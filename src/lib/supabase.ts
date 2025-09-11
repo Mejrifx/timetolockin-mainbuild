@@ -163,6 +163,35 @@ export interface Database {
           updated_at?: string
         }
       }
+      calendar_events: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          description: string | null
+          event_date: string
+          event_time: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          user_id: string
+          title: string
+          description?: string | null
+          event_date: string
+          event_time?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          title?: string
+          description?: string | null
+          event_date?: string
+          event_time?: string | null
+          updated_at?: string
+        }
+      }
     }
   }
 } 

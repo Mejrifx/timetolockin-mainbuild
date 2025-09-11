@@ -26,6 +26,7 @@ export interface WorkspaceState {
   currentSection?: 'pages' | 'daily-tasks' | 'calendar' | 'finance' | 'health-lab';
   searchQuery: string;
   dailyTasks: Record<string, DailyTask>;
+  calendarEvents: Record<string, CalendarEvent>;
   financeData: FinanceData;
   healthData: HealthData;
 }
@@ -42,6 +43,16 @@ export interface DailyTask {
   updatedAt: number;
   streak: number;
   category: string;
+}
+
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  description?: string;
+  eventDate: string; // YYYY-MM-DD format
+  eventTime?: string; // HH:MM format
+  createdAt: number;
+  updatedAt: number;
 }
 
 export interface FinanceData {

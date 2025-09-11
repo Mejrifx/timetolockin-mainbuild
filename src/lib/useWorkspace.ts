@@ -17,6 +17,7 @@ export const useWorkspace = () => {
     currentSection: 'pages',
     searchQuery: '',
     dailyTasks: {},
+    calendarEvents: {},
     financeData: financeService.getDefaultFinanceData(),
     healthData: {
       protocols: {},

@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
-import { WorkspaceState, Page, DailyTask, FinanceData, HealthData } from '@/types';
-import { pagesService, dailyTasksService, workspaceService, financeService, healthService } from '@/lib/database';
+import { WorkspaceState, Page, DailyTask, FinanceData, HealthData, CalendarEvent } from '@/types';
+import { pagesService, dailyTasksService, workspaceService, financeService, healthService, calendarService } from '@/lib/database';
 import { useAuth } from '@/lib/AuthContextSync';
 import { supabase } from './supabase';
 
@@ -17,6 +17,7 @@ export const useWorkspace = () => {
     currentSection: 'pages',
     searchQuery: '',
     dailyTasks: {},
+    calendarEvents: {},
     financeData: financeService.getDefaultFinanceData(),
     healthData: {
       protocols: {},
@@ -49,6 +50,7 @@ export const useWorkspace = () => {
       currentSection: 'pages',
       searchQuery: '',
       dailyTasks: {},
+      calendarEvents: {},
       financeData: financeService.getDefaultFinanceData(),
       healthData: {
         protocols: {},
@@ -617,6 +619,72 @@ export const useWorkspace = () => {
     return await updateDailyTask(taskId, updates);
   }, [user, state.dailyTasks, updateDailyTask]);
 
+  // Calendar event functions
+  const createCalendarEvent = useCallback(async (title: string, eventDate: string, eventTime?: string, description?: string) => {
+    if (!user) return false;
+
+    const eventId = `event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const newEvent = {
+      id: eventId,
+      title,
+      eventDate,
+      eventTime,
+      description,
+    };
+
+    const createdEvent = await calendarService.create(newEvent);
+    if (createdEvent) {
+      setState(prevState => ({
+        ...prevState,
+        calendarEvents: {
+          ...prevState.calendarEvents,
+          [eventId]: createdEvent,
+        },
+      }));
+      return true;
+    }
+    return false;
+  }, [user]);
+
+  const updateCalendarEvent = useCallback(async (eventId: string, updates: Partial<Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>>) => {
+    if (!user) return false;
+
+    const success = await calendarService.update(eventId, updates);
+    if (success) {
+      setState(prevState => ({
+        ...prevState,
+        calendarEvents: {
+          ...prevState.calendarEvents,
+          [eventId]: {
+            ...prevState.calendarEvents[eventId],
+            ...updates,
+            updatedAt: Date.now(),
+          },
+        },
+      }));
+      return true;
+    }
+    return false;
+  }, [user]);
+
+  const deleteCalendarEvent = useCallback(async (eventId: string) => {
+    if (!user) return false;
+
+    const success = await calendarService.delete(eventId);
+    if (success) {
+      setState(prevState => {
+        const updatedEvents = { ...prevState.calendarEvents };
+        delete updatedEvents[eventId];
+        return {
+          ...prevState,
+          calendarEvents: updatedEvents,
+        };
+      });
+      return true;
+    }
+    return false;
+  }, [user]);
+
   // Computed values
   const currentPage = useMemo(() => {
     return state.currentPageId ? state.pages[state.currentPageId] : undefined;
@@ -647,6 +715,7 @@ export const useWorkspace = () => {
     currentSection: state.currentSection,
     searchQuery: state.searchQuery,
     dailyTasks: state.dailyTasks,
+    calendarEvents: state.calendarEvents,
     financeData: state.financeData,
     healthData: state.healthData,
     loading,
@@ -670,6 +739,11 @@ export const useWorkspace = () => {
     updateDailyTask,
     deleteDailyTask,
     toggleTaskCompletion,
+    
+    // Calendar event actions
+    createCalendarEvent,
+    updateCalendarEvent,
+    deleteCalendarEvent,
     
     // Data actions
     updateFinanceData,

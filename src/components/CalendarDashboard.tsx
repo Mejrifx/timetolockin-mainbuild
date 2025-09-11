@@ -3,29 +3,42 @@ import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Plus, Clock, MapPi
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { CalendarEvent } from '@/types';
 
 interface CalendarDashboardProps {
+  calendarEvents: Record<string, CalendarEvent>;
+  onCreateCalendarEvent: (title: string, eventDate: string, eventTime?: string, description?: string) => Promise<boolean>;
+  onUpdateCalendarEvent: (eventId: string, updates: Partial<Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>>) => Promise<boolean>;
+  onDeleteCalendarEvent: (eventId: string) => Promise<boolean>;
   className?: string;
 }
 
-interface CalendarEvent {
-  id: string;
-  title: string;
-  date: Date;
-  time?: string;
-  description?: string;
-}
-
-export const CalendarDashboard = ({ className }: CalendarDashboardProps) => {
+export const CalendarDashboard = ({ 
+  calendarEvents, 
+  onCreateCalendarEvent, 
+  onUpdateCalendarEvent, 
+  onDeleteCalendarEvent, 
+  className 
+}: CalendarDashboardProps) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [showEventForm, setShowEventForm] = useState(false);
   const [newEvent, setNewEvent] = useState({
     title: '',
     time: '',
     description: ''
   });
+
+  // Convert calendar events from database format to display format
+  const events = useMemo(() => {
+    return Object.values(calendarEvents).map(event => ({
+      id: event.id,
+      title: event.title,
+      date: new Date(event.eventDate),
+      time: event.eventTime,
+      description: event.description
+    }));
+  }, [calendarEvents]);
 
   // Update current date every minute to keep it live
   useEffect(() => {
@@ -102,25 +115,26 @@ export const CalendarDashboard = ({ className }: CalendarDashboardProps) => {
     setSelectedDate(now);
   }, []);
 
-  const handleCreateEvent = useCallback(() => {
+  const handleCreateEvent = useCallback(async () => {
     if (newEvent.title.trim()) {
-      const event: CalendarEvent = {
-        id: Date.now().toString(),
-        title: newEvent.title.trim(),
-        date: new Date(selectedDate),
-        time: newEvent.time || undefined,
-        description: newEvent.description.trim() || undefined
-      };
+      const eventDate = selectedDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+      const success = await onCreateCalendarEvent(
+        newEvent.title.trim(),
+        eventDate,
+        newEvent.time || undefined,
+        newEvent.description.trim() || undefined
+      );
       
-      setEvents(prev => [...prev, event]);
-      setNewEvent({ title: '', time: '', description: '' });
-      setShowEventForm(false);
+      if (success) {
+        setNewEvent({ title: '', time: '', description: '' });
+        setShowEventForm(false);
+      }
     }
-  }, [newEvent, selectedDate]);
+  }, [newEvent, selectedDate, onCreateCalendarEvent]);
 
-  const handleDeleteEvent = useCallback((eventId: string) => {
-    setEvents(prev => prev.filter(event => event.id !== eventId));
-  }, []);
+  const handleDeleteEvent = useCallback(async (eventId: string) => {
+    await onDeleteCalendarEvent(eventId);
+  }, [onDeleteCalendarEvent]);
 
   const selectedDateEvents = getEventsForDate(selectedDate);
 

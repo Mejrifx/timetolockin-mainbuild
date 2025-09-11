@@ -30,6 +30,9 @@ export const Workspace = () => {
     updateDailyTask,
     toggleTaskCompletion,
     deleteDailyTask,
+    createCalendarEvent,
+    updateCalendarEvent,
+    deleteCalendarEvent,
     updateFinanceData,
     updateHealthData,
   } = useWorkspace();
@@ -222,7 +225,14 @@ export const Workspace = () => {
                   );
                 } else if (state.currentSection === 'calendar') {
                   console.log('📅 Rendering Calendar Dashboard')
-                  return <CalendarDashboard />;
+                  return (
+                    <CalendarDashboard 
+                      calendarEvents={state.calendarEvents}
+                      onCreateCalendarEvent={createCalendarEvent}
+                      onUpdateCalendarEvent={updateCalendarEvent}
+                      onDeleteCalendarEvent={deleteCalendarEvent}
+                    />
+                  );
                 } else if (state.currentSection === 'finance') {
                   console.log('💰 Rendering Finance Dashboard')
                   return (

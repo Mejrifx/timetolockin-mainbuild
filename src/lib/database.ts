@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import { Page, DailyTask, WorkspaceState, FinanceData, Wallet, Transaction, Category, Budget, FinanceGoal, FinanceSettings, HealthData, HealthProtocol, QuitHabit, HealthSettings } from '@/types'
+import { Page, DailyTask, WorkspaceState, FinanceData, Wallet, Transaction, Category, Budget, FinanceGoal, FinanceSettings, HealthData, HealthProtocol, QuitHabit, HealthSettings, CalendarEvent } from '@/types'
 
 // Database service for Pages
 export const pagesService = {
@@ -372,6 +372,167 @@ export const dailyTasksService = {
     return true
   },
 }
+
+// Database service for Calendar Events
+export const calendarService = {
+  // Fetch all calendar events for the current user
+  async getAll(): Promise<CalendarEvent[]> {
+    console.log('🔍 Fetching calendar events from database...')
+    
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) {
+      console.log('👤 No user found, returning empty calendar events array')
+      return []
+    }
+    
+    const { data, error } = await supabase
+      .from('calendar_events')
+      .select('*')
+      .eq('user_id', userData.user.id)
+      .order('event_date', { ascending: true })
+
+    if (error) {
+      console.error('❌ Error fetching calendar events:', error)
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
+      return []
+    }
+
+    console.log('✅ Calendar events fetched successfully:', data?.length || 0, 'events for user:', userData.user.id)
+
+    return data.map(dbEvent => ({
+      id: dbEvent.id,
+      title: dbEvent.title,
+      description: dbEvent.description || undefined,
+      eventDate: dbEvent.event_date,
+      eventTime: dbEvent.event_time || undefined,
+      createdAt: new Date(dbEvent.created_at).getTime(),
+      updatedAt: new Date(dbEvent.updated_at).getTime(),
+    }))
+  },
+
+  // Create a new calendar event
+  async create(event: Omit<CalendarEvent, 'createdAt' | 'updatedAt'>): Promise<CalendarEvent | null> {
+    console.log('➕ Creating calendar event:', event.title, 'for user')
+    
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) {
+      console.log('👤 No user found, cannot create calendar event')
+      return null
+    }
+
+    const dbEvent = {
+      id: event.id,
+      user_id: userData.user.id,
+      title: event.title,
+      description: event.description || null,
+      event_date: event.eventDate,
+      event_time: event.eventTime || null,
+    }
+
+    const { data, error } = await supabase
+      .from('calendar_events')
+      .insert(dbEvent)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('❌ Error creating calendar event:', error)
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
+      return null
+    }
+
+    console.log('✅ Calendar event created successfully:', data.id)
+
+    return {
+      id: data.id,
+      title: data.title,
+      description: data.description || undefined,
+      eventDate: data.event_date,
+      eventTime: data.event_time || undefined,
+      createdAt: new Date(data.created_at).getTime(),
+      updatedAt: new Date(data.updated_at).getTime(),
+    }
+  },
+
+  // Update a calendar event
+  async update(eventId: string, updates: Partial<Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>>): Promise<boolean> {
+    console.log('🔄 Updating calendar event:', eventId)
+    
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) {
+      console.log('👤 No user found, cannot update calendar event')
+      return false
+    }
+
+    const dbUpdates: any = {}
+    if (updates.title !== undefined) dbUpdates.title = updates.title
+    if (updates.description !== undefined) dbUpdates.description = updates.description
+    if (updates.eventDate !== undefined) dbUpdates.event_date = updates.eventDate
+    if (updates.eventTime !== undefined) dbUpdates.event_time = updates.eventTime
+    dbUpdates.updated_at = new Date().toISOString()
+
+    const { error } = await supabase
+      .from('calendar_events')
+      .update(dbUpdates)
+      .eq('id', eventId)
+      .eq('user_id', userData.user.id)
+
+    if (error) {
+      console.error('❌ Error updating calendar event:', error)
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
+      return false
+    }
+
+    console.log('✅ Calendar event updated successfully:', eventId)
+    return true
+  },
+
+  // Delete a calendar event
+  async delete(eventId: string): Promise<boolean> {
+    console.log('🗑️ Deleting calendar event:', eventId)
+    
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) {
+      console.log('👤 No user found, cannot delete calendar event')
+      return false
+    }
+
+    const { error } = await supabase
+      .from('calendar_events')
+      .delete()
+      .eq('id', eventId)
+      .eq('user_id', userData.user.id)
+
+    if (error) {
+      console.error('❌ Error deleting calendar event:', error)
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
+      return false
+    }
+
+    console.log('✅ Calendar event deleted successfully:', eventId)
+    return true
+  }
+};
 
 // Profile service for user data
 export const profileService = {
@@ -822,14 +983,16 @@ export const workspaceService = {
       const results = await Promise.allSettled([
         pagesService.getAll(),
         dailyTasksService.getAll(),
+        calendarService.getAll(),
         financeService.getFinanceData(),
         healthService.getHealthData(),
       ])
       
       const pages = results[0].status === 'fulfilled' ? results[0].value : []
       const dailyTasks = results[1].status === 'fulfilled' ? results[1].value : []
-      const financeData = results[2].status === 'fulfilled' ? results[2].value : financeService.getDefaultFinanceData()
-      const healthData = results[3].status === 'fulfilled' ? results[3].value : healthService.getDefaultHealthData()
+      const calendarEvents = results[2].status === 'fulfilled' ? results[2].value : []
+      const financeData = results[3].status === 'fulfilled' ? results[3].value : financeService.getDefaultFinanceData()
+      const healthData = results[4].status === 'fulfilled' ? results[4].value : healthService.getDefaultHealthData()
       
       if (results[0].status === 'rejected') {
         console.warn('⚠️ Failed to load pages:', results[0].reason)
@@ -838,10 +1001,13 @@ export const workspaceService = {
         console.warn('⚠️ Failed to load daily tasks:', results[1].reason)
       }
       if (results[2].status === 'rejected') {
-        console.warn('⚠️ Failed to load finance data:', results[2].reason)
+        console.warn('⚠️ Failed to load calendar events:', results[2].reason)
       }
       if (results[3].status === 'rejected') {
-        console.warn('⚠️ Failed to load health data:', results[3].reason)
+        console.warn('⚠️ Failed to load finance data:', results[3].reason)
+      }
+      if (results[4].status === 'rejected') {
+        console.warn('⚠️ Failed to load health data:', results[4].reason)
       }
       
       console.log('📊 Data loaded - Pages:', pages.length, 'Tasks:', dailyTasks.length, 'Finance: loaded', 'Health: loaded')
@@ -863,10 +1029,17 @@ export const workspaceService = {
         dailyTasksRecord[task.id] = task
       })
 
+      // Convert calendar events array to record
+      const calendarEventsRecord: Record<string, CalendarEvent> = {}
+      calendarEvents.forEach(event => {
+        calendarEventsRecord[event.id] = event
+      })
+
       const result: Partial<WorkspaceState> = {
         pages: pagesRecord,
         rootPages,
         dailyTasks: dailyTasksRecord,
+        calendarEvents: calendarEventsRecord,
         financeData,
         healthData,
         searchQuery: '',

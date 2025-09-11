@@ -65,6 +65,7 @@ export const storage = {
     rootPages: [],
     searchQuery: '',
     dailyTasks: {},
+    calendarEvents: {},
     financeData: financeService.getDefaultFinanceData(),
     healthData: {
       protocols: {},
