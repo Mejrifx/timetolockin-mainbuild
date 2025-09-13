@@ -32,19 +32,28 @@ export const pagesService = {
 
     console.log('✅ Pages fetched successfully:', data?.length || 0, 'pages for user:', userData.user.id)
 
-    return data.map(dbPage => ({
-      id: dbPage.id,
-      title: dbPage.title,
-      content: dbPage.content,
-      // Load structured blocks if present; fallback to empty array
-      blocks: (dbPage as any).blocks || [],
-      icon: dbPage.icon,
-      children: dbPage.children || [],
-      parentId: dbPage.parent_id,
-      isExpanded: dbPage.is_expanded,
-      createdAt: new Date(dbPage.created_at).getTime(),
-      updatedAt: new Date(dbPage.updated_at).getTime(),
-    }))
+    return data.map(dbPage => {
+      const blocks = (dbPage as any).blocks || [];
+      console.log('📖 Loading page:', dbPage.id, 'Blocks from DB:', blocks);
+      console.log('📖 Blocks count:', blocks.length);
+      if (blocks.length > 0) {
+        console.log('📖 Block types:', blocks.map((b: any) => b.type));
+      }
+      
+      return {
+        id: dbPage.id,
+        title: dbPage.title,
+        content: dbPage.content,
+        // Load structured blocks if present; fallback to empty array
+        blocks: blocks,
+        icon: dbPage.icon,
+        children: dbPage.children || [],
+        parentId: dbPage.parent_id,
+        isExpanded: dbPage.is_expanded,
+        createdAt: new Date(dbPage.created_at).getTime(),
+        updatedAt: new Date(dbPage.updated_at).getTime(),
+      }
+    })
   },
 
   // Create a new page
@@ -183,6 +192,8 @@ export const pagesService = {
     if (updates.blocks !== undefined) {
       updateData.blocks = updates.blocks
       console.log('📝 Updating blocks:', updates.blocks);
+      console.log('📝 Blocks count:', updates.blocks.length);
+      console.log('📝 Blocks types:', updates.blocks.map(b => b.type));
     }
 
     console.log('📝 Update data:', updateData);
