@@ -73,7 +73,8 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
 
   const [isHovered, setIsHovered] = useState(false);
   const [localContent, setLocalContent] = useState(block.content);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -124,16 +125,28 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      console.log('No file selected');
+      return;
+    }
+    
+    console.log('🔄 Starting file upload:', file.name, 'Type:', file.type, 'Size:', file.size);
+    
     try {
       const uploaded = await uploadFileToStorage(file);
+      console.log('✅ File uploaded successfully:', uploaded);
+      
       onUpdate({
         ...block,
         content: file.name,
         data: { url: uploaded.url, type: uploaded.mimeType, path: uploaded.path },
       });
+      
+      console.log('✅ Block updated with uploaded file data');
     } catch (err) {
-      console.error('Media upload failed', err);
+      console.error('❌ Media upload failed:', err);
+      // Show user-friendly error message
+      alert(`Upload failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   };
 
@@ -190,7 +203,7 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => imageInputRef.current?.click()}
                   className="absolute top-2 right-2 bg-black/60 backdrop-blur-xl border-green-500/30 hover:bg-black/80 text-white shadow-lg"
                 >
                   <Upload className="h-4 w-4 mr-2" />
@@ -199,7 +212,7 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
               </div>
             ) : (
               <div 
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => imageInputRef.current?.click()}
                 className="border-2 border-dashed border-green-500/30 rounded-lg p-8 text-center cursor-pointer hover:border-green-500/50 transition-all duration-300 bg-black/10 backdrop-blur-xl hover:bg-black/20"
               >
                 <Image className="h-12 w-12 mx-auto mb-4 text-gray-400" />
@@ -213,7 +226,7 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
               className="border-0 p-0 bg-transparent focus-visible:ring-0 text-sm text-gray-300 placeholder:text-gray-500"
             />
             <input
-              ref={fileInputRef}
+              ref={imageInputRef}
               type="file"
               accept="image/*"
               onChange={handleFileUpload}
@@ -235,7 +248,7 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => videoInputRef.current?.click()}
                   className="absolute top-2 right-2 bg-black/60 backdrop-blur-xl border-green-500/30 hover:bg-black/80 text-white shadow-lg"
                 >
                   <Upload className="h-4 w-4 mr-2" />
@@ -244,7 +257,7 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
               </div>
             ) : (
               <div 
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => videoInputRef.current?.click()}
                 className="border-2 border-dashed border-green-500/30 rounded-lg p-8 text-center cursor-pointer hover:border-green-500/50 transition-all duration-300 bg-black/10 backdrop-blur-xl hover:bg-black/20"
               >
                 <Video className="h-12 w-12 mx-auto mb-4 text-gray-400" />
@@ -258,7 +271,7 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
               className="border-0 p-0 bg-transparent focus-visible:ring-0 text-sm text-gray-300 placeholder:text-gray-500"
             />
             <input
-              ref={fileInputRef}
+              ref={videoInputRef}
               type="file"
               accept="video/*"
               onChange={handleFileUpload}
