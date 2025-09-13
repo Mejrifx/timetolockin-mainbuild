@@ -450,9 +450,11 @@ export const BlockEditor = ({ blocks, onUpdateBlocks }: BlockEditorProps) => {
   };
 
   const handleUpdateBlock = (updatedBlock: Block) => {
+    console.log('🔄 BlockEditor: Updating block:', updatedBlock.id, 'Type:', updatedBlock.type);
     const newBlocks = blocks.map(block => 
       block.id === updatedBlock.id ? updatedBlock : block
     );
+    console.log('📝 BlockEditor: New blocks array:', newBlocks);
     onUpdateBlocks(newBlocks);
   };
 

@@ -164,6 +164,14 @@ export const pagesService = {
 
   // Update an existing page
   async update(pageId: string, updates: Partial<Page>): Promise<boolean> {
+    console.log('🔄 pagesService.update called with:', { pageId, updates });
+    
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) {
+      console.error('❌ No user found in pagesService.update');
+      return false
+    }
+
     const updateData: any = {}
     
     if (updates.title !== undefined) updateData.title = updates.title
@@ -172,18 +180,31 @@ export const pagesService = {
     if (updates.parentId !== undefined) updateData.parent_id = updates.parentId
     if (updates.children !== undefined) updateData.children = updates.children
     if (updates.isExpanded !== undefined) updateData.is_expanded = updates.isExpanded
-    if (updates.blocks !== undefined) updateData.blocks = updates.blocks
+    if (updates.blocks !== undefined) {
+      updateData.blocks = updates.blocks
+      console.log('📝 Updating blocks:', updates.blocks);
+    }
+
+    console.log('📝 Update data:', updateData);
 
     const { error } = await supabase
       .from('pages')
       .update(updateData)
       .eq('id', pageId)
+      .eq('user_id', userData.user.id) // Add user_id filter for security
 
     if (error) {
-      console.error('Error updating page:', error)
+      console.error('❌ Error updating page:', error)
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
       return false
     }
 
+    console.log('✅ Page updated successfully in database');
     return true
   },
 

@@ -57,6 +57,8 @@ export const Editor = ({ page, onUpdatePage }: EditorProps) => {
   };
 
   const handleUpdateBlocks = (blocks: Page['blocks']) => {
+    console.log('🔄 Editor: Updating blocks for page:', page.id, 'Blocks count:', blocks.length);
+    console.log('📝 Editor: Blocks data:', blocks);
     onUpdatePage(page.id, { blocks });
   };
 
