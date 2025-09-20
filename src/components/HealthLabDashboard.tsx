@@ -902,7 +902,7 @@ const HealthLabDashboard = memo(({
                   <div className="space-y-2">
                     <div className="text-sm font-medium text-gray-300">Milestones</div>
                     <div className="space-y-1">
-                      {habit.milestones.slice(0, 3).map((milestone) => {
+                      {habit.milestones.slice(0, 4).map((milestone) => {
                         const isReached = timeStats.days >= milestone.days;
                         return (
                           <div key={milestone.id} className={cn(
@@ -914,6 +914,31 @@ const HealthLabDashboard = memo(({
                           </div>
                         );
                       })}
+                    </div>
+                  </div>
+
+                  {/* One Year Progress Bar */}
+                  <div className="space-y-2 mt-4">
+                    <div className="flex justify-between items-center">
+                      <div className="text-sm font-medium text-gray-300">1 Year Progress</div>
+                      <div className="text-xs text-gray-400">
+                        {Math.min(timeStats.days, 365)} / 365 days
+                      </div>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div 
+                        className="bg-gradient-to-r from-green-500 to-green-400 h-2 rounded-full transition-all duration-300 ease-out"
+                        style={{ 
+                          width: `${Math.min((timeStats.days / 365) * 100, 100)}%` 
+                        }}
+                      />
+                    </div>
+                    <div className="text-xs text-gray-500 text-center">
+                      {timeStats.days >= 365 ? (
+                        <span className="text-green-400 font-medium">🎉 One year complete!</span>
+                      ) : (
+                        `${365 - timeStats.days} days to go`
+                      )}
                     </div>
                   </div>
 
