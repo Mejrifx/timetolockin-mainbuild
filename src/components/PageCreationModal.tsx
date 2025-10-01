@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X, FileText, Image, Video, Music, Code, BookOpen, Calendar, Heart, Star, Zap, Target, Lightbulb } from 'lucide-react';
+import { X, FileText, Image, Video, Music, Code, BookOpen, Calendar, Heart, Star, Zap, Target, Lightbulb, StickyNote, Briefcase } from 'lucide-react';
 
 interface PageCreationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreatePage: (title: string, icon: string) => void;
+  onCreatePage: (title: string, icon: string, pageType: 'workspace' | 'note') => void;
 }
 
 const pageIcons = [
@@ -25,6 +25,21 @@ const pageIcons = [
   { value: 'lightbulb', label: 'Lightbulb', icon: Lightbulb },
 ];
 
+const pageTypes = [
+  { 
+    value: 'workspace' as const, 
+    label: 'Workspace Page', 
+    icon: Briefcase,
+    description: 'Rich editor with blocks and nested pages'
+  },
+  { 
+    value: 'note' as const, 
+    label: 'Note Page', 
+    icon: StickyNote,
+    description: 'Simple note-taking with tags and organization'
+  },
+];
+
 export const PageCreationModal: React.FC<PageCreationModalProps> = ({
   isOpen,
   onClose,
@@ -32,6 +47,7 @@ export const PageCreationModal: React.FC<PageCreationModalProps> = ({
 }) => {
   const [title, setTitle] = useState('');
   const [selectedIcon, setSelectedIcon] = useState('document');
+  const [selectedPageType, setSelectedPageType] = useState<'workspace' | 'note'>('workspace');
   const [isCreating, setIsCreating] = useState(false);
 
   const handleCreate = async () => {
@@ -39,9 +55,10 @@ export const PageCreationModal: React.FC<PageCreationModalProps> = ({
     
     setIsCreating(true);
     try {
-      await onCreatePage(title.trim(), selectedIcon);
+      await onCreatePage(title.trim(), selectedIcon, selectedPageType);
       setTitle('');
       setSelectedIcon('document');
+      setSelectedPageType('workspace');
       onClose();
     } catch (error) {
       console.error('Error creating page:', error);
@@ -76,6 +93,37 @@ export const PageCreationModal: React.FC<PageCreationModalProps> = ({
 
         {/* Form */}
         <div className="space-y-6">
+          {/* Page Type Selection */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-300">Page Type</label>
+            <div className="grid grid-cols-2 gap-3">
+              {pageTypes.map((type) => {
+                const TypeIcon = type.icon;
+                return (
+                  <button
+                    key={type.value}
+                    onClick={() => setSelectedPageType(type.value)}
+                    className={`p-4 rounded-lg border-2 transition-all text-left ${
+                      selectedPageType === type.value
+                        ? 'border-green-500 bg-green-500/10'
+                        : 'border-green-500/20 bg-black/20 hover:border-green-500/40 hover:bg-black/40'
+                    }`}
+                  >
+                    <TypeIcon className={`h-5 w-5 mb-2 ${
+                      selectedPageType === type.value ? 'text-green-400' : 'text-gray-400'
+                    }`} />
+                    <div className="text-sm font-medium text-white mb-1">
+                      {type.label}
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      {type.description}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Page Title */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-300">Page Title</label>
@@ -84,7 +132,7 @@ export const PageCreationModal: React.FC<PageCreationModalProps> = ({
               onChange={(e) => setTitle(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Enter page title..."
-              className="bg-black/40 border-green-500/20 text-white placeholder:text-gray-500 focus:border-green-500/60"
+              className="bg-black/40 border-green-500/20 text-white placeholder:text-gray-500 focus:border-green-500/60 text-performance"
               autoFocus
             />
           </div>

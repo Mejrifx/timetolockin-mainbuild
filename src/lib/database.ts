@@ -47,6 +47,8 @@ export const pagesService = {
         // Load structured blocks if present; fallback to empty array
         blocks: blocks,
         icon: dbPage.icon,
+        pageType: (dbPage as any).page_type || 'workspace',
+        noteMetadata: (dbPage as any).note_metadata || undefined,
         children: dbPage.children || [],
         parentId: dbPage.parent_id,
         isExpanded: dbPage.is_expanded,
@@ -83,6 +85,8 @@ export const pagesService = {
       content: page.content,
       blocks: page.blocks || [],
       icon: page.icon,
+      page_type: page.pageType || 'workspace',
+      note_metadata: page.noteMetadata || null,
       parent_id: page.parentId,
       children: page.children,
       is_expanded: page.isExpanded,

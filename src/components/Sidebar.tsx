@@ -20,7 +20,9 @@ import {
   CheckCircle2,
   Calendar as CalendarIcon,
   DollarSign,
-  Heart
+  Heart,
+  StickyNote,
+  Pin
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -228,20 +230,33 @@ const PageItem = memo(({
               onBlur={handleTitleSubmit}
               onKeyDown={handleKeyDown}
               onClick={(e) => e.stopPropagation()}
-              className="h-7 px-2 text-sm border-0 bg-black/20 focus-visible:ring-1 text-white shadow-sm backdrop-blur-xl"
+              className="h-7 px-2 text-sm border-0 bg-black/20 focus-visible:ring-1 text-white shadow-sm backdrop-blur-xl text-performance"
               autoFocus
             />
           ) : (
-            <span
-              className={cn(
-                "flex-1 text-left text-sm truncate transition-all duration-200 py-1 px-2 rounded-md",
-                isSelected 
-                  ? "text-white font-medium" 
-                  : "text-gray-300"
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <span
+                className={cn(
+                  "text-left text-sm truncate transition-all duration-200 py-1 px-2 rounded-md",
+                  isSelected 
+                    ? "text-white font-medium" 
+                    : "text-gray-300"
+                )}
+              >
+                {page.title}
+              </span>
+              {page.pageType === 'note' && (
+                <div className="flex items-center gap-1 shrink-0">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-500/20 border border-blue-500/30 rounded-full text-xs text-blue-400">
+                    <StickyNote className="h-3 w-3" />
+                    Note
+                  </span>
+                  {page.noteMetadata?.isPinned && (
+                    <Pin className="h-3 w-3 text-yellow-400" />
+                  )}
+                </div>
               )}
-            >
-              {page.title}
-            </span>
+            </div>
           )}
         </div>
 

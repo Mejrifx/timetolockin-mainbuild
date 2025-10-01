@@ -304,7 +304,7 @@ export const useWorkspace = () => {
   }, [user, session, authLoading, clearUserData]);
 
   // Page management
-  const createPage = useCallback(async (title: string, parentId?: string, icon?: string) => {
+  const createPage = useCallback(async (title: string, parentId?: string, icon?: string, pageType: 'workspace' | 'note' = 'workspace') => {
     if (!user) return '';
     
     const pageId = generateId();
@@ -316,6 +316,14 @@ export const useWorkspace = () => {
       blocks: [],
       children: [],
       icon: icon || 'document',
+      pageType,
+      noteMetadata: pageType === 'note' ? {
+        tags: [],
+        isPinned: false,
+        lastEditedAt: now,
+        wordCount: 0,
+        readingTime: 0,
+      } : undefined,
       parentId,
       createdAt: now,
       updatedAt: now,

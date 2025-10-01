@@ -8,7 +8,18 @@ export interface Page {
   createdAt: number;
   updatedAt: number;
   isExpanded?: boolean;
-  icon?: string; // New field for custom page icons
+  icon?: string;
+  pageType?: 'workspace' | 'note'; // Type of page (defaults to 'workspace')
+  noteMetadata?: NoteMetadata; // Additional metadata for note pages
+}
+
+export interface NoteMetadata {
+  tags: string[];
+  color?: string; // Optional color for note categorization
+  isPinned: boolean;
+  lastEditedAt: number;
+  wordCount: number;
+  readingTime: number; // in minutes
 }
 
 export interface Block {

@@ -5,6 +5,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { EmptyState } from '@/components/EmptyState';
 import { WorkspaceDashboard } from '@/components/WorkspaceDashboard';
 import { PageCreationModal } from '@/components/PageCreationModal';
+import { NotesEditor } from '@/components/NotesEditor';
 import { GridBackground } from '@/components/ui/grid-background';
 import { cn } from '@/lib/utils';
 
@@ -56,10 +57,10 @@ export const Workspace = () => {
     setIsPageCreationModalOpen(true);
   }, []);
 
-  const handleCreatePageWithDetails = useCallback(async (title: string, icon: string) => {
-    console.log('🔄 Creating new page with details:', { title, icon });
+  const handleCreatePageWithDetails = useCallback(async (title: string, icon: string, pageType: 'workspace' | 'note' = 'workspace') => {
+    console.log('🔄 Creating new page with details:', { title, icon, pageType });
     try {
-      const pageId = await createPage(title, undefined, icon);
+      const pageId = await createPage(title, undefined, icon, pageType);
       console.log('✅ Page created with ID:', pageId);
       // Don't auto-select the page - just create it and stay in dashboard
       console.log('✅ Page created successfully, staying in dashboard');
@@ -277,13 +278,21 @@ export const Workspace = () => {
                     />
                   );
                 } else if (currentPage) {
-                  console.log('📝 Rendering Editor for page:', currentPage.title)
-                  return (
+                  console.log('📝 Rendering Editor for page:', currentPage.title, 'Type:', currentPage.pageType)
+                  // Render NotesEditor for note pages, Editor for workspace pages
+                  return currentPage.pageType === 'note' ? (
+                    <NotesEditor
+                      key={currentPage.id}
+                      page={currentPage}
+                      onUpdatePage={updatePage}
+                      onDeletePage={deletePage}
+                    />
+                  ) : (
                     <Editor
-                  key={currentPage.id}
-                  page={currentPage}
-                  onUpdatePage={updatePage}
-                />
+                      key={currentPage.id}
+                      page={currentPage}
+                      onUpdatePage={updatePage}
+                    />
                   );
                 } else if (state.currentSection === null) {
                   console.log('📄 Rendering Empty State - no current page')

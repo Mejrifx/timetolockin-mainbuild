@@ -30,7 +30,7 @@ CREATE TABLE profiles (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- PAGES table (workspace pages/documents)
+-- PAGES table (workspace pages/documents and notes)
 CREATE TABLE pages (
   id TEXT PRIMARY KEY,
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
@@ -38,6 +38,8 @@ CREATE TABLE pages (
   content TEXT DEFAULT '',
   blocks JSONB DEFAULT '[]',
   icon TEXT DEFAULT 'document',
+  page_type TEXT DEFAULT 'workspace' CHECK (page_type IN ('workspace', 'note')),
+  note_metadata JSONB DEFAULT NULL,
   parent_id TEXT REFERENCES pages(id) ON DELETE CASCADE,
   children TEXT[] DEFAULT '{}',
   is_expanded BOOLEAN DEFAULT false,
