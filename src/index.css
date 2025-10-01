@@ -2,91 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Performance optimizations */
-/* CSS Containment for better performance */
-.page-item,
-.calendar-date,
-.sidebar-section {
+/* Critical performance optimizations - loaded first */
+.performance-critical {
   contain: layout style paint;
-}
-
-/* Force hardware acceleration for frequently changing elements */
-.hover-target {
-  will-change: background-color, color, opacity, transform;
+  will-change: transform, opacity;
   transform: translateZ(0);
   backface-visibility: hidden;
-  perspective: 1000px;
 }
 
-/* Optimize calendar grid for smooth interactions */
-.calendar-grid {
+.text-performance {
   contain: layout style;
   will-change: contents;
-}
-
-.calendar-date {
-  contain: layout style paint;
-  will-change: background-color, color;
-  transform: translateZ(0);
-}
-
-/* Optimize sidebar for smooth scrolling */
-.sidebar-container {
-  contain: layout style;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Optimize buttons for instant feedback */
-.performance-button {
-  contain: layout style paint;
-  will-change: background-color, opacity, transform;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-/* Reduce paint area for animations */
-.isolated-animation {
-  isolation: isolate;
-  contain: layout style paint;
-}
-
-/* Optimize text rendering */
-.optimized-text {
   text-rendering: optimizeSpeed;
   font-display: swap;
 }
 
-/* Critical performance hints */
-.gpu-layer {
+.gpu-accelerated {
   transform: translateZ(0);
   will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
-/* Reduce layout thrashing */
-.layout-stable {
-  contain: layout;
+/* Input optimization for reduced lag */
+input, textarea, [contenteditable] {
+  contain: layout style;
+  will-change: contents;
 }
 
-/* Optimize backdrop filters */
-.performance-blur {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  will-change: backdrop-filter;
+/* Button optimization */
+button, [role="button"] {
+  contain: layout style paint;
+  will-change: background-color, opacity, transform;
+  transform: translateZ(0);
 }
 
-/* Smooth scrolling optimizations */
-.smooth-scroll {
-  scroll-behavior: smooth;
+/* Scroll optimization */
+.scroll-optimized {
+  contain: layout style paint;
   -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
   scrollbar-width: thin;
 }
 
-/* Prevent layout shifts */
-.prevent-shift {
+/* Layout stability */
+.layout-stable {
   contain: layout size;
   min-height: 0;
   min-width: 0;
+}
+
+/* Optimized backdrop blur */
+.performance-blur {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  will-change: backdrop-filter;
+}
+
+/* Hover optimization */
+.hover-optimized:hover {
+  transform: translateZ(0) scale(1.01);
+  transition: transform 0.1s ease-out;
 }
 
 :root {

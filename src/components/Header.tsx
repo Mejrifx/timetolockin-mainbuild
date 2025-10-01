@@ -3,15 +3,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/lib/AuthContextSync';
 import { cn } from '@/lib/utils';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo, useCallback } from 'react';
 import { profileService } from '@/lib/database';
+import { OptimizedImage } from '@/components/OptimizedImage';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
   sidebarOpen: boolean;
 }
 
-export const Header = ({ 
+const HeaderComponent = ({ 
   onToggleSidebar,
   sidebarOpen 
 }: HeaderProps) => {
@@ -46,16 +47,16 @@ export const Header = ({
     loadProfile();
   }, [user]);
 
-  const handleSignOut = async () => {
+  const handleSignOut = useCallback(async () => {
     await signOut();
-  };
+  }, [signOut]);
 
-  const handleUsernameEdit = () => {
+  const handleUsernameEdit = useCallback(() => {
     setTempUsername(username);
     setIsEditingUsername(true);
-  };
+  }, [username]);
 
-  const handleUsernameSubmit = async () => {
+  const handleUsernameSubmit = useCallback(async () => {
     if (tempUsername.trim() && user?.id) {
       setLoading(true);
       try {
@@ -79,15 +80,15 @@ export const Header = ({
       setLoading(false);
       setIsEditingUsername(false);
     }
-  };
+  }, [tempUsername, user?.id, username]);
 
-  const handleUsernameCancel = () => {
+  const handleUsernameCancel = useCallback(() => {
     setTempUsername(username);
     setIsEditingUsername(false);
-  };
+  }, [username]);
 
   return (
-    <header className="h-16 border-b border-green-500/20 bg-black/30 backdrop-blur-xl sticky top-0 z-50 shadow-lg will-change-transform will-change-opacity">
+    <header className="h-16 border-b border-green-500/20 bg-black/30 performance-blur sticky top-0 z-50 shadow-lg performance-critical gpu-accelerated">
       <div className="flex items-center justify-between h-full px-8">
         <div className="flex items-center gap-4">
           <Button
@@ -100,10 +101,11 @@ export const Header = ({
           </Button>
           
           <div className="flex items-center ml-8">
-            <img 
+            <OptimizedImage 
               src="/timetolockin MAIN LOGO NEW.png" 
               alt="timetolockin" 
-              className="h-12 w-auto object-contain hover:scale-110 transition-transform duration-300 ease-in-out drop-shadow-lg"
+              priority={true}
+              className="h-12 w-auto object-contain hover-optimized drop-shadow-lg"
             />
           </div>
         </div>
@@ -130,7 +132,7 @@ export const Header = ({
                     if (e.key === 'Enter') handleUsernameSubmit();
                     if (e.key === 'Escape') handleUsernameCancel();
                   }}
-                  className="h-6 px-2 text-sm w-24 bg-black/40 border-green-500/50 text-white"
+                  className="h-6 px-2 text-sm w-24 bg-black/40 border-green-500/50 text-white text-performance"
                   autoFocus
                   disabled={loading}
                 />
@@ -166,3 +168,6 @@ export const Header = ({
     </header>
   );
 };
+
+// Memoize the Header component for better performance
+export const Header = memo(HeaderComponent);

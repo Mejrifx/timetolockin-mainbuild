@@ -1,140 +1,158 @@
 import { useEffect } from 'react';
 
-// Component that applies critical performance optimizations
 export const PerformanceOptimizer = () => {
   useEffect(() => {
-    // Critical performance optimizations
-    const applyOptimizations = () => {
-      // Enable hardware acceleration for the document
-      document.documentElement.style.willChange = 'scroll-position';
-      
-      // Optimize font rendering
-      document.documentElement.style.textRendering = 'optimizeSpeed';
-      
-      // Enable smooth scrolling
-      document.documentElement.style.scrollBehavior = 'smooth';
-      
-      // Optimize CSS containment
-      const style = document.createElement('style');
-      style.textContent = `
-        /* Critical performance CSS injected via JS */
-        * {
-          box-sizing: border-box;
-        }
+    // Optimize text input performance
+    const optimizeTextInputs = () => {
+      const inputs = document.querySelectorAll('input[type="text"], textarea, [contenteditable]');
+      inputs.forEach((input) => {
+        // Add performance optimizations to text inputs
+        (input as HTMLElement).style.willChange = 'contents';
+        (input as HTMLElement).style.contain = 'layout style';
         
-        /* Optimize repainting */
-        html {
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-          text-rendering: optimizeSpeed;
-        }
+        // Debounce input events to reduce lag
+        let timeoutId: NodeJS.Timeout;
+        const originalHandler = (input as any)._performanceHandler;
         
-        /* Reduce layout thrashing */
-        img, video {
-          max-width: 100%;
-          height: auto;
-          contain: layout style;
+        if (!originalHandler) {
+          const debouncedHandler = (e: Event) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+              // Trigger any existing handlers
+              const event = new Event(e.type, { bubbles: true });
+              e.target?.dispatchEvent(event);
+            }, 16); // ~60fps
+          };
+          
+          (input as any)._performanceHandler = debouncedHandler;
+          input.addEventListener('input', debouncedHandler, { passive: true });
         }
-        
-        /* Optimize animations */
-        @media (prefers-reduced-motion: no-preference) {
-          * {
-            scroll-behavior: smooth;
-          }
-        }
-        
-        /* Critical layer optimization */
-        .will-change-transform {
-          will-change: transform;
-          transform: translateZ(0);
-        }
-        
-        .will-change-opacity {
-          will-change: opacity;
-        }
-        
-        .will-change-contents {
-          will-change: contents;
-        }
-        
-        /* Prevent unnecessary repaints */
-        .gpu-accelerated {
-          transform: translateZ(0);
-          backface-visibility: hidden;
-          perspective: 1000px;
-        }
-      `;
-      document.head.appendChild(style);
-      
-      // Note: Performance CSS is now included in index.css, no preload needed
+      });
     };
-
-    // Apply optimizations on mount
-    applyOptimizations();
 
     // Optimize scroll performance
-    const optimizeScroll = () => {
-      let ticking = false;
-      
-      const handleScroll = () => {
-        if (!ticking) {
-          requestAnimationFrame(() => {
-            ticking = false;
-          });
-          ticking = true;
-        }
-      };
-      
-      window.addEventListener('scroll', handleScroll, { passive: true });
-      
-      return () => {
-        window.removeEventListener('scroll', handleScroll);
-      };
+    const optimizeScrolling = () => {
+      const scrollableElements = document.querySelectorAll('[data-scroll-optimized]');
+      scrollableElements.forEach((element) => {
+        (element as HTMLElement).style.scrollBehavior = 'smooth';
+        (element as any).style.webkitOverflowScrolling = 'touch';
+        (element as HTMLElement).style.contain = 'layout style paint';
+      });
     };
 
-    const cleanupScroll = optimizeScroll();
+    // Optimize animations
+    const optimizeAnimations = () => {
+      // Reduce motion for users who prefer it
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const style = document.createElement('style');
+        style.textContent = `
+          *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    };
+
+    // Optimize images
+    const optimizeImages = () => {
+      const images = document.querySelectorAll('img');
+      images.forEach((img) => {
+        // Add loading optimization
+        if (!img.loading) {
+          img.loading = 'lazy';
+        }
+        
+        // Add decode optimization
+        img.decoding = 'async';
+        
+        // Add performance hints
+        img.style.contain = 'layout style paint';
+      });
+    };
+
+    // Run optimizations
+    optimizeTextInputs();
+    optimizeScrolling();
+    optimizeAnimations();
+    optimizeImages();
+
+    // Re-run optimizations when DOM changes
+    const observer = new MutationObserver(() => {
+      optimizeTextInputs();
+      optimizeScrolling();
+      optimizeImages();
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
 
     // Cleanup
     return () => {
-      cleanupScroll();
+      observer.disconnect();
     };
   }, []);
 
-  return null; // This component doesn't render anything
-};
-
-// Hook for component-level performance optimizations
-export const usePerformanceOptimization = () => {
+  // Add critical performance CSS
   useEffect(() => {
-    // Batch DOM updates
-    const batchUpdates = (callback: () => void) => {
-      requestAnimationFrame(callback);
-    };
-
-    // Optimize image loading
-    const optimizeImages = () => {
-      const images = document.querySelectorAll('img[data-src]');
+    const style = document.createElement('style');
+    style.textContent = `
+      /* Critical performance optimizations */
+      .performance-critical {
+        contain: layout style paint;
+        will-change: transform, opacity;
+        transform: translateZ(0);
+        backface-visibility: hidden;
+      }
       
-      const imageObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const img = entry.target as HTMLImageElement;
-            img.src = img.dataset.src || '';
-            img.removeAttribute('data-src');
-            imageObserver.unobserve(img);
-          }
-        });
-      });
-
-      images.forEach(img => imageObserver.observe(img));
+      .text-performance {
+        contain: layout style;
+        will-change: contents;
+        text-rendering: optimizeSpeed;
+      }
       
-      return () => imageObserver.disconnect();
-    };
-
-    const cleanupImages = optimizeImages();
+      .scroll-performance {
+        contain: layout style paint;
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+      }
+      
+      .gpu-accelerated {
+        transform: translateZ(0);
+        will-change: transform;
+        backface-visibility: hidden;
+        perspective: 1000px;
+      }
+      
+      /* Optimize input lag */
+      input, textarea, [contenteditable] {
+        contain: layout style;
+        will-change: contents;
+      }
+      
+      /* Optimize button interactions */
+      button, [role="button"] {
+        contain: layout style paint;
+        will-change: background-color, opacity, transform;
+        transform: translateZ(0);
+      }
+      
+      /* Optimize hover states */
+      .hover-optimized:hover {
+        transform: translateZ(0) scale(1.02);
+        transition: transform 0.1s ease-out;
+      }
+    `;
+    document.head.appendChild(style);
 
     return () => {
-      cleanupImages();
+      document.head.removeChild(style);
     };
   }, []);
+
+  return null;
 };

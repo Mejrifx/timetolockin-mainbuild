@@ -1,17 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo, useCallback, useMemo } from 'react';
 import { useWorkspace } from '@/lib/useWorkspaceSync';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
-import { Editor } from '@/components/Editor';
 import { EmptyState } from '@/components/EmptyState';
-import { DailyTasksDashboard } from '@/components/DailyTasksDashboard';
-import { CalendarDashboard } from '@/components/CalendarDashboard';
-import { FinanceDashboard } from '@/components/FinanceDashboard';
-import { HealthLabDashboard } from '@/components/HealthLabDashboard';
 import { WorkspaceDashboard } from '@/components/WorkspaceDashboard';
 import { PageCreationModal } from '@/components/PageCreationModal';
 import { GridBackground } from '@/components/ui/grid-background';
 import { cn } from '@/lib/utils';
+
+// Lazy load dashboard components for better performance
+import { 
+  DailyTasksDashboard, 
+  CalendarDashboard, 
+  FinanceDashboard, 
+  HealthLabDashboard,
+  Editor
+} from '@/components/LazyComponents';
 
 export const Workspace = () => {
   const {
@@ -40,14 +44,19 @@ export const Workspace = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isPageCreationModalOpen, setIsPageCreationModalOpen] = useState(false);
 
-  const currentPage = state.currentPageId ? state.pages[state.currentPageId] : null;
+  // Memoize current page to prevent unnecessary re-renders
+  const currentPage = useMemo(() => 
+    state.currentPageId ? state.pages[state.currentPageId] : null, 
+    [state.currentPageId, state.pages]
+  );
 
-  const handleCreatePage = () => {
+  // Memoize handlers to prevent unnecessary re-renders
+  const handleCreatePage = useCallback(() => {
     console.log('🔄 Opening page creation modal...');
     setIsPageCreationModalOpen(true);
-  };
+  }, []);
 
-  const handleCreatePageWithDetails = async (title: string, icon: string) => {
+  const handleCreatePageWithDetails = useCallback(async (title: string, icon: string) => {
     console.log('🔄 Creating new page with details:', { title, icon });
     try {
       const pageId = await createPage(title, undefined, icon);
@@ -58,22 +67,22 @@ export const Workspace = () => {
       console.error('❌ Error creating page:', error);
       throw error; // Re-throw so modal can handle it
     }
-  };
+  }, [createPage]);
 
-  const handleOpenPage = (pageId: string) => {
+  const handleOpenPage = useCallback((pageId: string) => {
     setCurrentPage(pageId);
     // Switch to editor view by setting current section to null
     // This will trigger the editor to render instead of the dashboard
     setCurrentSection(null as any);
-  };
+  }, [setCurrentPage, setCurrentSection]);
 
-  const handleDeletePage = async (pageId: string) => {
+  const handleDeletePage = useCallback(async (pageId: string) => {
     await deletePage(pageId);
-  };
+  }, [deletePage]);
 
-  const handleToggleSidebar = () => {
+  const handleToggleSidebar = useCallback(() => {
     setSidebarOpen(!sidebarOpen);
-  };
+  }, [sidebarOpen]);
 
   // Note: Welcome page creation is now handled by AuthContext.tsx
   // This ensures each user gets exactly one welcome page with consistent content
