@@ -1,27 +1,15 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Page, NoteMetadata } from '@/types';
 import { 
-  FileText, 
   Tag, 
-  Clock, 
-  BookOpen, 
-  Pin, 
-  PinOff,
-  Palette,
-  Save,
-  MoreVertical,
-  Trash2
+  X,
+  Plus,
+  Trash2,
+  Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 interface NotesEditorProps {
   page: Page;
@@ -30,13 +18,11 @@ interface NotesEditorProps {
 }
 
 const NOTE_COLORS = [
-  { name: 'Default', value: undefined, bg: 'bg-gray-900/50', border: 'border-gray-700' },
-  { name: 'Blue', value: 'blue', bg: 'bg-blue-900/30', border: 'border-blue-700/50' },
-  { name: 'Green', value: 'green', bg: 'bg-green-900/30', border: 'border-green-700/50' },
-  { name: 'Purple', value: 'purple', bg: 'bg-purple-900/30', border: 'border-purple-700/50' },
-  { name: 'Orange', value: 'orange', bg: 'bg-orange-900/30', border: 'border-orange-700/50' },
-  { name: 'Pink', value: 'pink', bg: 'bg-pink-900/30', border: 'border-pink-700/50' },
-  { name: 'Yellow', value: 'yellow', bg: 'bg-yellow-900/30', border: 'border-yellow-700/50' },
+  { name: 'Default', value: undefined, class: 'bg-zinc-900/50 hover:bg-zinc-900/70', ringClass: 'ring-zinc-700' },
+  { name: 'Blue', value: 'blue', class: 'bg-blue-950/40 hover:bg-blue-950/60', ringClass: 'ring-blue-700' },
+  { name: 'Purple', value: 'purple', class: 'bg-purple-950/40 hover:bg-purple-950/60', ringClass: 'ring-purple-700' },
+  { name: 'Green', value: 'green', class: 'bg-emerald-950/40 hover:bg-emerald-950/60', ringClass: 'ring-emerald-700' },
+  { name: 'Orange', value: 'orange', class: 'bg-orange-950/40 hover:bg-orange-950/60', ringClass: 'ring-orange-700' },
 ];
 
 export const NotesEditor = ({ page, onUpdatePage, onDeletePage }: NotesEditorProps) => {
@@ -50,7 +36,7 @@ export const NotesEditor = ({ page, onUpdatePage, onDeletePage }: NotesEditorPro
   const noteMetadata: NoteMetadata = useMemo(() => ({
     tags: page.noteMetadata?.tags || [],
     color: page.noteMetadata?.color,
-    isPinned: page.noteMetadata?.isPinned || false,
+    isPinned: false,
     lastEditedAt: page.noteMetadata?.lastEditedAt || Date.now(),
     wordCount: page.noteMetadata?.wordCount || 0,
     readingTime: page.noteMetadata?.readingTime || 0,
@@ -116,15 +102,6 @@ export const NotesEditor = ({ page, onUpdatePage, onDeletePage }: NotesEditorPro
     });
   }, [noteMetadata, page.id, onUpdatePage]);
 
-  const handleTogglePin = useCallback(() => {
-    onUpdatePage(page.id, {
-      noteMetadata: {
-        ...noteMetadata,
-        isPinned: !noteMetadata.isPinned,
-      },
-    });
-  }, [noteMetadata, page.id, onUpdatePage]);
-
   const handleChangeColor = useCallback((color: string | undefined) => {
     onUpdatePage(page.id, {
       noteMetadata: {
@@ -145,184 +122,135 @@ export const NotesEditor = ({ page, onUpdatePage, onDeletePage }: NotesEditorPro
 
   return (
     <div className="h-full flex flex-col bg-black performance-critical">
-      {/* Header */}
-      <div className={cn(
-        "border-b border-green-500/20 performance-blur sticky top-0 z-10",
-        currentColor.bg,
-        currentColor.border
-      )}>
-        <div className="max-w-5xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <FileText className="h-6 w-6 text-green-400" />
-              <div>
-                <h2 className="text-sm font-medium text-green-400">Note</h2>
-                <p className="text-xs text-gray-400">Professional note-taking</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {/* Auto-save indicator */}
-              <div className="flex items-center gap-2 text-xs text-gray-400">
+      {/* Modern, Clean Content Area */}
+      <div className="flex-1 overflow-y-auto scroll-optimized">
+        <div className="max-w-4xl mx-auto px-6 md:px-12 py-8">
+          
+          {/* Title Section */}
+          <div className="mb-8">
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Untitled note"
+              className="text-4xl font-bold bg-transparent border-none text-white placeholder:text-gray-600 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto py-0 text-performance mb-2"
+            />
+            
+            {/* Subtle metadata */}
+            <div className="flex items-center gap-4 text-xs text-gray-500">
+              <span>{metrics.wordCount} words</span>
+              <span>•</span>
+              <span>{metrics.readingTime} min read</span>
+              <span>•</span>
+              <span className="flex items-center gap-1">
                 {isSaving ? (
                   <>
-                    <Save className="h-3 w-3 animate-pulse" />
-                    <span>Saving...</span>
+                    <div className="h-1.5 w-1.5 bg-green-500 rounded-full animate-pulse" />
+                    Saving...
                   </>
                 ) : lastSaved ? (
                   <>
-                    <Clock className="h-3 w-3" />
-                    <span>Saved {lastSaved.toLocaleTimeString()}</span>
+                    <Check className="h-3 w-3 text-green-500" />
+                    Saved
                   </>
-                ) : null}
-              </div>
-
-              {/* Pin button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleTogglePin}
-                className={cn(
-                  "h-8 w-8 p-0",
-                  noteMetadata.isPinned ? "text-yellow-400 hover:text-yellow-300" : "text-gray-400 hover:text-white"
+                ) : (
+                  <>Auto-save enabled</>
                 )}
-                title={noteMetadata.isPinned ? "Unpin note" : "Pin note"}
-              >
-                {noteMetadata.isPinned ? <Pin className="h-4 w-4" /> : <PinOff className="h-4 w-4" />}
-              </Button>
-
-              {/* More options */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 text-gray-400 hover:text-white"
-                  >
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <div className="px-2 py-2">
-                    <p className="text-xs font-medium text-gray-400 mb-2">Note Color</p>
-                    <div className="grid grid-cols-4 gap-2">
-                      {NOTE_COLORS.map((color) => (
-                        <button
-                          key={color.name}
-                          onClick={() => handleChangeColor(color.value)}
-                          className={cn(
-                            "h-6 w-6 rounded border-2 transition-all",
-                            color.bg,
-                            noteMetadata.color === color.value ? color.border : "border-transparent",
-                            "hover:scale-110"
-                          )}
-                          title={color.name}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={handleDelete}
-                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete Note
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              </span>
             </div>
           </div>
 
-          {/* Title Input */}
-          <Input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Note title..."
-            className="text-2xl font-bold bg-transparent border-none text-white placeholder:text-gray-500 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto py-2 text-performance"
-          />
-
-          {/* Metadata Bar */}
-          <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
-            <div className="flex items-center gap-1">
-              <FileText className="h-3 w-3" />
-              <span>{metrics.wordCount} words</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <BookOpen className="h-3 w-3" />
-              <span>{metrics.readingTime} min read</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
-              <span>Last edited {new Date(noteMetadata.lastEditedAt).toLocaleDateString()}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Content Area */}
-      <div className="flex-1 overflow-y-auto scroll-optimized">
-        <div className="max-w-5xl mx-auto px-6 py-6">
-          {/* Tags Section */}
+          {/* Tags Section - Compact & Modern */}
           <div className="mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              <Tag className="h-4 w-4 text-green-400" />
-              <span className="text-sm font-medium text-green-400">Tags</span>
-            </div>
-            
-            <div className="flex flex-wrap gap-2 mb-3">
+            <div className="flex flex-wrap items-center gap-2">
               {noteMetadata.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 px-3 py-1 bg-green-500/10 border border-green-500/30 rounded-full text-sm text-green-400"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full text-sm text-green-400 hover:bg-green-500/20 transition-colors group"
                 >
+                  <Tag className="h-3 w-3" />
                   {tag}
                   <button
                     onClick={() => handleRemoveTag(tag)}
-                    className="ml-1 hover:text-red-400 transition-colors"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-400"
                   >
-                    ×
+                    <X className="h-3 w-3" />
                   </button>
                 </span>
               ))}
-            </div>
-
-            <div className="flex gap-2">
-              <Input
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddTag();
-                  }
-                }}
-                placeholder="Add a tag..."
-                className="flex-1 h-9 bg-black/40 border-green-500/30 text-white placeholder:text-gray-500 text-performance"
-              />
-              <Button
-                onClick={handleAddTag}
-                variant="outline"
-                size="sm"
-                className="border-green-500/30 hover:bg-green-500/10 text-green-400"
-              >
-                Add
-              </Button>
+              
+              {/* Add tag inline */}
+              <div className="inline-flex items-center gap-2">
+                <Input
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddTag();
+                    }
+                  }}
+                  placeholder="Add tag..."
+                  className="h-8 w-32 bg-transparent border border-green-500/20 text-white placeholder:text-gray-600 text-sm focus:w-40 transition-all text-performance"
+                />
+                {newTag && (
+                  <Button
+                    onClick={handleAddTag}
+                    size="sm"
+                    className="h-8 w-8 p-0 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20"
+                  >
+                    <Plus className="h-4 w-4 text-green-400" />
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Note Content */}
-          <div className="mb-6">
+          {/* Note Content - Clean & Readable */}
+          <div className={cn(
+            "rounded-xl border transition-all",
+            currentColor.class,
+            "border-green-500/10 focus-within:border-green-500/30"
+          )}>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Start writing your note..."
-              className="w-full min-h-[600px] bg-transparent border border-green-500/20 rounded-lg px-4 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/30 resize-none font-mono text-sm leading-relaxed text-performance scroll-optimized"
+              className="w-full min-h-[calc(100vh-400px)] bg-transparent px-6 py-6 text-white placeholder:text-gray-600 focus:outline-none resize-none text-base leading-relaxed text-performance scroll-optimized"
               style={{
                 contain: 'layout style',
                 willChange: 'contents',
+                fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
               }}
             />
+          </div>
+
+          {/* Bottom Actions */}
+          <div className="mt-6 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-500">Color:</span>
+              {NOTE_COLORS.map((color) => (
+                <button
+                  key={color.name}
+                  onClick={() => handleChangeColor(color.value)}
+                  className={cn(
+                    "h-6 w-6 rounded-lg transition-all hover:scale-110",
+                    color.class,
+                    noteMetadata.color === color.value && `ring-2 ${color.ringClass}`
+                  )}
+                  title={color.name}
+                />
+              ))}
+            </div>
+            
+            <Button
+              onClick={handleDelete}
+              variant="ghost"
+              size="sm"
+              className="text-gray-500 hover:text-red-400 hover:bg-red-500/10"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Note
+            </Button>
           </div>
         </div>
       </div>

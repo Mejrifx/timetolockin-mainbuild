@@ -21,8 +21,7 @@ import {
   Calendar as CalendarIcon,
   DollarSign,
   Heart,
-  StickyNote,
-  Pin
+  StickyNote
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -246,15 +245,10 @@ const PageItem = memo(({
                 {page.title}
               </span>
               {page.pageType === 'note' && (
-                <div className="flex items-center gap-1 shrink-0">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-500/20 border border-blue-500/30 rounded-full text-xs text-blue-400">
-                    <StickyNote className="h-3 w-3" />
-                    Note
-                  </span>
-                  {page.noteMetadata?.isPinned && (
-                    <Pin className="h-3 w-3 text-yellow-400" />
-                  )}
-                </div>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-500/20 border border-blue-500/30 rounded-full text-xs text-blue-400 shrink-0">
+                  <StickyNote className="h-3 w-3" />
+                  Note
+                </span>
               )}
             </div>
           )}
