@@ -121,7 +121,7 @@ export const NotesEditor = ({ page, onUpdatePage, onDeletePage }: NotesEditorPro
   const metrics = calculateMetrics(content);
 
   return (
-    <div className="h-full flex flex-col bg-black performance-critical">
+    <div className="h-full flex flex-col performance-critical">
       {/* Modern, Clean Content Area */}
       <div className="flex-1 overflow-y-auto scroll-optimized">
         <div className="max-w-4xl mx-auto px-6 md:px-12 py-8">
@@ -132,7 +132,7 @@ export const NotesEditor = ({ page, onUpdatePage, onDeletePage }: NotesEditorPro
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Untitled note"
-              className="text-4xl font-bold bg-transparent border-none text-white placeholder:text-gray-600 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto py-0 text-performance mb-2"
+              className="text-4xl font-bold bg-transparent border-none text-white placeholder:text-gray-500 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto py-0 text-performance mb-2"
             />
             
             {/* Subtle metadata */}
@@ -205,21 +205,25 @@ export const NotesEditor = ({ page, onUpdatePage, onDeletePage }: NotesEditorPro
             </div>
           </div>
 
-          {/* Note Content - Clean & Readable */}
+          {/* Note Content - Lined Paper Effect */}
           <div className={cn(
-            "rounded-xl border transition-all",
-            currentColor.class,
-            "border-green-500/10 focus-within:border-green-500/30"
+            "rounded-xl border-2 border-green-500/30 shadow-xl overflow-hidden transition-all",
+            "bg-gradient-to-br from-green-950/30 to-green-900/20",
+            "focus-within:border-green-500/50 focus-within:shadow-2xl focus-within:shadow-green-500/20"
           )}>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Start writing your note..."
-              className="w-full min-h-[calc(100vh-400px)] bg-transparent px-6 py-6 text-white placeholder:text-gray-600 focus:outline-none resize-none text-base leading-relaxed text-performance scroll-optimized"
+              className="w-full min-h-[calc(100vh-400px)] bg-transparent px-8 py-6 text-white placeholder:text-gray-500 focus:outline-none resize-none text-base text-performance scroll-optimized"
               style={{
                 contain: 'layout style',
                 willChange: 'contents',
                 fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+                lineHeight: '2rem',
+                backgroundImage: 'repeating-linear-gradient(transparent, transparent 31px, rgba(34, 197, 94, 0.15) 31px, rgba(34, 197, 94, 0.15) 32px)',
+                backgroundSize: '100% 32px',
+                backgroundAttachment: 'local',
               }}
             />
           </div>
