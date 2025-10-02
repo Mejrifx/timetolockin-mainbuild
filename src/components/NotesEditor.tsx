@@ -215,15 +215,18 @@ export const NotesEditor = ({ page, onUpdatePage, onDeletePage }: NotesEditorPro
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Start writing your note..."
-              className="w-full min-h-[calc(100vh-400px)] bg-transparent px-8 py-6 text-white placeholder:text-gray-500 focus:outline-none resize-none text-base text-performance scroll-optimized"
+              className="w-full min-h-[calc(100vh-400px)] bg-transparent px-8 text-white placeholder:text-gray-500 focus:outline-none resize-none text-base text-performance scroll-optimized"
               style={{
                 contain: 'layout style',
                 willChange: 'contents',
                 fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-                lineHeight: '2rem',
+                lineHeight: '32px',
+                paddingTop: '22px',
+                paddingBottom: '22px',
                 backgroundImage: 'repeating-linear-gradient(transparent, transparent 31px, rgba(34, 197, 94, 0.15) 31px, rgba(34, 197, 94, 0.15) 32px)',
                 backgroundSize: '100% 32px',
                 backgroundAttachment: 'local',
+                backgroundPositionY: '22px',
               }}
             />
           </div>
