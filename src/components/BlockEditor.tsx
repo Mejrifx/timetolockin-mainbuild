@@ -352,7 +352,7 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
       ref={setNodeRef}
       style={style}
       className={cn(
-        "group relative rounded-lg transition-all duration-200",
+        "group relative transition-all duration-200 m-0",
         isDragging && "opacity-50 z-50"
       )}
     >
