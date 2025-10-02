@@ -191,7 +191,7 @@ export const NotesEditor = ({ page, onUpdatePage, onDeletePage }: NotesEditorPro
                     }
                   }}
                   placeholder="Add tag..."
-                  className="h-8 w-32 bg-transparent border border-green-500/20 text-white placeholder:text-gray-600 text-sm focus:w-40 transition-all text-performance"
+                  className="h-8 w-32 bg-transparent border border-green-500/20 text-white placeholder:text-gray-400 text-sm focus:w-40 transition-all text-performance"
                 />
                 {newTag && (
                   <Button
@@ -235,7 +235,7 @@ export const NotesEditor = ({ page, onUpdatePage, onDeletePage }: NotesEditorPro
           {/* Bottom Actions */}
           <div className="mt-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500">Color:</span>
+              <span className="text-xs text-white">Color:</span>
               {NOTE_COLORS.map((color) => (
                 <button
                   key={color.name}
@@ -254,7 +254,7 @@ export const NotesEditor = ({ page, onUpdatePage, onDeletePage }: NotesEditorPro
               onClick={handleDelete}
               variant="ghost"
               size="sm"
-              className="text-gray-500 hover:text-red-400 hover:bg-red-500/10"
+              className="text-white hover:text-red-400 hover:bg-red-500/10"
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Delete Note
