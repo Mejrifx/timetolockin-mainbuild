@@ -71,7 +71,7 @@ export const Editor = ({ page, onUpdatePage }: EditorProps) => {
             <div className="group relative rounded-lg transition-all duration-200">
               <div className="flex items-start gap-1">
                 {/* Empty space for controls alignment */}
-                <div className="w-8 shrink-0"></div>
+                <div className="w-7 shrink-0"></div>
                 {/* Title content */}
                 <div className="flex-1 border border-transparent hover:border-green-500/20 rounded-lg transition-all duration-200">
                   <Input
