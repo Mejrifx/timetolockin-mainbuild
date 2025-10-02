@@ -68,14 +68,18 @@ export const Editor = ({ page, onUpdatePage }: EditorProps) => {
         <div className="max-w-5xl mx-auto px-12 py-12">
           <div className="space-y-8">
             {/* Title */}
-            <Input
-              ref={titleRef}
-              value={title}
-              onChange={(e) => handleTitleChange(e.target.value)}
-              onKeyDown={handleTitleKeyDown}
-              placeholder="Untitled"
-              className="text-5xl font-bold p-4 bg-black/20 backdrop-blur-xl focus-visible:ring-0 placeholder:text-gray-500 text-white h-auto leading-tight shadow-sm border border-green-500/20 rounded-lg w-full"
-            />
+            <div className="group relative rounded-lg hover:bg-black/10 transition-all duration-300 backdrop-blur-sm">
+              <div className="border border-transparent hover:border-green-500/20 rounded-lg transition-all duration-300">
+                <Input
+                  ref={titleRef}
+                  value={title}
+                  onChange={(e) => handleTitleChange(e.target.value)}
+                  onKeyDown={handleTitleKeyDown}
+                  placeholder="Untitled"
+                  className="text-5xl font-bold p-4 bg-black/20 backdrop-blur-xl focus-visible:ring-0 placeholder:text-gray-500 text-white h-auto leading-tight shadow-sm border border-green-500/20 rounded-lg w-full"
+                />
+              </div>
+            </div>
 
             {/* Block Editor */}
             <BlockEditor
