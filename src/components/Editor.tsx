@@ -65,8 +65,8 @@ export const Editor = ({ page, onUpdatePage }: EditorProps) => {
   return (
     <div className="flex-1 flex flex-col h-full bg-black/10">
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-5xl mx-auto px-12 py-12">
-          <div className="space-y-8 pl-16">
+        <div className="max-w-5xl mx-auto px-28 py-12">
+          <div className="space-y-8">
             {/* Title */}
             <div className="group relative rounded-lg transition-all duration-200">
               <div className="border border-transparent hover:border-green-500/20 rounded-lg transition-all duration-200">
