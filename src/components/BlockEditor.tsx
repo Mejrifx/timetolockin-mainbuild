@@ -421,7 +421,10 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
             variant="ghost"
             size="sm"
             className="h-7 w-7 p-0 bg-black/60 border border-green-500/30 hover:bg-red-500/30 hover:border-red-500/50 backdrop-blur-xl text-white hover:scale-105 transition-all duration-200"
-            onClick={() => onDelete(block.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(block.id);
+            }}
             title="Delete block"
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -431,10 +434,10 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
         {/* Block content */}
         <div 
           className={cn(
-            "flex-1 border rounded-lg transition-all duration-200 cursor-text",
+            "flex-1 transition-all duration-200 cursor-text",
             isActive 
-              ? "border-green-500/40 shadow-lg shadow-green-500/10" 
-              : "border-transparent hover:border-green-500/20"
+              ? "border border-green-500/40 rounded-lg shadow-lg shadow-green-500/10" 
+              : "border border-transparent hover:border-green-500/20 rounded-lg"
           )}
           onClick={() => setIsActive(true)}
           onFocus={() => setIsActive(true)}
