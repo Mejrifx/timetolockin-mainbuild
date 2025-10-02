@@ -71,7 +71,6 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
     transition,
   };
 
-  const [isHovered, setIsHovered] = useState(false);
   const [localContent, setLocalContent] = useState(block.content);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -352,86 +351,82 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
       ref={setNodeRef}
       style={style}
       className={cn(
-        "group relative rounded-lg hover:bg-black/10 transition-all duration-300 backdrop-blur-sm",
+        "group relative rounded-lg transition-all duration-200",
         isDragging && "opacity-50 z-50"
       )}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Block controls - positioned to the left without overlapping */}
-      <div className={cn(
-        "absolute left-0 top-4 flex flex-col gap-1 transition-all duration-300 z-10",
-        isHovered ? "opacity-100 scale-100" : "opacity-0 scale-95",
-        "-ml-16" // Position outside the block content
-      )}>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0 bg-black/60 border border-green-500/30 shadow-lg hover:bg-black/80 backdrop-blur-xl text-white hover:scale-110 transition-all duration-200 cursor-grab active:cursor-grabbing"
-          title="Drag to reorder"
-          {...attributes}
-          {...listeners}
-        >
-          <GripVertical className="h-4 w-4" />
-        </Button>
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 bg-black/60 border border-green-500/30 shadow-lg hover:bg-black/80 backdrop-blur-xl text-white hover:scale-110 transition-all duration-200"
-              title="Add block below"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" side="right" className="bg-black/90 backdrop-blur-xl border-green-500/30 shadow-xl">
-            <DropdownMenuItem onClick={() => onAddBlock(block.id, 'text')} className="hover:bg-green-500/10 text-white">
-              <Type className="h-4 w-4 mr-2" />
-              Text
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onAddBlock(block.id, 'header')} className="hover:bg-green-500/10 text-white">
-              <Heading1 className="h-4 w-4 mr-2" />
-              Heading 1
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onAddBlock(block.id, 'header')} className="hover:bg-green-500/10 text-white">
-              <Heading2 className="h-4 w-4 mr-2" />
-              Heading 2
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onAddBlock(block.id, 'header')} className="hover:bg-green-500/10 text-white">
-              <Heading3 className="h-4 w-4 mr-2" />
-              Heading 3
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onAddBlock(block.id, 'image')} className="hover:bg-green-500/10 text-white">
-              <Image className="h-4 w-4 mr-2" />
-              Image
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onAddBlock(block.id, 'video')} className="hover:bg-green-500/10 text-white">
-              <Video className="h-4 w-4 mr-2" />
-              Video
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onAddBlock(block.id, 'table')} className="hover:bg-green-500/10 text-white">
-              <Table className="h-4 w-4 mr-2" />
-              Table
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0 bg-black/60 border border-green-500/30 shadow-lg hover:bg-red-500/80 hover:text-white backdrop-blur-xl text-white hover:scale-110 transition-all duration-200"
-          onClick={() => onDelete(block.id)}
-          title="Delete block"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
+      <div className="flex items-start gap-2">
+        {/* Block content */}
+        <div className="flex-1 border border-transparent hover:border-green-500/20 rounded-lg transition-all duration-200">
+          {renderBlock()}
+        </div>
 
-      {/* Block content */}
-      <div className="border border-transparent hover:border-green-500/20 rounded-lg transition-all duration-300">
-        {renderBlock()}
+        {/* Block controls - always visible on the right side */}
+        <div className="flex flex-col gap-1.5 pt-4 shrink-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0 bg-black/40 border border-green-500/20 hover:bg-black/60 hover:border-green-500/40 backdrop-blur-xl text-gray-400 hover:text-white transition-all duration-200 cursor-grab active:cursor-grabbing"
+            title="Drag to reorder"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className="h-3.5 w-3.5" />
+          </Button>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 bg-black/40 border border-green-500/20 hover:bg-green-500/20 hover:border-green-500/40 backdrop-blur-xl text-gray-400 hover:text-green-400 transition-all duration-200"
+                title="Add block below"
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" side="right" className="bg-black/90 backdrop-blur-xl border-green-500/30 shadow-xl">
+              <DropdownMenuItem onClick={() => onAddBlock(block.id, 'text')} className="hover:bg-green-500/10 text-white cursor-pointer">
+                <Type className="h-4 w-4 mr-2" />
+                Text
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onAddBlock(block.id, 'header')} className="hover:bg-green-500/10 text-white cursor-pointer">
+                <Heading1 className="h-4 w-4 mr-2" />
+                Heading 1
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onAddBlock(block.id, 'header')} className="hover:bg-green-500/10 text-white cursor-pointer">
+                <Heading2 className="h-4 w-4 mr-2" />
+                Heading 2
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onAddBlock(block.id, 'header')} className="hover:bg-green-500/10 text-white cursor-pointer">
+                <Heading3 className="h-4 w-4 mr-2" />
+                Heading 3
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onAddBlock(block.id, 'image')} className="hover:bg-green-500/10 text-white cursor-pointer">
+                <Image className="h-4 w-4 mr-2" />
+                Image
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onAddBlock(block.id, 'video')} className="hover:bg-green-500/10 text-white cursor-pointer">
+                <Video className="h-4 w-4 mr-2" />
+                Video
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onAddBlock(block.id, 'table')} className="hover:bg-green-500/10 text-white cursor-pointer">
+                <Table className="h-4 w-4 mr-2" />
+                Table
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0 bg-black/40 border border-green-500/20 hover:bg-red-500/20 hover:border-red-500/40 backdrop-blur-xl text-gray-400 hover:text-red-400 transition-all duration-200"
+            onClick={() => onDelete(block.id)}
+            title="Delete block"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
       </div>
     </div>
   );
