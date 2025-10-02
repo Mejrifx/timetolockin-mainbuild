@@ -178,17 +178,19 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
         const headerClass = headerClasses[headerLevel as number] || 'text-xl font-medium';
 
         return (
-          <Input
-            value={localContent}
-            onChange={(e) => handleContentChange(e.target.value)}
-            placeholder={`Heading ${headerLevel}`}
-            className={cn(
-              "border-0 p-4 bg-black/20 backdrop-blur-xl focus-visible:ring-0 w-full text-white placeholder:text-gray-400 focus:bg-black/30 transition-all duration-300 shadow-sm border border-green-500/20 rounded-lg h-auto m-0 overflow-hidden",
-              headerClass
-            )}
-            data-block-id={block.id}
-            style={{ height: 'auto' }}
-          />
+          <div className="p-4 bg-black/20 backdrop-blur-xl rounded-lg border border-green-500/20 shadow-sm">
+            <Input
+              value={localContent}
+              onChange={(e) => handleContentChange(e.target.value)}
+              placeholder={`Heading ${headerLevel}`}
+              className={cn(
+                "border-0 p-0 bg-transparent focus-visible:ring-0 w-full text-white placeholder:text-gray-400 focus:bg-transparent transition-all duration-300 h-auto m-0 overflow-hidden",
+                headerClass
+              )}
+              data-block-id={block.id}
+              style={{ height: 'auto' }}
+            />
+          </div>
         );
 
       case 'image':
