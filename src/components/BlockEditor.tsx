@@ -356,31 +356,11 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
         isDragging && "opacity-50 z-50"
       )}
     >
-      <div className="flex items-start gap-2">
-        {/* Block content */}
-        <div 
-          className={cn(
-            "flex-1 border rounded-lg transition-all duration-200 cursor-text",
-            isActive 
-              ? "border-green-500/40 shadow-lg shadow-green-500/10" 
-              : "border-transparent hover:border-green-500/20"
-          )}
-          onClick={() => setIsActive(true)}
-          onFocus={() => setIsActive(true)}
-          onBlur={(e) => {
-            // Only deactivate if clicking outside the entire block
-            if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-              setIsActive(false);
-            }
-          }}
-        >
-          {renderBlock()}
-        </div>
-
+      <div className="flex items-start gap-1">
         {/* Block controls - visible when block is active (clicked/focused) */}
         <div className={cn(
           "flex flex-col gap-1.5 pt-4 shrink-0 transition-all duration-200",
-          isActive ? "opacity-100 translate-x-0" : "opacity-0 translate-x-2 pointer-events-none"
+          isActive ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2 pointer-events-none"
         )}>
           <Button
             variant="ghost"
@@ -445,6 +425,26 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
           >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
+        </div>
+
+        {/* Block content */}
+        <div 
+          className={cn(
+            "flex-1 border rounded-lg transition-all duration-200 cursor-text",
+            isActive 
+              ? "border-green-500/40 shadow-lg shadow-green-500/10" 
+              : "border-transparent hover:border-green-500/20"
+          )}
+          onClick={() => setIsActive(true)}
+          onFocus={() => setIsActive(true)}
+          onBlur={(e) => {
+            // Only deactivate if clicking outside the entire block
+            if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+              setIsActive(false);
+            }
+          }}
+        >
+          {renderBlock()}
         </div>
       </div>
     </div>
