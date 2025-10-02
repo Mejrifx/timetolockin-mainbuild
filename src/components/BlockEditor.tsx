@@ -580,7 +580,7 @@ export const BlockEditor = ({ blocks, onUpdateBlocks }: BlockEditorProps) => {
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <div className="space-y-1 pl-16">
+      <div className="space-y-0 pl-16">
         <SortableContext items={sortedBlocks.map(block => block.id)} strategy={verticalListSortingStrategy}>
           {sortedBlocks.map(block => (
             <SortableBlockComponent

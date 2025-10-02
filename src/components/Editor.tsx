@@ -68,7 +68,7 @@ export const Editor = ({ page, onUpdatePage }: EditorProps) => {
         <div className="max-w-5xl mx-auto px-12 py-12">
           <div className="space-y-8">
             {/* Title */}
-            <div className="group relative rounded-lg transition-all duration-200">
+            <div className="group relative rounded-lg transition-all duration-200 ml-16">
               <div className="border border-transparent hover:border-green-500/20 rounded-lg transition-all duration-200">
                 <Input
                   ref={titleRef}
