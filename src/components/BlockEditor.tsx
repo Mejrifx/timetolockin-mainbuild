@@ -359,7 +359,7 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
         isDragging && "opacity-50 z-50"
       )}
     >
-      <div className="flex items-start gap-1">
+      <div className="flex items-start">
         {/* Block controls - visible when block is active (clicked/focused) */}
         <div className={cn(
           "flex flex-col gap-1.5 shrink-0 transition-all duration-200",
