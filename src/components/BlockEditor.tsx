@@ -72,6 +72,7 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
   };
 
   const [localContent, setLocalContent] = useState(block.content);
+  const [isActive, setIsActive] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -357,16 +358,34 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
     >
       <div className="flex items-start gap-2">
         {/* Block content */}
-        <div className="flex-1 border border-transparent hover:border-green-500/20 rounded-lg transition-all duration-200">
+        <div 
+          className={cn(
+            "flex-1 border rounded-lg transition-all duration-200 cursor-text",
+            isActive 
+              ? "border-green-500/40 shadow-lg shadow-green-500/10" 
+              : "border-transparent hover:border-green-500/20"
+          )}
+          onClick={() => setIsActive(true)}
+          onFocus={() => setIsActive(true)}
+          onBlur={(e) => {
+            // Only deactivate if clicking outside the entire block
+            if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+              setIsActive(false);
+            }
+          }}
+        >
           {renderBlock()}
         </div>
 
-        {/* Block controls - always visible on the right side */}
-        <div className="flex flex-col gap-1.5 pt-4 shrink-0">
+        {/* Block controls - visible when block is active (clicked/focused) */}
+        <div className={cn(
+          "flex flex-col gap-1.5 pt-4 shrink-0 transition-all duration-200",
+          isActive ? "opacity-100 translate-x-0" : "opacity-0 translate-x-2 pointer-events-none"
+        )}>
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-7 p-0 bg-black/40 border border-green-500/20 hover:bg-black/60 hover:border-green-500/40 backdrop-blur-xl text-gray-400 hover:text-white transition-all duration-200 cursor-grab active:cursor-grabbing"
+            className="h-7 w-7 p-0 bg-black/60 border border-green-500/30 hover:bg-black/80 hover:border-green-500/50 backdrop-blur-xl text-white hover:scale-105 transition-all duration-200 cursor-grab active:cursor-grabbing"
             title="Drag to reorder"
             {...attributes}
             {...listeners}
@@ -379,7 +398,7 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-7 w-7 p-0 bg-black/40 border border-green-500/20 hover:bg-green-500/20 hover:border-green-500/40 backdrop-blur-xl text-gray-400 hover:text-green-400 transition-all duration-200"
+                className="h-7 w-7 p-0 bg-black/60 border border-green-500/30 hover:bg-green-500/30 hover:border-green-500/50 backdrop-blur-xl text-white hover:scale-105 transition-all duration-200"
                 title="Add block below"
               >
                 <Plus className="h-3.5 w-3.5" />
@@ -420,7 +439,7 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-7 p-0 bg-black/40 border border-green-500/20 hover:bg-red-500/20 hover:border-red-500/40 backdrop-blur-xl text-gray-400 hover:text-red-400 transition-all duration-200"
+            className="h-7 w-7 p-0 bg-black/60 border border-green-500/30 hover:bg-red-500/30 hover:border-red-500/50 backdrop-blur-xl text-white hover:scale-105 transition-all duration-200"
             onClick={() => onDelete(block.id)}
             title="Delete block"
           >
