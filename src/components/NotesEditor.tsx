@@ -133,6 +133,7 @@ export const NotesEditor = ({ page, onUpdatePage, onDeletePage }: NotesEditorPro
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Untitled note"
               className="text-4xl font-bold bg-transparent border-none text-white placeholder:text-gray-500 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto py-0 text-performance mb-2"
+              style={{ color: 'white' }}
             />
             
             {/* Subtle metadata */}
