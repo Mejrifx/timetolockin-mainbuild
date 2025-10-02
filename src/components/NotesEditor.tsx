@@ -192,6 +192,7 @@ export const NotesEditor = ({ page, onUpdatePage, onDeletePage }: NotesEditorPro
                   }}
                   placeholder="Add tag..."
                   className="h-8 w-32 bg-transparent border border-green-500/20 text-white placeholder:text-gray-400 text-sm focus:w-40 transition-all text-performance"
+                  style={{ color: 'white' }}
                 />
                 {newTag && (
                   <Button
