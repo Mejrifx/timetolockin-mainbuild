@@ -74,7 +74,7 @@ export const Editor = ({ page, onUpdatePage }: EditorProps) => {
               onChange={(e) => handleTitleChange(e.target.value)}
               onKeyDown={handleTitleKeyDown}
               placeholder="Untitled"
-              className="text-5xl font-bold border-0 p-0 bg-transparent focus-visible:ring-0 placeholder:text-gray-500 text-white h-auto leading-tight"
+              className="text-5xl font-bold border-0 p-4 bg-transparent focus-visible:ring-0 placeholder:text-gray-500 text-white h-auto leading-tight"
             />
 
             {/* Block Editor */}
