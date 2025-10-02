@@ -433,7 +433,7 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
         {/* Block content */}
         <div 
           className={cn(
-            "flex-1 border rounded-lg transition-all duration-200 cursor-text",
+            "flex-1 border transition-all duration-200 cursor-text",
             isActive 
               ? "border-green-500/40 shadow-lg shadow-green-500/10" 
               : "border-transparent hover:border-green-500/20"
