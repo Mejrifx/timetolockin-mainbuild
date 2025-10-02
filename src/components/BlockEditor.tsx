@@ -183,7 +183,7 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
             onChange={(e) => handleContentChange(e.target.value)}
             placeholder={`Heading ${headerLevel}`}
             className={cn(
-              "p-4 bg-black/20 backdrop-blur-xl resize-none focus-visible:ring-0 w-full text-white placeholder:text-gray-400 focus:bg-black/30 transition-all duration-300 shadow-sm border border-green-500/20 rounded-lg overflow-hidden min-h-0",
+              "p-4 bg-black/20 backdrop-blur-xl resize-none focus-visible:ring-0 w-full text-white placeholder:text-gray-400 focus:bg-black/30 transition-all duration-300 shadow-sm border border-green-500/20 rounded-lg overflow-hidden min-h-0 -mb-2",
               headerClass
             )}
             data-block-id={block.id}
