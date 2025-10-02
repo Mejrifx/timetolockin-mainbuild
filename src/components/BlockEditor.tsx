@@ -362,7 +362,7 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
       <div className="flex items-start gap-1">
         {/* Block controls - visible when block is active (clicked/focused) */}
         <div className={cn(
-          "flex flex-col gap-1.5 pt-4 shrink-0 transition-all duration-200",
+          "flex flex-col gap-1.5 shrink-0 transition-all duration-200",
           isActive ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2 pointer-events-none"
         )}>
           <Button
@@ -433,7 +433,7 @@ const SortableBlockComponent = ({ block, onUpdate, onDelete, onAddBlock }: Block
         {/* Block content */}
         <div 
           className={cn(
-            "flex-1 border transition-all duration-200 cursor-text",
+            "flex-1 border rounded-lg transition-all duration-200 cursor-text",
             isActive 
               ? "border-green-500/40 shadow-lg shadow-green-500/10" 
               : "border-transparent hover:border-green-500/20"
