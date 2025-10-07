@@ -105,7 +105,7 @@ const HeaderComponent = ({
               src="/timetolockin-logo-FINAl.svg" 
               alt="timetolockin" 
               priority={true}
-              className="h-12 w-auto object-contain hover-optimized drop-shadow-lg"
+              className="h-12 w-auto object-contain drop-shadow-lg"
             />
           </div>
         </div>
