@@ -82,7 +82,7 @@ export const AuthForm = ({ mode, onToggleMode }: AuthFormProps) => {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <img 
-              src="/timetolockin MAIN LOGO NEW.png" 
+              src="/timetolockin-logo-FINAl.png" 
               alt="timetolockin Logo" 
               className="h-14 w-auto object-contain"
             />
