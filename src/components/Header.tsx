@@ -102,7 +102,7 @@ const HeaderComponent = ({
           
           <div className="flex items-center ml-8">
             <OptimizedImage 
-              src="/timetolockin-logo-FINAl.png" 
+              src="/timetolockin-logo-FINAl.svg" 
               alt="timetolockin" 
               priority={true}
               className="h-12 w-auto object-contain hover-optimized drop-shadow-lg"
